@@ -1,0 +1,14 @@
+{
+  "name": "fountain-tools",
+  "version": "0.0.1",
+  "description": "Multi-language utils for the Fountain scriptwriting format.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:all",
+    "test:js": "cd javascript && npm test",
+    "test:all": "npm run test:js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
