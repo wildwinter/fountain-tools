@@ -11,7 +11,6 @@ describe('Test Function', () => {
     let fp = new FountainParser();
     let script = fp.parse(fileContent);
     script.dump();
-
 //    assert.strictEqual(sum(1, 2), 3);
   });
 });

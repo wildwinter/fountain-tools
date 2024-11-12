@@ -105,10 +105,26 @@ export class FountainScript {
     }
 }
 
+export class FountainChunk {
+    constructor() {
+        this.text = "";
+        this.bold = false;
+        this.italic = false;
+        this.underline = false;
+    }
+
+    copy() {
+        let chunk = new FountainChunk();
+        chunk.bold = this.bold;
+        chunk.italic = this.italic;
+        chunk.underline = this.underline;
+        return chunk;
+    }
+}
+
 export class FountainParser {
 
     constructor() {
-        this.lineNum = 0;
     }
 
     // Expects UTF-8 text
@@ -224,4 +240,70 @@ export class FountainParser {
         return script;
     }
 
+    // Take a single line, split it into bold / italic / underlined chunks
+    splitToChunks(line) {
+
+        let chunk = new FountainChunk();
+        let chunks = [chunk];
+        let isEscaped = false;
+        let stars = "";
+
+        for (const c of line) {
+
+            if (isEscaped) {
+                isEscaped = false;
+                chunk.text+=c;
+                continue;
+            }
+
+            if (stars!="" && c!=stars[0]) {
+
+                let newChunk = chunk;
+                if (chunk.text!="") {
+                    newChunk = chunk.copy();
+                    chunks.push(newChunk);
+                }
+                if (stars=="***") {
+                    newChunk.bold = !chunk.bold;
+                    newChunk.italic = !chunk.italic;
+                } else if (stars=="**") {
+                    newChunk.bold = !chunk.bold;
+                } else if (stars=="*") {
+                    newChunk.italic = !chunk.italic;
+                }
+                chunk = newChunk;
+                stars = ""
+            }
+
+            if (c=='\\') {
+                isEscaped = true;
+                continue;
+            }
+                                                                                        
+            if (c=='_') {
+                let newChunk = chunk;
+                if (chunk.text!="") {
+                    newChunk = chunk.copy();
+                    chunks.push(newChunk);
+                }
+                newChunk.underline = !chunk.underline;
+                chunk = newChunk
+                continue
+            }
+
+            if (c=='*') {
+                stars+=c;
+                continue;
+            }
+                        
+            chunk.text+=c;
+        }
+
+        // Remove the last item if it's empty
+        if (chunk.text=="") {
+            chunks.pop();
+        }
+
+        return chunks;
+    }
 }

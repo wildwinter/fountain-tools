@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "chai": "^5.1.2",
