@@ -90,9 +90,14 @@ export class FountainScript {
     
     constructor() {
         this.elements = []; 
+        this.headers = [];
     }
 
     dump() {
+        for (const header of this.headers) {
+            console.log(`${header.key}:${header.text}`);
+        }
+        return;
         for (const element of this.elements) {
             console.log(`${element}`);
         }
@@ -122,6 +127,9 @@ export class FountainChunk {
     }
 }
 
+const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
+const regexTitleMultilineEntry = /^( {3,}|\t)/;
+
 export class FountainParser {
 
     constructor() {
@@ -140,10 +148,38 @@ export class FountainParser {
     parseLines(lines) {
 
         let elements = [];
+        let headers = [];
+
+        let inTitlePage = true;
+        let multiLineHeader = false;
 
         for (let i = 0; i < lines.length; i++) {
 
             let line = lines[i];
+
+            // TITLE PAGE
+            if (inTitlePage) {
+
+                const match = line.match(regexTitleEntry);
+                if (match) {
+                    let text = match[2];
+                    headers.push({key:match[1], text}); 
+                    multiLineHeader=(text.length==0);
+                    continue;
+                } else if (multiLineHeader) {
+                    if (regexTitleMultilineEntry.test(line)) {
+                        let text = line.trim();
+                        let header = headers[headers.length-1];
+                        if (header.text.length>0) {
+                            header.text += "\n";
+                        }
+                        header.text += text;
+                        continue;
+                    }
+                }
+                inTitlePage = false;
+            }
+
             line = line.replace(regexCont, "");
             let lineTrim = line.trim();
             let lastElem = null;
@@ -236,6 +272,8 @@ export class FountainParser {
                 continue;
             script.elements.push(element);
         }
+
+        script.headers = headers;
 
         return script;
     }
