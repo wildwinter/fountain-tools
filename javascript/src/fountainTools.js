@@ -5,7 +5,8 @@ const Element = Object.freeze({
     DIALOGUE: 'DIALOGUE',
     PARENTHESIS: 'PARENTHESIS',
     LYRIC: "LYRIC",
-    TRANSITION: "TRANSITION"
+    TRANSITION: "TRANSITION",
+    PAGEBREAK: "PAGEBREAK"
 });
 
 const regexEmpty = /^\s*$/;
@@ -29,7 +30,7 @@ export class FountainAction extends FountainElement {
     }
 }
 
-const regexHeading = /^\s*(INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s)/;
+const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/;
 
 export class FountainHeading extends FountainElement {
     constructor(text) {
@@ -86,6 +87,12 @@ export class FountainTransition extends FountainElement {
     }
 }
 
+export class FountainPageBreak extends FountainElement {
+    constructor() {
+        super(Element.PAGEBREAK, "===");
+    }
+}
+
 export class FountainScript {
     
     constructor() {
@@ -97,9 +104,12 @@ export class FountainScript {
         for (const header of this.headers) {
             console.log(`${header.key}:${header.text}`);
         }
-        return;
+        let i=0;
         for (const element of this.elements) {
             console.log(`${element}`);
+            i++;
+            if (i>20)
+                break;
         }
     }
 
@@ -129,6 +139,7 @@ export class FountainChunk {
 
 const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
 const regexTitleMultilineEntry = /^( {3,}|\t)/;
+const regexPageBreak = /^={3,}\s*$/;
 
 export class FountainParser {
 
@@ -180,12 +191,19 @@ export class FountainParser {
                 inTitlePage = false;
             }
 
-            line = line.replace(regexCont, "");
             let lineTrim = line.trim();
             let lastElem = null;
             if (elements.length>0)
                 lastElem = elements[elements.length-1];
 
+            // PAGE BREAK
+            if (regexPageBreak.test(lineTrim)) {
+                elements.push(new FountainPageBreak());
+                console.log(elements); 
+                continue;
+            }
+
+            // LYRICS
             if (lineTrim.startsWith('~')) {
                 elements.push(new FountainLyric(lineTrim.slice(1)));
                 continue;
@@ -223,7 +241,8 @@ export class FountainParser {
             }
 
             // CHARACTER
-            let match = regexCharacter.exec(line);
+            let lineCharacter = line.replace(regexCont, "");
+            let match = regexCharacter.exec(lineCharacter);
             if (match) {
                 if ( 
                     (i==0 || regexEmpty.test(lines[i-1]))   
@@ -231,7 +250,7 @@ export class FountainParser {
                 ) {
                     const characterName = match[1].replace(/^@/, '');
                     const characterExtension = match[2] || null;
-                    elements.push(new FountainCharacter(lineTrim, characterName, characterExtension));
+                    elements.push(new FountainCharacter(lineCharacter.trim(), characterName, characterExtension));
                     continue;
                 }
             }
