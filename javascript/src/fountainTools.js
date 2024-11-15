@@ -6,7 +6,8 @@ const Element = Object.freeze({
     PARENTHESIS: 'PARENTHESIS',
     LYRIC: "LYRIC",
     TRANSITION: "TRANSITION",
-    PAGEBREAK: "PAGEBREAK"
+    PAGEBREAK: "PAGEBREAK",
+    NOTES: "NOTES"
 });
 
 const regexEmpty = /^\s*$/;
@@ -14,8 +15,9 @@ const regexCont = /\(\s*CONT[’']D\s*\)/g;
 
 export class FountainElement {
     constructor(type, text) {
-        this.type = type
-        this.text = text
+        this.type = type;
+        this.text = text;
+        this.comment = false;
     }
 
     toString() {
@@ -93,6 +95,13 @@ export class FountainPageBreak extends FountainElement {
     }
 }
 
+export class FountainNotes extends FountainElement {
+    constructor(text) {
+        super(Element.NOTES, text);
+        this.comment = true;
+    }
+}
+
 export class FountainScript {
     
     constructor() {
@@ -163,10 +172,36 @@ export class FountainParser {
 
         let inTitlePage = true;
         let multiLineHeader = false;
+        let lineBeforeNotes = "";
+        let inNotes = false;
+        let notes = "";
 
         for (let i = 0; i < lines.length; i++) {
 
             let line = lines[i];
+
+            if (inNotes) {
+                let notesIdx = line.indexOf("]]");
+                if (notesIdx>-1) {
+                    notes+= "\n+" + line.slice(0, notesIdx);
+                    elements.push(new FountainNotes(notes));
+                    line = lineBeforeNotes+line.slice(notesIdx+2);
+                    inNotes = false;
+                }
+                else {
+                    notes+="\n"+line;
+                    continue;
+                }
+            } else {
+                let notesIdx = line.indexOf("[[");
+                if (notesIdx>-1) {
+                    lineBeforeNotes = line.slice(0, notesIdx);
+                    notes = line.slice(notesIdx+2);
+                    inNotes = true;
+                    continue;
+                } 
+            }
+
 
             // TITLE PAGE
             if (inTitlePage) {
@@ -199,7 +234,6 @@ export class FountainParser {
             // PAGE BREAK
             if (regexPageBreak.test(lineTrim)) {
                 elements.push(new FountainPageBreak());
-                console.log(elements); 
                 continue;
             }
 
