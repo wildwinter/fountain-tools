@@ -129,6 +129,8 @@ export class FountainScript {
     }
 }
 
+// Use FormatParser.splitToFormatChunks on any piece of text to get an array of format chunks 
+// e.g. from **BOLD** *ITALIC* ***BOLDITALIC*** _UNDERLINE_
 export class FountainChunk {
     constructor() {
         this.text = "";
@@ -152,9 +154,8 @@ const regexPageBreak = /^={3,}\s*$/;
 
 export class FountainParser {
 
-    constructor() {
+    constructor() {        
         this._script = new FountainScript();
-
         this._inTitlePage = true;
         this._multiLineHeader = false;
         this._lineBeforeNotes = "";
@@ -266,14 +267,24 @@ export class FountainParser {
     // Adds a new element or merges with existing element
     _addElement(elem) {
 
+        let lastElem = this._getLastElem();
+
         // Merge actions
-        if (elem.type == Element.ACTION && !elem.centered) {
-            let lastElem = this._getLastElem();
+        if (elem.type == Element.ACTION && !elem.centered) {    
             if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
                 lastElem.text+="\n"+elem.text;
                 return;
             }
         }
+
+        if (elem.type == Element.ACTION && elem.text.trim()=="")
+            return;
+
+        // Trim blank lines from the previous action
+        if (lastElem && lastElem.type == Element.ACTION && elem.type!=Element.ACTION) {
+            lastElem.text = lastElem.text.trimEnd();
+        }
+
         this._script.elements.push(elem);
 
     }
