@@ -165,6 +165,7 @@ export class FountainParser {
         this._lineEmpty = false;
     }
 
+    // Returns FountainScript
     getScript() {
         return this._script;
     }
@@ -204,7 +205,7 @@ export class FountainParser {
             // Check for end of note content
             let notesIdx = line.indexOf("]]");
             if (notesIdx>-1) {
-                this._notes+= "\n+" + line.slice(0, notesIdx);
+                this._notes+= "\n" + line.slice(0, notesIdx);
                 this._script.elements.push(new FountainNotes(this._notes));
                 line = this._lineBeforeNotes+line.slice(notesIdx+2);
                 this._lineBeforeNotes = "";
@@ -253,21 +254,6 @@ export class FountainParser {
             return;
 
         this._parseAction(line, lineTrim);
-
-        /*
-
-        let script = new FountainScript();
-
-        for (const element of elements) {
-            element.text = element.text.trim();
-            if (element.text=="")
-                continue;
-            script.elements.push(element);
-        }
-
-        script.headers = headers;
-
-        return script;*/
     }
 
     _getLastElem() {
@@ -466,7 +452,7 @@ export class FountainParser {
     }
 
     // Take a single line, split it into bold / italic / underlined chunks
-    splitToChunks(line) {
+    splitToFormatChunks(line) {
 
         let chunk = new FountainChunk();
         let chunks = [chunk];
