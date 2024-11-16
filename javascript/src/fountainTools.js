@@ -613,6 +613,16 @@ export class FountainParser {
     // Returns null if there is no content to continue parsing
     _parseBoneyard() {
 
+        // Deal with any in-line boneyards
+        const regexInline = /^(.*?)\/\*(.*?)\*\/(.*)$/;
+        let match = this._line.match(regexInline);
+        while (match) {
+            let boneyardText = match[2];
+            this._addElement(new FountainBoneyard(boneyardText));
+            this._line = match[1] + match[3];
+            match = this._line.match(regexInline);
+        }
+
         // If not in boneyard, check for boneyard content
         if (!this._boneyard) {
 
@@ -645,6 +655,16 @@ export class FountainParser {
     // Returns null if there is no content to continue parsing
     _parseNotes() {
 
+        // Deal with any in-line notes
+        const regexInline = /^(.*?)\[\[(.*?)\]\](.*)$/;
+        let match = this._line.match(regexInline);
+        while (match) {
+            let noteText = match[2];
+            this._addElement(new FountainNotes(noteText));
+            this._line = match[1] + match[3];
+            match = this._line.match(regexInline);
+        }
+
         // If not in notes, check for note content
         if (!this._notes) {
 
@@ -652,6 +672,7 @@ export class FountainParser {
             if (idx>-1) { // Move into notes
                 this._lineBeforeNotes = this._line.slice(0, idx);
                 this._notes = new FountainNotes(this._line.slice(idx+2));
+                this._line = this._lineBeforeNotes;
                 return true;
             }
 
