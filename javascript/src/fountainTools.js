@@ -8,7 +8,8 @@ const Element = Object.freeze({
     TRANSITION: "TRANSITION",
     PAGEBREAK: "PAGEBREAK",
     NOTES: "NOTES",
-    BONEYARD: "BONEYARD"
+    BONEYARD: "BONEYARD",
+    SECTION: "SECTION"
 });
 
 export class FountainElement {
@@ -25,7 +26,6 @@ export class FountainElement {
 export class FountainAction extends FountainElement {
     constructor(text, forced = false) {
 
-        text = text.trimEnd();
         // ACTION is supposed to convert tabs to 4-spaces
         text = text.replace(/\t/g, '    ');
 
@@ -88,7 +88,7 @@ export class FountainTransition extends FountainElement {
 
 export class FountainPageBreak extends FountainElement {
     constructor() {
-        super(Element.PAGEBREAK, "===");
+        super(Element.PAGEBREAK, "")
     }
 }
 
@@ -101,6 +101,13 @@ export class FountainNotes extends FountainElement {
 export class FountainBoneyard extends FountainElement {
     constructor(text) {
         super(Element.BONEYARD, text);
+    }
+}
+
+export class FountainSection extends FountainElement {
+    constructor(depth, text) {
+        super(Element.SECTION, text);
+        this.depth = depth;
     }
 }
 
@@ -119,7 +126,7 @@ export class FountainScript {
         for (const element of this.elements) {
             console.log(`${element}`);
             i++;
-            if (i>20)
+            if (i>2000)
                 break;
         }
     }
@@ -214,6 +221,9 @@ export class FountainParser {
 
         if (this._inTitlePage && this._parseTitlePage())
             return;
+
+        if (this._parseSection())
+            return;
     
         if (this._parseForcedAction())
             return true;
@@ -281,7 +291,8 @@ export class FountainParser {
 
         // Trim blank lines from the previous action
         if (lastElem && lastElem.type == Element.ACTION && elem.type!=Element.ACTION) {
-            lastElem.text = lastElem.text.trimEnd();
+            // Get rid of newline on the previous action element.
+            lastElem.text = lastElem.text.replace(/[\r\n]+$/g, "");
         }
 
         this._script.elements.push(elem);
@@ -313,7 +324,7 @@ export class FountainParser {
 
     _parseTitlePage() {
 
-        const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
+        const regexTitleEntry = /^\s*(\S +)\s*:\s*(.*?)\s*$/;
         const regexTitleMultilineEntry = /^( {3,}|\t)/;
 
         let match = this._line.match(regexTitleEntry);
@@ -363,7 +374,7 @@ export class FountainParser {
     _parseCentredText() {
 
         if (this._lineTrim.startsWith('>') && this._lineTrim.endsWith('<')) {
-            let newElem = new FountainAction(this._lineTrim.slice(1,this._lineTrim.length-2));
+            let newElem = new FountainAction(this._lineTrim.slice(1,this._lineTrim.length-1));
             newElem.centered = true;
             this._addElement(newElem);
             return true;
@@ -391,7 +402,7 @@ export class FountainParser {
 
     _parseForcedTransition() {
         if (this._lineTrim.startsWith(">") && !this._lineTrim.endsWith("<")) {
-            this._addElement(new FountainTransition(this._lineTrim.slice(1), true));
+            this._addElement(new FountainTransition(this._lineTrim.slice(1).trim(), true));
             return true;
         }
         return false;
@@ -436,7 +447,7 @@ export class FountainParser {
         const match = lineTrim.match(regexCharacter);
         if (match) {
             const name = match[1].trim(); // Extract NAME
-            const extension = match[2] ? match[2].trim() : null; // Extract DIRECTION if present
+            const extension = match[2] ? match[2].trim() : null; // Extract extension if present
             const hasCaret = line.includes('^'); // Check for the caret
             return { name:name, dual:hasCaret, extension:extension };
         }
@@ -587,6 +598,24 @@ export class FountainParser {
                 return true;
             }
         } 
+        return false;
+    }
+
+    _parseSection() {
+        if (this._lineTrim.startsWith("###")) {
+            this._addElement(new FountainSection(3, this._lineTrim.slice(3).trim()));
+            return true;
+        }
+
+        if (this._lineTrim.startsWith("##")) {
+            this._addElement(new FountainSection(2, this._lineTrim.slice(2).trim()));
+            return true;
+        }
+
+        if (this._lineTrim.startsWith("#")) {
+            this._addElement(new FountainSection(1, this._lineTrim.slice(1).trim()));
+            return true;
+        }
         return false;
     }
 
