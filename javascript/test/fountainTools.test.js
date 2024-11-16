@@ -9,7 +9,8 @@ describe('Test Function', () => {
     const fileContent = readFileSync(filePath, 'utf-8'); // Read the file
 
     let fp = new FountainParser();
-    let script = fp.parse(fileContent);
+    fp.addText(fileContent);
+    let script = fp.getScript();
     script.dump();
 //    assert.strictEqual(sum(1, 2), 3);
   });
