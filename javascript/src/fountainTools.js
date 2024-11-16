@@ -166,7 +166,7 @@ export class FountainPageBreak extends FountainElement {
     }
 }
 
-export class FountainNotes extends FountainElement {
+export class FountainNote extends FountainElement {
     constructor(text) {
         super(Element.NOTES, text);
     }
@@ -243,8 +243,8 @@ export class FountainParser {
         this._lineBeforeBoneyard = "";
         this._boneyard = null;
 
-        this._lineBeforeNotes = "";
-        this._notes = null;
+        this._lineBeforeNote = "";
+        this._note = null;
 
         this._pending = [];
         
@@ -660,19 +660,19 @@ export class FountainParser {
         let match = this._line.match(regexInline);
         while (match) {
             let noteText = match[2];
-            this._addElement(new FountainNotes(noteText));
+            this._addElement(new FountainNote(noteText));
             this._line = match[1] + match[3];
             match = this._line.match(regexInline);
         }
 
         // If not in notes, check for note content
-        if (!this._notes) {
+        if (!this._note) {
 
             let idx = this._line.indexOf("[[");
             if (idx>-1) { // Move into notes
-                this._lineBeforeNotes = this._line.slice(0, idx);
-                this._notes = new FountainNotes(this._line.slice(idx+2));
-                this._line = this._lineBeforeNotes;
+                this._lineBeforeNote = this._line.slice(0, idx);
+                this._note = new FountainNote(this._line.slice(idx+2));
+                this._line = this._lineBeforeNote;
                 return true;
             }
 
@@ -681,14 +681,14 @@ export class FountainParser {
             // Check for end of note content
             let idx = this._line.indexOf("]]");
             if (idx>-1) {
-                this._notes.text+= "\n" + this._line.slice(0, idx);
-                this._addElement(this._notes);
-                this._line = this._lineBeforeNotes+this._line.slice(idx+2);
-                this._lineBeforeNotes = "";
-                this._notes = null;
+                this._note.text+= "\n" + this._line.slice(0, idx);
+                this._addElement(this._note);
+                this._line = this._lineBeforeNote+this._line.slice(idx+2);
+                this._lineBeforeNote = "";
+                this._note = null;
             }
             else { // Still in notes
-                this._notes.text+="\n"+this._line;
+                this._note.text+="\n"+this._line;
                 return true;
             }
         } 
