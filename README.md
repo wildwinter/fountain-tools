@@ -51,7 +51,7 @@ let script = fp.getScript();
 script.dump();
 ```
 
-# Methods
+# API
 ## FountainParser
 ### addText(text)
 Split UTF-8 text into lines and parse them.
@@ -68,3 +68,9 @@ Break a text line into an array of FountainChunk objects. Each object has the fo
 * bold (boolean)
 * underline (boolean)
 * text (string)
+
+## FountainWriter
+### prettyPrint 
+Set to false if you don't want indents in the output.
+### write(script)
+Pass in a FountainScript, get back a UTF-8 string.

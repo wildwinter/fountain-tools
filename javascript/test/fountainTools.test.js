@@ -1,6 +1,6 @@
 import {readFileSync} from 'fs'; 
 import {strict as assert} from 'assert';
-import {FountainParser} from "../src/fountainTools.js";
+import {FountainParser, FountainWriter} from "../src/fountainTools.js";
 
 describe('Test Function', () => {
   it('should work', () => {
@@ -12,7 +12,9 @@ describe('Test Function', () => {
     let fp = new FountainParser();
     fp.addText(fileContent);
     let script = fp.getScript();
-    script.dump();
+    //script.dump();
+    let fw = new FountainWriter();
+    console.log(fw.write(script));
 //    assert.strictEqual(sum(1, 2), 3);
   });
 });

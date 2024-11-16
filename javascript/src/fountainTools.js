@@ -21,6 +21,10 @@ export class FountainElement {
     toString() {
         return `${this.type}:"${this.text}"`;
     }
+
+    write(params) {
+        return "";
+    }
 }
 
 export class FountainAction extends FountainElement {
@@ -33,12 +37,27 @@ export class FountainAction extends FountainElement {
         this.centered = false;
         this.forced = forced;
     }
+
+    write(params) {
+        if (this.forced)
+            return `!${this.text}`;
+        if (this.centered)
+            return `>${this.text}<`;
+        return `${this.text}`;
+    }
 }
 
 export class FountainHeading extends FountainElement {
     constructor(text, forced = false) {
         super(Element.HEADING, text);
         this.forced = forced;
+    }
+
+    write(params) {
+        params.lastChar = null;
+        if (this.forced)
+            return `\n.${this.text}`;
+        return `\n${this.text}`;
     }
 }
 
@@ -60,11 +79,41 @@ export class FountainCharacter extends FountainElement {
             out+=` (Dual)`;
         return out;
     }
+
+    write(params) {
+
+        let pad = "";
+        if (params.pretty)
+            pad = "\t".repeat(3);
+
+        let char = this.name;
+        if (this.isDualDialogue)
+            char+=" ^";
+        if (this.extension)
+            char+=` (${this.extension})`;
+        if (this.forced)
+            char = "@"+char;
+        if (params.lastChar==this.name)
+            char+=" (CONT'D)";
+        params.lastChar = this.name;
+        return `${pad}${char}`;
+    }
 }
 
 export class FountainDialogue extends FountainElement {
     constructor(text) {
         super(Element.DIALOGUE, text);
+    }
+
+    write(params) {
+        let output = this.text;
+        if (params.pretty)  {
+            // Ensure there's a tab at the front of each line
+            output = output.split("\n") 
+                .map(line => (`\t${line}`)) 
+                .join("\n"); 
+        }
+        return output;
     }
 }
 
@@ -72,23 +121,48 @@ export class FountainParenthesis extends FountainElement {
     constructor(text) {
         super(Element.PARENTHESIS, text);
     }
+
+    write(params) {
+        let pad = "";
+        if (params.pretty)
+            pad = "\t".repeat(2);
+        return `${pad}(${this.text})`;
+    }
 }
 
 export class FountainLyric extends FountainElement {
     constructor(text) {
         super(Element.LYRIC, text);
     }
+
+    write(params) {
+        return `~${this.text}`;
+    }
 }
 
 export class FountainTransition extends FountainElement {
-    constructor(text) {
+    constructor(text, forced = false) {
         super(Element.TRANSITION, text);
+        this.forced = forced;
+    }
+
+    write(params) {
+        let pad = "";
+        if (params.pretty)
+            pad = "\t".repeat(4);
+        if (this.forced)
+            return `>${this.text}`;
+        return `${pad}${this.text}`;
     }
 }
 
 export class FountainPageBreak extends FountainElement {
     constructor() {
         super(Element.PAGEBREAK, "")
+    }
+
+    write(params) {
+        return "===";
     }
 }
 
@@ -109,6 +183,10 @@ export class FountainSection extends FountainElement {
         super(Element.SECTION, text);
         this.depth = depth;
     }
+
+    write(params) {
+        return `${"#".repeat(this.depth)}`;
+    }
 }
 
 export class FountainScript {
@@ -125,9 +203,6 @@ export class FountainScript {
         let i=0;
         for (const element of this.elements) {
             console.log(`${element}`);
-            i++;
-            if (i>2000)
-                break;
         }
     }
 
@@ -324,7 +399,7 @@ export class FountainParser {
 
     _parseTitlePage() {
 
-        const regexTitleEntry = /^\s*(\S +)\s*:\s*(.*?)\s*$/;
+        const regexTitleEntry = /^\s*(.+?)\s*:\s*(.*?)\s*$/;
         const regexTitleMultilineEntry = /^( {3,}|\t)/;
 
         let match = this._line.match(regexTitleEntry);
@@ -339,10 +414,7 @@ export class FountainParser {
         if (this._multiLineHeader) { // If we're expecting text on this line
             if (regexTitleMultilineEntry.test(this._line)) {
                 let header = this._script.headers[this._script.headers.length-1];
-                if (header.text.length>0) {
-                    header.text += "\n";
-                }
-                header.text += this._lineTrim;
+                header.text += "\n"+this._line;
                 return true;
             }
 
@@ -428,10 +500,11 @@ export class FountainParser {
 
     _parseParenthesis() {
        
-        const regexParenthesis = /^\s*\(.*\)\s*$/
+        const regexParenthesis = /^\s*\((.*)\)\s*$/
         let lastElem = this._getLastElem();
-        if (lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) && regexParenthesis.test(this._line) ) {
-            this._addElement(new FountainParenthesis(this._lineTrim));
+        let match = this._line.match(regexParenthesis);
+        if (match && lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) ) {
+            this._addElement(new FountainParenthesis(match[1]));
             return true;
         }
         return false;
@@ -684,5 +757,60 @@ export class FountainParser {
         }
 
         return chunks;
+    }
+}
+
+export class FountainWriter {
+    constructor() {
+        this.prettyPrint = true;
+    }
+
+    // Expects FountainScript
+    // returns utf-8 string
+    write(script) {
+
+        let params = 
+        {
+            pretty: this.prettyPrint,
+            lastChar: null
+        };
+
+        let lines = [];
+
+
+        if (script.headers.length>0) {
+
+            for (const header of script.headers) {
+                lines.push(`${header.key}: ${header.text}`);
+            }
+
+            lines.push("");
+        }
+
+        let lastElem = null;
+
+        for (const element of script.elements) {
+
+            // Padding
+            let padBefore = false;
+            if (element.type==Element.CHARACTER
+                || element.type==Element.TRANSITION
+                || element.type==Element.HEADING
+                ) {
+                padBefore = true;
+            } else if (element.type==Element.ACTION) {
+                padBefore = !lastElem || lastElem.type != Element.ACTION;
+            }
+
+            if (padBefore)
+                lines.push("");
+
+            lines.push(element.write(params));
+
+            lastElem = element;
+        }
+
+        let text = lines.join("\n");
+        return text;
     }
 }
