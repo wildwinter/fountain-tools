@@ -7,14 +7,14 @@ const Element = Object.freeze({
     LYRIC: "LYRIC",
     TRANSITION: "TRANSITION",
     PAGEBREAK: "PAGEBREAK",
-    NOTES: "NOTES"
+    NOTES: "NOTES",
+    BONEYARD: "BONEYARD"
 });
 
 export class FountainElement {
     constructor(type, text) {
         this.type = type;
         this.text = text;
-        this.comment = false;
     }
 
     toString() {
@@ -87,7 +87,12 @@ export class FountainPageBreak extends FountainElement {
 export class FountainNotes extends FountainElement {
     constructor(text) {
         super(Element.NOTES, text);
-        this.comment = true;
+    }
+}
+
+export class FountainBoneyard extends FountainElement {
+    constructor(text) {
+        super(Element.BONEYARD, text);
     }
 }
 
@@ -141,12 +146,20 @@ export class FountainParser {
 
     constructor() {        
         this._script = new FountainScript();
+
         this._inTitlePage = true;
         this._multiLineHeader = false;
+        
+        this._lineBeforeBoneyard = "";
+        this._inBoneyard = false;
+        this._boneyard = "";
+
         this._lineBeforeNotes = "";
         this._inNotes = false;
         this._notes = "";
+
         this._pending = [];
+        
         this._lastLineEmpty = true;
         this._lastLineLength = 0;
         this._lineEmpty = false;
@@ -176,35 +189,13 @@ export class FountainParser {
     // Expects a single UTF-8 text line
     addLine(line) {
 
-        // NOTES
-        // If not in notes, check for note content
-        if (!this._inNotes) {
+        line = this._parseBoneyard(line);
+        if (line==null) // If null, nothing left to parse
+            return;
 
-            let notesIdx = line.indexOf("[[");
-            if (notesIdx>-1) { // Move into notes
-                this._lineBeforeNotes = line.slice(0, notesIdx);
-                this._notes = line.slice(notesIdx+2);
-                this._inNotes = true;
-                return;
-            }
-
-        } else {
-
-            // Check for end of note content
-            let notesIdx = line.indexOf("]]");
-            if (notesIdx>-1) {
-                this._notes+= "\n" + line.slice(0, notesIdx);
-                this._script.elements.push(new FountainNotes(this._notes));
-                line = this._lineBeforeNotes+line.slice(notesIdx+2);
-                this._lineBeforeNotes = "";
-                this._inNotes = false;
-            }
-            else { // Still in notes
-                this._notes+="\n"+line;
-                return;
-            }
-
-        } 
+        line = this._parseNotes(line);
+        if (line==null) // If null, nothing left to parse
+            return;
 
         let lineTrim = line.trim();
         this._lastLineEmpty = this._lineEmpty;
@@ -266,6 +257,7 @@ export class FountainParser {
             }
         }
 
+        // Don't add empty actions.
         if (elem.type == Element.ACTION && elem.text.trim()=="")
             return;
 
@@ -305,26 +297,23 @@ export class FountainParser {
 
         const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
         const regexTitleMultilineEntry = /^( {3,}|\t)/;
-        const match = line.match(regexTitleEntry);
 
+        let match = line.match(regexTitleEntry);
         if (match) {    // It's of form key:text
-
             let text = match[2];
-            this._script.headers.push({key:match[1], text}); 
-            this._multilineHeader=(text.length==0); // If there's no text, expect text on the next line
+            this._script.headers.push({key:match[1], text:text}); 
+            this._multiLineHeader = (text.length==0);
             return true
 
         } 
         
         if (this._multiLineHeader) { // If we're expecting text on this line
-
             if (regexTitleMultilineEntry.test(line)) {
-                let text = line.trim();
-                let header = this._script.headers[headers.length-1];
+                let header = this._script.headers[this._script.headers.length-1];
                 if (header.text.length>0) {
                     header.text += "\n";
                 }
-                header.text += text;
+                header.text += lineTrim;
                 return true;
             }
 
@@ -450,6 +439,10 @@ export class FountainParser {
                 lastElem.text+="\n"+lineTrim;
                 return true;
             }
+            if (!this._lastLineEmpty && lineTrim.length>0) {
+                lastElem.text+="\n" + lineTrim;
+                return true;
+            }
         }
 
         return false;
@@ -461,6 +454,74 @@ export class FountainParser {
         // ACTION is supposed to convert tabs to 4-spaces
         action = action.replace(/\t/g, '    ');
         this._addElement(new FountainAction(action));
+    }
+
+    // Returns null if there is no content to continue parsing
+    _parseBoneyard(line) {
+
+        // If not in boneyard, check for boneyard content
+        if (!this._inBoneyard) {
+
+            let idx = line.indexOf("/*");
+            if (idx>-1) { // Move into boneyard
+                this._lineBeforeBoneyard = line.slice(0, idx);
+                this._boneyard = line.slice(idx+2);
+                this._inBoneyard = true;
+                return null;
+            }
+
+        } else {
+
+            // Check for end of note content
+            let idx = line.indexOf("*/");
+            if (idx>-1) {
+                this._boneyard+= "\n" + line.slice(0, idx);
+                this._addElement(new FountainBoneyard(this._boneyard));
+                line = this._lineBeforeBoneyard+line.slice(idx+2);
+                this._lineBeforeBoneyard = "";
+                this._boneyard = "";
+                this._inBoneyard = false;
+            }
+            else { // Still in boneyard
+                this._boneyard+="\n"+line;
+                return null;
+            }
+        }
+        return line; 
+    }
+
+    // Returns null if there is no content to continue parsing
+    _parseNotes(line) {
+
+        // If not in notes, check for note content
+        if (!this._inNotes) {
+
+            let idx = line.indexOf("[[");
+            if (idx>-1) { // Move into notes
+                this._lineBeforeNotes = line.slice(0, idx);
+                this._notes = line.slice(idx+2);
+                this._inNotes = true;
+                return null;
+            }
+
+        } else {
+
+            // Check for end of note content
+            let idx = line.indexOf("]]");
+            if (idx>-1) {
+                this._notes+= "\n" + line.slice(0, idx);
+                this._addElement(new FountainNotes(this._notes));
+                line = this._lineBeforeNotes+line.slice(idx+2);
+                this._lineBeforeNotes = "";
+                this._notes = "";
+                this._inNotes = false;
+            }
+            else { // Still in notes
+                this._notes+="\n"+line;
+                return null;
+            }
+        } 
+        return line;
     }
 
     // Take a single line, split it into bold / italic / underlined chunks
