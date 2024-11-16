@@ -1,4 +1,5 @@
 const Element = Object.freeze({
+    TITLEENTRY: 'TITLEENTRY',
     HEADING: 'HEADING',
     ACTION: 'ACTION',
     CHARACTER: 'CHARACTER',
@@ -24,6 +25,17 @@ export class FountainElement {
 
     write(params) {
         return "";
+    }
+}
+
+export class FountainTitleEntry extends FountainElement {
+    constructor(key, text) {
+        super(Element.TITLEENTRY, text);
+        this.key = key;
+    }
+
+    write(params) {
+        return `${this.key}: ${this.text}`
     }
 }
 
@@ -194,6 +206,8 @@ export class FountainScript {
     constructor() {
         this.elements = []; 
         this.headers = [];
+        this.notes = [];
+        this.boneyards = [];
     }
 
     dump() {
@@ -248,6 +262,7 @@ export class FountainParser {
 
         this._pending = [];
         
+        this._lineNumber = -1;
         this._line = "";
         this._lineTrim = "";
         this._lastLineEmpty = true;
@@ -277,6 +292,7 @@ export class FountainParser {
     // Expects a single UTF-8 text line
     addLine(line) {
 
+        this._lineNumber ++;
         this._lastLine= this._line;
         this._lastLineEmpty = (!this._line.trim());
 
@@ -405,7 +421,7 @@ export class FountainParser {
         let match = this._line.match(regexTitleEntry);
         if (match) {    // It's of form key:text
             let text = match[2];
-            this._script.headers.push({key:match[1], text:text}); 
+            this._script.headers.push(new FountainTitleEntry( match[1], text) ); 
             this._multiLineHeader = (text.length==0);
             return true
 
@@ -618,7 +634,7 @@ export class FountainParser {
         let match = this._line.match(regexInline);
         while (match) {
             let boneyardText = match[2];
-            this._addElement(new FountainBoneyard(boneyardText));
+            this._script.boneyards.push(new FountainBoneyard(boneyardText, this._lineNumber, this._line.indexOf("/*")));
             this._line = match[1] + match[3];
             match = this._line.match(regexInline);
         }
@@ -629,7 +645,7 @@ export class FountainParser {
             let idx = this._line.indexOf("/*");
             if (idx>-1) { // Move into boneyard
                 this._lineBeforeBoneyard = this._line.slice(0, idx);
-                this._boneyard = new FountainBoneyard(this._line.slice(idx+2));
+                this._boneyard = new FountainBoneyard(this._line.slice(idx+2), this._lineNumber, idx);
                 return true;
             }
 
@@ -639,7 +655,7 @@ export class FountainParser {
             let idx = this._line.indexOf("*/");
             if (idx>-1) {
                 this._boneyard.text+= "\n" + this._line.slice(0, idx);
-                this._addElement(this._boneyard);
+                this._script.boneyards.push(this._boneyard);
                 this._line = this._lineBeforeBoneyard+this._line.slice(idx+2);
                 this._lineBeforeBoneyard = "";
                 this._boneyard = null;
@@ -660,7 +676,7 @@ export class FountainParser {
         let match = this._line.match(regexInline);
         while (match) {
             let noteText = match[2];
-            this._addElement(new FountainNote(noteText));
+            this._script.notes.push(new FountainNote(noteText, this._lineNumber, this._line.indexOf("[[") ));
             this._line = match[1] + match[3];
             match = this._line.match(regexInline);
         }
@@ -671,7 +687,7 @@ export class FountainParser {
             let idx = this._line.indexOf("[[");
             if (idx>-1) { // Move into notes
                 this._lineBeforeNote = this._line.slice(0, idx);
-                this._note = new FountainNote(this._line.slice(idx+2));
+                this._note = new FountainNote(this._line.slice(idx+2), this._lineNumber, idx);
                 this._line = this._lineBeforeNote;
                 return true;
             }
@@ -682,7 +698,7 @@ export class FountainParser {
             let idx = this._line.indexOf("]]");
             if (idx>-1) {
                 this._note.text+= "\n" + this._line.slice(0, idx);
-                this._addElement(this._note);
+                this._script.notes.push(this._note);
                 this._line = this._lineBeforeNote+this._line.slice(idx+2);
                 this._lineBeforeNote = "";
                 this._note = null;
@@ -802,7 +818,7 @@ export class FountainWriter {
         if (script.headers.length>0) {
 
             for (const header of script.headers) {
-                lines.push(`${header.key}: ${header.text}`);
+                lines.push(header.write(params));
             }
 
             lines.push("");
