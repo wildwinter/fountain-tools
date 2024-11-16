@@ -10,9 +10,6 @@ const Element = Object.freeze({
     NOTES: "NOTES"
 });
 
-const regexEmpty = /^\s*$/;
-const regexCont = /\(\s*CONT[’']D\s*\)/g;
-
 export class FountainElement {
     constructor(type, text) {
         this.type = type;
@@ -32,15 +29,11 @@ export class FountainAction extends FountainElement {
     }
 }
 
-const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/;
-
 export class FountainHeading extends FountainElement {
     constructor(text) {
         super(Element.HEADING, text);
     }
 }
-
-const regexCharacter = /^\s*@?([A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*|@[A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*)(?:\s+\^)?(?:\s*\(([^)]+)\))?$/;
 
 export class FountainCharacter extends FountainElement {
     constructor(text, name, extension) {
@@ -67,8 +60,6 @@ export class FountainDialogue extends FountainElement {
     }
 }
 
-const regexParenthesis = /^\s*\(.*\)\s*$/
-
 export class FountainParenthesis extends FountainElement {
     constructor(text) {
         super(Element.PARENTHESIS, text);
@@ -80,8 +71,6 @@ export class FountainLyric extends FountainElement {
         super(Element.LYRIC, text);
     }
 }
-
-const regexTransition = /^\s*(?:[A-Z\s]+TO:|>[^\n]+)\s*$/;
 
 export class FountainTransition extends FountainElement {
     constructor(text) {
@@ -148,10 +137,6 @@ export class FountainChunk {
     }
 }
 
-const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
-const regexTitleMultilineEntry = /^( {3,}|\t)/;
-const regexPageBreak = /^={3,}\s*$/;
-
 export class FountainParser {
 
     constructor() {        
@@ -163,7 +148,9 @@ export class FountainParser {
         this._notes = "";
         this._pending = [];
         this._lastLineEmpty = true;
+        this._lastLineLength = 0;
         this._lineEmpty = false;
+        this._lineLength = 0;
     }
 
     // Returns FountainScript
@@ -222,6 +209,8 @@ export class FountainParser {
         let lineTrim = line.trim();
         this._lastLineEmpty = this._lineEmpty;
         this._lineEmpty = lineTrim.length==0;
+        this._lastLineLength = this._lineLength;
+        this._lineLength = line.length;
 
         // Some decisions can't be made until the next line lands
         if (this._pending.length>0)
@@ -314,6 +303,8 @@ export class FountainParser {
 
     _parseTitlePage(line, lineTrim) {
 
+        const regexTitleEntry = /^\s*(\S+)\s*:\s*(.*?)\s*$/;
+        const regexTitleMultilineEntry = /^( {3,}|\t)/;
         const match = line.match(regexTitleEntry);
 
         if (match) {    // It's of form key:text
@@ -345,6 +336,7 @@ export class FountainParser {
 
     _parsePageBreak(line, lineTrim) {
 
+        const regexPageBreak = /^={3,}\s*$/;
         if (regexPageBreak.test(lineTrim)) {
             this._addElement(new FountainPageBreak());
             return true;
@@ -374,6 +366,7 @@ export class FountainParser {
 
     _parseSceneHeading(line, lineTrim) {
 
+        const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/;
         if (regexHeading.test(line) || lineTrim.startsWith('.')) {
             this._addElement(new FountainHeading(lineTrim));
             return true;
@@ -383,6 +376,7 @@ export class FountainParser {
 
     _parseTransition(line, lineTrim) {
 
+        const regexTransition = /^\s*(?:[A-Z\s]+TO:|>[^\n]+)\s*$/;
         if (regexTransition.test(line)) {
             if (this._lastLineEmpty) {
 
@@ -401,6 +395,7 @@ export class FountainParser {
 
     _parseParenthesis(line, lineTrim) {
        
+        const regexParenthesis = /^\s*\(.*\)\s*$/
         let lastElem = this._getLastElem();
         if (lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) && regexParenthesis.test(line) ) {
             this._addElement(new FountainParenthesis(lineTrim));
@@ -411,7 +406,11 @@ export class FountainParser {
 
     _parseCharacter(line, lineTrim) {
 
-        line = line.replace(regexCont, ""); // Remove any CONT'D notes
+        // Remove any CONT'D notes
+        const regexCont = /\(\s*CONT[’']D\s*\)/g;
+        line = line.replace(regexCont, ""); 
+
+        const regexCharacter = /^\s*@?([A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*|@[A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*)(?:\s+\^)?(?:\s*\(([^)]+)\))?$/;
         let match = regexCharacter.exec(line);
         if (match) {
             if (this._lastLineEmpty) {
@@ -445,7 +444,9 @@ export class FountainParser {
         // Was the previous line dialogue? If so, offer possibility of merge
         if (lastElem && lastElem.type==Element.DIALOGUE) {
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
-            if ( !regexEmpty.test(line) || line.length>1) {
+            if ( this._lastLineEmpty && this._lastLineLength>0 ) {
+                if (this._lastLineEmpty)
+                    lastElem.text+="\n ";
                 lastElem.text+="\n"+lineTrim;
                 return true;
             }
