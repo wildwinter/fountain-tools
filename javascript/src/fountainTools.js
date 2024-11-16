@@ -620,7 +620,7 @@ export class FountainParser {
     }
 
     // Take a single line, split it into bold / italic / underlined chunks
-    splitToFormatChunks(line) {
+    static splitToFormatChunks(line) {
 
         let chunk = new FountainChunk();
         let chunks = [chunk];
