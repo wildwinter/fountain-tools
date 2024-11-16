@@ -23,24 +23,32 @@ export class FountainElement {
 }
 
 export class FountainAction extends FountainElement {
-    constructor(text) {
+    constructor(text, forced = false) {
+
+        text = text.trimEnd();
+        // ACTION is supposed to convert tabs to 4-spaces
+        text = text.replace(/\t/g, '    ');
+
         super(Element.ACTION, text);
         this.centered = false;
+        this.forced = forced;
     }
 }
 
 export class FountainHeading extends FountainElement {
-    constructor(text) {
+    constructor(text, forced = false) {
         super(Element.HEADING, text);
+        this.forced = forced;
     }
 }
 
 export class FountainCharacter extends FountainElement {
-    constructor(text, name, extension) {
+    constructor(text, name, extension, dual, forced = false) {
         super(Element.CHARACTER, text);
         this.name = name;
         this.extension = extension;
-        this.isDualDialogue = text.indexOf('^')>-1;
+        this.isDualDialogue = dual;
+        this.forced = forced;
     }
 
     toString() {
@@ -206,6 +214,19 @@ export class FountainParser {
 
         if (this._inTitlePage && this._parseTitlePage())
             return;
+    
+        if (this._parseForcedAction())
+            return true;
+
+        if (this._parseForcedSceneHeading())
+            return true;
+
+        if (this._parseForcedCharacter())
+            return true;
+
+        if (this._parseForcedTransition())
+            return true;
+    
 
         if (this._parsePageBreak())
             return;
@@ -350,23 +371,37 @@ export class FountainParser {
         return false;
     }
 
+    _parseForcedSceneHeading() {
+        if (this._lineTrim.startsWith('.')) {
+            this._addElement(new FountainHeading(this._lineTrim.slice(1), true));
+            return true;
+        }
+        return false;
+    }
+
     _parseSceneHeading() {
 
         const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/;
-        if (regexHeading.test(this._line) || this._lineTrim.startsWith('.')) {
+        if (regexHeading.test(this._line)) {
             this._addElement(new FountainHeading(this._lineTrim));
             return true;
         }
         return false;
     }
 
-    _parseTransition() {
+    _parseForcedTransition() {
+        if (this._lineTrim.startsWith(">") && !this._lineTrim.endsWith("<")) {
+            this._addElement(new FountainTransition(this._lineTrim.slice(1), true));
+            return true;
+        }
+        return false;
+    }
 
-        const regexTransition = /^\s*(?:[A-Z\s]+TO:|>[^\n]+)\s*$/;
+    _parseTransition() {
+        const regexTransition = /^\s*(?:[A-Z\s]+TO:)\s*$/;
         if (regexTransition.test(this._line) && !this._lastLine.trim()) {
 
             if (this._lastLineEmpty) {
-
                 // Can't commit to which this is until we've checked the next line is empty.
                 this._pending.push( {
                     type: Element.TRANSITION, 
@@ -391,31 +426,64 @@ export class FountainParser {
         return false;
     }
 
+    _decodeCharacter(line) {
+        // Remove any CONT'D notes
+        const regexCont = /\(\s*CONT[’']D\s*\)/g;
+        const regexCharacter = /^([^(\^]+?)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
+        
+        let lineTrim = line.trim().replace(regexCont, ""); 
+        
+        const match = lineTrim.match(regexCharacter);
+        if (match) {
+            const name = match[1].trim(); // Extract NAME
+            const extension = match[2] ? match[2].trim() : null; // Extract DIRECTION if present
+            const hasCaret = line.includes('^'); // Check for the caret
+            return { name:name, dual:hasCaret, extension:extension };
+        }
+        return null; // Invalid format
+    }
+
+    _parseForcedCharacter() {
+        // Remove any CONT'D notes
+        if (this._lineTrim.startsWith("@")) {
+
+            let lineTrim = lineTrim.slice(1);
+
+            let character = this._decodeCharacter(lineTrim);
+            if (character==null)
+                return false;
+
+            this._addElement(new FountainCharacter(lineTrim, character.name, character.extension, character.dual));
+
+            return true;
+        }
+        return false;
+    }
+
     _parseCharacter() {
 
         // Remove any CONT'D notes
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
-        let line = this._line.replace(regexCont, ""); 
+        let lineTrim = this._lineTrim.replace(regexCont, ""); 
 
-        const regexCharacter = /^\s*@?([A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*|@[A-Z][A-Z0-9]*(?:\s+[A-Z0-9]+)*)(?:\s+\^)?(?:\s*\(([^)]+)\))?$/;
-        let match = regexCharacter.exec(line);
-        if (match) {
-            if (this._lastLineEmpty) {
+        const regexCharacter = /^([A-Za-z][A-Za-z0-9 ]*)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
+        if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {
 
-                const characterName = match[1].replace(/^@/, '');
-                const characterExtension = match[2] || null;
-                let charElem = new FountainCharacter(line.trim(), characterName, characterExtension);
+            let character = this._decodeCharacter(lineTrim);
+            if (character==null)
+                return false;
 
-                // Can't commit to which this is until we've checked the next line isn't empty.
-                this._pending.push( {
-                    type: Element.CHARACTER, 
-                    element: charElem,
-                    backup: new FountainAction(this._lineTrim)
-                } );
+            let charElem = new FountainCharacter(lineTrim, character.name, character.extension, character.dual);
 
-                return true;
+            // Can't commit to which this is until we've checked the next line isn't empty.
+            this._pending.push( {
+                type: Element.CHARACTER, 
+                element: charElem,
+                backup: new FountainAction(this._lineTrim)
+            } );
 
-            }
+            return true;
+
         }
         return false;
     }
@@ -446,12 +514,16 @@ export class FountainParser {
         return false;
     }
 
-    _parseAction() {
+    _parseForcedAction() {
+        if (this._lineTrim.startsWith("!")) {
+            this._addElement(new FountainAction(this._lineTrim.slice(1), true));
+            return true;
+        }
+        return false;
+    }
 
-        let action = this._line.trimEnd();
-        // ACTION is supposed to convert tabs to 4-spaces
-        action = action.replace(/\t/g, '    ');
-        this._addElement(new FountainAction(action));
+    _parseAction() {
+        this._addElement(new FountainAction(this._line));
     }
 
     // Returns null if there is no content to continue parsing
