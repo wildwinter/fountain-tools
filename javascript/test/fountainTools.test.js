@@ -11,7 +11,7 @@ describe('Test Function', () => {
 
     let fp = new FountainParser();
     fp.addText(fileContent);
-    let script = fp.getScript();
+    let script = fp.script;
     script.dump();
     let fw = new FountainWriter();
     console.log(fw.write(script));

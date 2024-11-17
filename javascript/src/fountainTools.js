@@ -13,6 +13,8 @@ const Element = Object.freeze({
     SECTION: "SECTION"
 });
 
+
+// Base class for all elements
 export class FountainElement {
     constructor(type, text) {
         this.type = type;
@@ -37,7 +39,8 @@ export class FountainElement {
         this._text = this._text.replace(/(?:\r\n|\n)$/, "");
     }
 
-    toString() {
+    // For debugging
+    dump() {
         return `${this.type}:"${this._text}"`;
     }
 
@@ -46,16 +49,23 @@ export class FountainElement {
     }
 }
 
+
 export class FountainTitleEntry extends FountainElement {
     constructor(key, text) {
         super(Element.TITLEENTRY, text);
         this.key = key;
     }
 
+    // For debugging
+    dump() {
+       return `${this.type}:"${this.key}: ${this._text}"`
+    }
+
     write(params) {
         return `${this.key}: ${this._text}`
     }
 }
+
 
 export class FountainAction extends FountainElement {
     constructor(text, forced = false) {
@@ -77,6 +87,7 @@ export class FountainAction extends FountainElement {
     }
 }
 
+
 export class FountainHeading extends FountainElement {
     constructor(text, forced = false) {
         super(Element.HEADING, text);
@@ -91,6 +102,7 @@ export class FountainHeading extends FountainElement {
     }
 }
 
+
 export class FountainCharacter extends FountainElement {
     constructor(text, name, extension, dual, forced = false) {
         super(Element.CHARACTER, text);
@@ -100,7 +112,8 @@ export class FountainCharacter extends FountainElement {
         this.forced = forced;
     }
 
-    toString() {
+    // For debugging
+    dump() {
         let out =  `${this.type}:"${this.name}"`;
         if (this.extension) {
             out+=` "(${this.extension})"`;
@@ -130,6 +143,7 @@ export class FountainCharacter extends FountainElement {
     }
 }
 
+
 export class FountainDialogue extends FountainElement {
     constructor(text) {
         super(Element.DIALOGUE, text);
@@ -147,6 +161,7 @@ export class FountainDialogue extends FountainElement {
     }
 }
 
+
 export class FountainParenthesis extends FountainElement {
     constructor(text) {
         super(Element.PARENTHESIS, text);
@@ -160,6 +175,7 @@ export class FountainParenthesis extends FountainElement {
     }
 }
 
+
 export class FountainLyric extends FountainElement {
     constructor(text) {
         super(Element.LYRIC, text);
@@ -169,6 +185,7 @@ export class FountainLyric extends FountainElement {
         return `~${this._text}`;
     }
 }
+
 
 export class FountainTransition extends FountainElement {
     constructor(text, forced = false) {
@@ -186,6 +203,7 @@ export class FountainTransition extends FountainElement {
     }
 }
 
+
 export class FountainPageBreak extends FountainElement {
     constructor() {
         super(Element.PAGEBREAK, "")
@@ -196,17 +214,20 @@ export class FountainPageBreak extends FountainElement {
     }
 }
 
+
 export class FountainNote extends FountainElement {
     constructor(text) {
         super(Element.NOTES, text);
     }
 }
 
+
 export class FountainBoneyard extends FountainElement {
     constructor(text) {
         super(Element.BONEYARD, text);
     }
 }
+
 
 export class FountainSection extends FountainElement {
     constructor(depth, text) {
@@ -219,22 +240,23 @@ export class FountainSection extends FountainElement {
     }
 }
 
+// Parsed script
 export class FountainScript {
     
     constructor() {
-        this.elements = []; 
         this.headers = [];
+        this.elements = []; 
         this.notes = [];
         this.boneyards = [];
     }
 
     dump() {
         for (const header of this.headers) {
-            console.log(`${header.key}:${header.text}`);
+            console.log(`${header.dump()}`);
         }
         let i=0;
         for (const element of this.elements) {
-            console.log(`${element}`);
+            console.log(`${element.dump()}`);
         }
     }
 
@@ -244,6 +266,7 @@ export class FountainScript {
         return this.elements[this.elements.length-1];
     }
 }
+
 
 // Use FormatParser.splitToFormatChunks on any piece of text to get an array of format chunks 
 // e.g. from **BOLD** *ITALIC* ***BOLDITALIC*** _UNDERLINE_
@@ -264,10 +287,11 @@ export class FountainChunk {
     }
 }
 
+// Incremental parser - use .addText(), .addLines(), .addLine() to parse, use .script to retrieve the parsed script.
 export class FountainParser {
 
     constructor() {        
-        this._script = new FountainScript();
+        this.script = new FountainScript();
 
         this._inTitlePage = true;
         this._multiLineHeader = false;
@@ -284,11 +308,6 @@ export class FountainParser {
         this._lineTrim = "";
         this._lastLineEmpty = true;
         this._lastLine = "";
-    }
-
-    // Returns FountainScript
-    getScript() {
-        return this._script;
     }
 
     // Expects UTF-8 text
@@ -373,7 +392,7 @@ export class FountainParser {
     }
 
     _getLastElem() {
-        const elems = this._script.elements;
+        const elems = this.script.elements;
         if (elems.length>0)
             return elems[elems.length-1];
         return null;
@@ -401,7 +420,7 @@ export class FountainParser {
             lastElem.trimLastNewline(elem);
         }
 
-        this._script.elements.push(elem);
+        this.script.elements.push(elem);
 
     }
 
@@ -436,7 +455,7 @@ export class FountainParser {
         let match = this._line.match(regexTitleEntry);
         if (match) {    // It's of form key:text
             let text = match[2];
-            this._script.headers.push(new FountainTitleEntry( match[1], text) ); 
+            this.script.headers.push(new FountainTitleEntry( match[1], text) ); 
             this._multiLineHeader = (text.length==0);
             return true
 
@@ -444,7 +463,7 @@ export class FountainParser {
         
         if (this._multiLineHeader) { // If we're expecting text on this line
             if (regexTitleMultilineEntry.test(this._line)) {
-                let header = this._script.headers[this._script.headers.length-1];
+                let header = this.script.headers[this.script.headers.length-1];
                 header.appendLine(this._line);
                 return true;
             }
@@ -650,8 +669,8 @@ export class FountainParser {
         let lastTag = -1;
         while (open>-1 && close>-1) {
             let boneyardText = this._line.slice(open+2, close);
-            this._script.boneyards.push(new FountainBoneyard(boneyardText));
-            let tag = `/*${this._script.boneyards.length-1}*/`;
+            this.script.boneyards.push(new FountainBoneyard(boneyardText));
+            let tag = `/*${this.script.boneyards.length-1}*/`;
             this._line = this._line.slice(0,open)+tag+this._line.slice(close+2);
             lastTag = open+tag.length;
             open = this._line.indexOf("/*", lastTag);
@@ -674,8 +693,8 @@ export class FountainParser {
             let idx = this._line.indexOf("*/", lastTag);
             if (idx>-1) {
                 this._boneyard.appendLine(this._line.slice(0, idx));
-                this._script.boneyards.push(this._boneyard);
-                let tag = `/*${this._script.boneyards.length-1}*/`;
+                this.script.boneyards.push(this._boneyard);
+                let tag = `/*${this.script.boneyards.length-1}*/`;
                 this._line = this._lineBeforeBoneyard+tag+this._line.slice(idx+2);
                 this._lineBeforeBoneyard = "";
                 this._boneyard = null;
@@ -697,8 +716,8 @@ export class FountainParser {
         let lastTag = -1;
         while (open>-1 && close>-1) {
             let noteText = this._line.slice(open+2, close);
-            this._script.notes.push(new FountainNote(noteText));
-            let tag = `[[${this._script.notes.length-1}]]`;
+            this.script.notes.push(new FountainNote(noteText));
+            let tag = `[[${this.script.notes.length-1}]]`;
             this._line = this._line.slice(0,open)+tag+this._line.slice(close+2);
             lastTag = open+tag.length;
             open = this._line.indexOf("[[", lastTag);
@@ -722,8 +741,8 @@ export class FountainParser {
             let idx = this._line.indexOf("]]", lastTag);
             if (idx>-1) {
                 this._note.appendLine(this._line.slice(0, idx));
-                this._script.notes.push(this._note);
-                let tag = `[[${this._script.notes.length-1}]]`;
+                this.script.notes.push(this._note);
+                let tag = `[[${this.script.notes.length-1}]]`;
                 this._line = this._lineBeforeNote+tag+this._line.slice(idx+2);
                 this._lineBeforeNote = "";
                 this._note = null;

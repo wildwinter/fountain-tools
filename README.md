@@ -13,8 +13,7 @@ let fp = new FountainParser();
 
 fp.addText(fileContent);
 
-let script = fp.getScript();
-script.dump();
+fp.script.dump();
 ```
 
 ```
@@ -28,8 +27,7 @@ fp.addLine("DAVE");
 fp.addLine("(Shouting)");
 fp.addLine("Hey, anyone home?")
 
-let script = fp.getScript();
-script.dump();
+fp.script.dump();
 ```
 
 ```
@@ -47,8 +45,7 @@ let lines = [
 
 fp.addLines(lines);
 
-let script = fp.getScript();
-script.dump();
+fp.script.dump();
 ```
 
 # API
@@ -68,6 +65,9 @@ Break a text line into an array of FountainChunk objects. Each object has the fo
 * bold (boolean)
 * underline (boolean)
 * text (string)
+
+### script
+Parsed script
 
 ## FountainWriter
 ### prettyPrint 
