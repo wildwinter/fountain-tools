@@ -21,20 +21,6 @@ import {FountainParser} from "fountainTools.js";
 
 let fp = new FountainParser();
 
-fp.addLine("EXT. MY BASEMENT");
-fp.addLine("");
-fp.addLine("DAVE");
-fp.addLine("(Shouting)");
-fp.addLine("Hey, anyone home?")
-
-fp.script.dump();
-```
-
-```
-import {FountainParser} from "fountainTools.js";
-
-let fp = new FountainParser();
-
 let lines = [
     "EXT. MY BASEMENT",
     "DAVE",
@@ -44,6 +30,21 @@ let lines = [
 ]
 
 fp.addLines(lines);
+
+fp.script.dump();
+```
+
+```
+import {FountainParser} from "fountainTools.js";
+
+let fp = new FountainParser();
+
+fp.addLine("EXT. MY BASEMENT");
+fp.addLine("");
+fp.addLine("DAVE");
+fp.addLine("(Shouting)");
+fp.addLine("Hey, anyone home?")
+fp.finalize();
 
 fp.script.dump();
 ```
@@ -68,6 +69,30 @@ Break a text line into an array of FountainChunk objects. Each object has the fo
 
 ### script
 Parsed script
+
+## FountainCallbackParser
+### onTitlePage
+Called back with a map of key/values
+### onDialogue
+character:"DAVE", // the character name in the script
+extension:"V.O", // any bracketed exension e.g. DAVE (V.O.)
+parenthetical:"loudly", // any parenthetical before the dialogue line e.g. (loudly) or (angrily)
+line:"Hello!", // line of dialogue,
+dual:false // True if the caret ^ is present indicating dual dialogue in the script
+### onAction
+text: string
+### onSceneHeading
+text: string
+### onLyrics
+text: string
+### onTransition
+text: string
+### onSection
+text: string
+level: number
+### onPageBreak
+### ignoreBlanks
+Set to false if you want empty dialogue and actions.
 
 ## FountainWriter
 ### prettyPrint 

@@ -230,13 +230,13 @@ export class FountainBoneyard extends FountainElement {
 
 
 export class FountainSection extends FountainElement {
-    constructor(depth, text) {
+    constructor(level, text) {
         super(Element.SECTION, text);
-        this.depth = depth;
+        this.level = level;
     }
 
     write(params) {
-        return `${"#".repeat(this.depth)}`;
+        return `${"#".repeat(this.level)}`;
     }
 }
 
@@ -303,6 +303,7 @@ export class FountainParser {
         this._note = null;
 
         this._pending = [];
+        this._padNextAction = null;
         
         this._line = "";
         this._lineTrim = "";
@@ -323,6 +324,7 @@ export class FountainParser {
         for(const line of lines) {
             this.addLine(line);
         }
+        this.finalize();
     }
 
     // Expects a single UTF-8 text line
@@ -362,7 +364,6 @@ export class FountainParser {
 
         if (this._parseForcedTransition())
             return true;
-    
 
         if (this._parsePageBreak())
             return;
@@ -391,6 +392,14 @@ export class FountainParser {
         this._parseAction();
     }
 
+    // If you have definitely finished parsing, call this, as it completes
+    // anything that's been waiting for the next line.
+    // This is automatically called by addLines() and addText()
+    finalize() {
+        this._line = "";
+        this._parsePending();
+    }
+
     _getLastElem() {
         const elems = this.script.elements;
         if (elems.length>0)
@@ -403,22 +412,23 @@ export class FountainParser {
 
         let lastElem = this._getLastElem();
 
-        // Merge actions
-        if (elem.type == Element.ACTION && !elem.centered) {    
-            if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
-                lastElem.appendLine(elem._text);
+        // Are we trying to add a blank action line?
+        if (elem.type == Element.ACTION && elem._text.trim()=="" ) {
+
+            // If this follows an existing action line, put it on as possible padding.
+            if (lastElem && lastElem.type == Element.ACTION) {
+                this._padNextAction = elem;
                 return;
             }
-        }
-
-        // Don't add empty actions.
-        if (elem.type == Element.ACTION && elem._text.trim()=="")
             return;
-
-        // Trim blank lines from the previous action
-        if (lastElem && lastElem.type == Element.ACTION && elem.type!=Element.ACTION) {
-            lastElem.trimLastNewline(elem);
         }
+
+        // Add padding if there's some outstanding and we're just about to add another action.
+        if (elem.type == Element.ACTION && this._padNextAction) {
+            this.script.elements.push(this._padNextAction);
+        }
+
+        this._padNextAction = null;
 
         this.script.elements.push(elem);
 
@@ -600,7 +610,7 @@ export class FountainParser {
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
         let lineTrim = this._lineTrim.replace(regexCont, ""); 
 
-        const regexCharacter = /^([A-Za-z][A-Za-z0-9 ]*)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
+        const regexCharacter = /^([A-Z][A-Z0-9 ]*)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
         if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {
 
             let character = this._decodeCharacter(lineTrim);
@@ -632,15 +642,17 @@ export class FountainParser {
 
         // Was the previous line dialogue? If so, offer possibility of merge
         if (lastElem && lastElem.type==Element.DIALOGUE) {
+
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
                 if (this._lastLineEmpty)
-                    lastElem.appendLine("");
-                lastElem.appendLine(lineTrim);
+                    this._addElement(new FountainDialogue(""));
+                this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
             }
+
             if (!this._lastLineEmpty && this._lineTrim.length>0) {
-                lastElem.appendLine(this._lineTrim);
+                this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
             }
         }
@@ -909,4 +921,189 @@ export class FountainWriter {
 
         return text;
     }
+}
+
+
+export class FountainCallbackParser extends FountainParser {
+
+    constructor() {
+        super();
+        
+        /*  
+            object map of keys/values
+        */
+        this.onTitlePage = null;
+
+        /*  
+            {
+                character:"DAVE", // the character name in the script
+                extension:"V.O", // any bracketed exension e.g. DAVE (V.O.)
+                parenthetical:"loudly", // any parenthetical before the dialogue line e.g. (loudly) or (angrily)
+                line:"Hello!", // line of dialogue,
+                dual:false // True if the caret ^ is present indicating dual dialogue in the script
+            }
+        */
+        this.onDialogue = null; 
+
+        /*  
+            {
+                text: string
+            }
+        */
+        this.onAction = null;
+
+        /*  
+            {
+                text: string
+            }
+        */
+        this.onSceneHeading = null;
+
+        /*  
+            {
+                text: string
+            }
+        */
+        this.onLyrics = null;
+
+        /*  
+            {
+                text: string
+            }
+        */
+        this.onTransition = null;
+
+        /*  
+            {
+                level: number,  // 1-3
+                text: string
+            }
+        */
+        this.onSection = null;
+
+        /* No params */
+        this.onPageBreak = null;
+
+
+        this.ignoreBlanks = true; // By default don't callback on blank lines.
+
+        this._lastChar = null;
+        this._lastParen = null;
+    }
+
+    addLine(line) {
+
+        let elementCount = this.script.elements.length;
+        let inTitlePage = this._inTitlePage;
+
+        super.addLine(line);
+
+        if (inTitlePage && !this._inTitlePage) {
+            // Finished reading title page
+            if (this.onTitlePage) {
+                let keyvals = {};
+                for (const header of this.script.headers) {
+                    keyvals[header.key] = header.text;
+                }
+                this.onTitlePage(keyvals);
+            }
+        }
+
+        while (elementCount<this.script.elements.length) {
+            this._handleNewElement(this.script.elements[elementCount]);
+            elementCount++;
+        }
+    }
+
+    _handleNewElement(elem) {
+
+        if (elem.type == Element.CHARACTER) {
+            this._lastChar = elem;
+            return;
+        } 
+        
+        if (elem.type == Element.PARENTHESIS) {
+            this._lastParen = elem;
+            return;
+        } 
+        
+        if (elem.type == Element.DIALOGUE) {
+
+            let dialogue = {
+                character: this._lastChar.name,
+                extension: this._lastChar.extension,
+                parenthetical: this._lastParen?this._lastParen.text:null,
+                line: elem.text,
+                dual: this._lastChar.isDualDialogue
+            }
+            this._lastParen = null;
+
+            if (this.ignoreBlanks && !dialogue.line.trim())
+                return;
+
+            if (this.onDialogue)
+                this.onDialogue(dialogue);
+            return;
+        }
+
+        this._lastChar = null;
+        this._lastParen = null;
+
+        if (elem.type == Element.ACTION) {
+
+            if (this.ignoreBlanks && !elem.text.trim())
+                return;
+
+            if (this.onAction)
+                this.onAction({text: elem.text});
+            return;
+        }
+
+        if (elem.type == Element.HEADING) {
+
+            if (this.ignoreBlanks && !elem.text.trim())
+                return;
+
+            if (this.onSceneHeading)
+                this.onSceneHeading({text: elem.text});
+            return;
+        }
+
+        if (elem.type == Element.LYRICS) {
+
+            if (this.ignoreBlanks && !elem.text.trim())
+                return;
+
+            if (this.onLyrics)
+                this.onLyrics({text: elem.text});
+            return;
+        }
+
+        if (elem.type == Element.TRANSITION) {
+
+            if (this.ignoreBlanks && !elem.text.trim())
+                return;
+
+            if (this.onTransition)
+                this.onTransition({text: elem.text});
+            return;
+        }
+    
+        if (elem.type == Element.SECTION) {
+
+            if (this.ignoreBlanks && !elem.text.trim())
+                return;
+
+            if (this.onSection)
+                this.onSection({text: elem.text, level:elem.level});
+            return;
+        }
+
+        if (elem.type == Element.PAGEBREAK) {
+            if (this.onPageBreak)
+                this.onPageBreak();
+            return;
+        }
+    }
+
 }
