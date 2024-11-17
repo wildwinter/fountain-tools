@@ -19,7 +19,13 @@ export class FountainElement {
         this._text = text;
     }
 
+    // This version will not contain any annotations / note markup
     get text() {
+        const regex = /\[\[\d+\]\]|\/*\d+\*\//g;
+        return this._text.replace(regex, "");
+    }
+
+    get textWithAnnotations() {
         return this._text;
     }
 
