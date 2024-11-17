@@ -16,11 +16,23 @@ const Element = Object.freeze({
 export class FountainElement {
     constructor(type, text) {
         this.type = type;
-        this.text = text;
+        this._text = text;
+    }
+
+    get text() {
+        return this._text;
+    }
+
+    appendLine(text) {
+        this._text+="\n"+text;
+    }
+
+    trimLastNewline(elem) {
+        this._text = this._text.replace(/(?:\r\n|\n)$/, "");
     }
 
     toString() {
-        return `${this.type}:"${this.text}"`;
+        return `${this.type}:"${this._text}"`;
     }
 
     write(params) {
@@ -35,7 +47,7 @@ export class FountainTitleEntry extends FountainElement {
     }
 
     write(params) {
-        return `${this.key}: ${this.text}`
+        return `${this.key}: ${this._text}`
     }
 }
 
@@ -52,10 +64,10 @@ export class FountainAction extends FountainElement {
 
     write(params) {
         if (this.forced)
-            return `!${this.text}`;
+            return `!${this._text}`;
         if (this.centered)
-            return `>${this.text}<`;
-        return `${this.text}`;
+            return `>${this._text}<`;
+        return `${this._text}`;
     }
 }
 
@@ -68,8 +80,8 @@ export class FountainHeading extends FountainElement {
     write(params) {
         params.lastChar = null;
         if (this.forced)
-            return `\n.${this.text}`;
-        return `\n${this.text}`;
+            return `\n.${this._text}`;
+        return `\n${this._text}`;
     }
 }
 
@@ -118,7 +130,7 @@ export class FountainDialogue extends FountainElement {
     }
 
     write(params) {
-        let output = this.text;
+        let output = this._text;
         if (params.pretty)  {
             // Ensure there's a tab at the front of each line
             output = output.split("\n") 
@@ -138,7 +150,7 @@ export class FountainParenthesis extends FountainElement {
         let pad = "";
         if (params.pretty)
             pad = "\t".repeat(2);
-        return `${pad}(${this.text})`;
+        return `${pad}(${this._text})`;
     }
 }
 
@@ -148,7 +160,7 @@ export class FountainLyric extends FountainElement {
     }
 
     write(params) {
-        return `~${this.text}`;
+        return `~${this._text}`;
     }
 }
 
@@ -163,8 +175,8 @@ export class FountainTransition extends FountainElement {
         if (params.pretty)
             pad = "\t".repeat(4);
         if (this.forced)
-            return `>${this.text}`;
-        return `${pad}${this.text}`;
+            return `>${this._text}`;
+        return `${pad}${this._text}`;
     }
 }
 
@@ -262,7 +274,6 @@ export class FountainParser {
 
         this._pending = [];
         
-        this._lineNumber = -1;
         this._line = "";
         this._lineTrim = "";
         this._lastLineEmpty = true;
@@ -292,7 +303,6 @@ export class FountainParser {
     // Expects a single UTF-8 text line
     addLine(line) {
 
-        this._lineNumber ++;
         this._lastLine= this._line;
         this._lastLineEmpty = (!this._line.trim());
 
@@ -371,19 +381,18 @@ export class FountainParser {
         // Merge actions
         if (elem.type == Element.ACTION && !elem.centered) {    
             if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
-                lastElem.text+="\n"+elem.text;
+                lastElem.appendLine(elem._text);
                 return;
             }
         }
 
         // Don't add empty actions.
-        if (elem.type == Element.ACTION && elem.text.trim()=="")
+        if (elem.type == Element.ACTION && elem._text.trim()=="")
             return;
 
         // Trim blank lines from the previous action
         if (lastElem && lastElem.type == Element.ACTION && elem.type!=Element.ACTION) {
-            // Get rid of newline on the previous action element.
-            lastElem.text = lastElem.text.replace(/[\r\n]+$/g, "");
+            lastElem.trimLastNewline(elem);
         }
 
         this._script.elements.push(elem);
@@ -430,7 +439,7 @@ export class FountainParser {
         if (this._multiLineHeader) { // If we're expecting text on this line
             if (regexTitleMultilineEntry.test(this._line)) {
                 let header = this._script.headers[this._script.headers.length-1];
-                header.text += "\n"+this._line;
+                header.appendLine(this._line);
                 return true;
             }
 
@@ -601,12 +610,12 @@ export class FountainParser {
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
                 if (this._lastLineEmpty)
-                    lastElem.text+="\n ";
-                lastElem.text+="\n"+lineTrim;
+                    lastElem.appendLine("");
+                lastElem.appendLine(lineTrim);
                 return true;
             }
             if (!this._lastLineEmpty && this._lineTrim.length>0) {
-                lastElem.text+="\n" + this._lineTrim;
+                lastElem.appendLine(this._lineTrim);
                 return true;
             }
         }
@@ -630,38 +639,43 @@ export class FountainParser {
     _parseBoneyard() {
 
         // Deal with any in-line boneyards
-        const regexInline = /^(.*?)\/\*(.*?)\*\/(.*)$/;
-        let match = this._line.match(regexInline);
-        while (match) {
-            let boneyardText = match[2];
-            this._script.boneyards.push(new FountainBoneyard(boneyardText, this._lineNumber, this._line.indexOf("/*")));
-            this._line = match[1] + match[3];
-            match = this._line.match(regexInline);
+        let open = this._line.indexOf("/*");
+        let close = this._line.indexOf("*/");
+        let lastTag = -1;
+        while (open>-1 && close>-1) {
+            let boneyardText = this._line.slice(open+2, close);
+            this._script.boneyards.push(new FountainBoneyard(boneyardText));
+            let tag = `/*${this._script.boneyards.length-1}*/`;
+            this._line = this._line.slice(0,open)+tag+this._line.slice(close+2);
+            lastTag = open+tag.length;
+            open = this._line.indexOf("/*", lastTag);
+            close = this._line.indexOf("*/", lastTag);
         }
 
         // If not in boneyard, check for boneyard content
         if (!this._boneyard) {
 
-            let idx = this._line.indexOf("/*");
+            let idx = this._line.indexOf("/*", lastTag);
             if (idx>-1) { // Move into boneyard
                 this._lineBeforeBoneyard = this._line.slice(0, idx);
-                this._boneyard = new FountainBoneyard(this._line.slice(idx+2), this._lineNumber, idx);
+                this._boneyard = new FountainBoneyard(this._line.slice(idx+2));
                 return true;
             }
 
         } else {
 
             // Check for end of note content
-            let idx = this._line.indexOf("*/");
+            let idx = this._line.indexOf("*/", lastTag);
             if (idx>-1) {
-                this._boneyard.text+= "\n" + this._line.slice(0, idx);
+                this._boneyard.appendLine(this._line.slice(0, idx));
                 this._script.boneyards.push(this._boneyard);
-                this._line = this._lineBeforeBoneyard+this._line.slice(idx+2);
+                let tag = `/*${this._script.boneyards.length-1}*/`;
+                this._line = this._lineBeforeBoneyard+tag+this._line.slice(idx+2);
                 this._lineBeforeBoneyard = "";
                 this._boneyard = null;
             }
             else { // Still in boneyard
-                this._boneyard.text+="\n"+this._line;
+                this._boneyard.appendLine(this._line);
                 return true;
             }
         }
@@ -672,22 +686,26 @@ export class FountainParser {
     _parseNotes() {
 
         // Deal with any in-line notes
-        const regexInline = /^(.*?)\[\[(.*?)\]\](.*)$/;
-        let match = this._line.match(regexInline);
-        while (match) {
-            let noteText = match[2];
-            this._script.notes.push(new FountainNote(noteText, this._lineNumber, this._line.indexOf("[[") ));
-            this._line = match[1] + match[3];
-            match = this._line.match(regexInline);
+        let open = this._line.indexOf("[[");
+        let close = this._line.indexOf("]]");
+        let lastTag = -1;
+        while (open>-1 && close>-1) {
+            let noteText = this._line.slice(open+2, close);
+            this._script.notes.push(new FountainNote(noteText));
+            let tag = `[[${this._script.notes.length-1}]]`;
+            this._line = this._line.slice(0,open)+tag+this._line.slice(close+2);
+            lastTag = open+tag.length;
+            open = this._line.indexOf("[[", lastTag);
+            close = this._line.indexOf("]]", lastTag);
         }
 
         // If not in notes, check for note content
         if (!this._note) {
 
-            let idx = this._line.indexOf("[[");
+            let idx = this._line.indexOf("[[", lastTag);
             if (idx>-1) { // Move into notes
                 this._lineBeforeNote = this._line.slice(0, idx);
-                this._note = new FountainNote(this._line.slice(idx+2), this._lineNumber, idx);
+                this._note = new FountainNote(this._line.slice(idx+2));
                 this._line = this._lineBeforeNote;
                 return true;
             }
@@ -695,16 +713,17 @@ export class FountainParser {
         } else {
 
             // Check for end of note content
-            let idx = this._line.indexOf("]]");
+            let idx = this._line.indexOf("]]", lastTag);
             if (idx>-1) {
-                this._note.text+= "\n" + this._line.slice(0, idx);
+                this._note.appendLine(this._line.slice(0, idx));
                 this._script.notes.push(this._note);
-                this._line = this._lineBeforeNote+this._line.slice(idx+2);
+                let tag = `[[${this._script.notes.length-1}]]`;
+                this._line = this._lineBeforeNote+tag+this._line.slice(idx+2);
                 this._lineBeforeNote = "";
                 this._note = null;
             }
             else { // Still in notes
-                this._note.text+="\n"+this._line;
+                this._note.appendLine(this._line);
                 return true;
             }
         } 
@@ -846,8 +865,23 @@ export class FountainWriter {
 
             lastElem = element;
         }
-
+        
         let text = lines.join("\n");
+
+        const regexNotes = /\[\[(\d+)\]\]/g;
+
+        text = text.replace(regexNotes, (match, number) => {
+            let num = Number(number); 
+            return `[[${script.notes[num].text}]]`;
+        });
+
+        const regexBoneyards = /\/\*(\d+)\*\//g;
+
+        text = text.replace(regexBoneyards, (match, number) => {
+            let num = Number(number); 
+            return `/*${script.boneyards[num].text}*/`;
+        });
+
         return text;
     }
 }
