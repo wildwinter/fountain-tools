@@ -1,6 +1,7 @@
 import {readFileSync} from 'fs'; 
 import {strict as assert} from 'assert';
-import {FountainParser, FountainWriter,FountainCallbackParser} from "../src/fountainTools.js";
+import {FountainCallbackParser} from "../src/callbackParser.js";
+import {FountainWriter} from "../src/writer.js";
 
 describe('Test Function', () => {
   it('should work', () => {
