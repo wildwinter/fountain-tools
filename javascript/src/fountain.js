@@ -32,21 +32,9 @@ export class FountainElement {
         return this._text;
     }
 
-    appendLine(text) {
-        this._text+="\n"+text;
-    }
-
-    trimLastNewline(elem) {
-        this._text = this._text.replace(/(?:\r\n|\n)$/, "");
-    }
-
     // For debugging
     dump() {
         return `${this.type}:"${this._text}"`;
-    }
-
-    write(params) {
-        return "";
     }
 }
 
@@ -61,10 +49,6 @@ export class FountainTitleEntry extends FountainElement {
     dump() {
        return `${this.type}:"${this.key}: ${this._text}"`
     }
-
-    write(params) {
-        return `${this.key}: ${this._text}`
-    }
 }
 
 
@@ -78,14 +62,6 @@ export class FountainAction extends FountainElement {
         this.centered = false;
         this.forced = forced;
     }
-
-    write(params) {
-        if (this.forced)
-            return `!${this._text}`;
-        if (this.centered)
-            return `>${this._text}<`;
-        return `${this._text}`;
-    }
 }
 
 
@@ -93,13 +69,6 @@ export class FountainHeading extends FountainElement {
     constructor(text, forced = false) {
         super(Element.HEADING, text);
         this.forced = forced;
-    }
-
-    write(params) {
-        params.lastChar = null;
-        if (this.forced)
-            return `\n.${this._text}`;
-        return `\n${this._text}`;
     }
 }
 
@@ -123,42 +92,12 @@ export class FountainCharacter extends FountainElement {
             out+=` (Dual)`;
         return out;
     }
-
-    write(params) {
-
-        let pad = "";
-        if (params.pretty)
-            pad = "\t".repeat(3);
-
-        let char = this.name;
-        if (this.isDualDialogue)
-            char+=" ^";
-        if (this.extension)
-            char+=` (${this.extension})`;
-        if (this.forced)
-            char = "@"+char;
-        if (params.lastChar==this.name)
-            char+=" (CONT'D)";
-        params.lastChar = this.name;
-        return `${pad}${char}`;
-    }
 }
 
 
 export class FountainDialogue extends FountainElement {
     constructor(text) {
         super(Element.DIALOGUE, text);
-    }
-
-    write(params) {
-        let output = this._text;
-        if (params.pretty)  {
-            // Ensure there's a tab at the front of each line
-            output = output.split("\n") 
-                .map(line => (`\t${line}`)) 
-                .join("\n"); 
-        }
-        return output;
     }
 }
 
@@ -167,23 +106,12 @@ export class FountainParenthesis extends FountainElement {
     constructor(text) {
         super(Element.PARENTHESIS, text);
     }
-
-    write(params) {
-        let pad = "";
-        if (params.pretty)
-            pad = "\t".repeat(2);
-        return `${pad}(${this._text})`;
-    }
 }
 
 
 export class FountainLyric extends FountainElement {
     constructor(text) {
         super(Element.LYRIC, text);
-    }
-
-    write(params) {
-        return `~${this._text}`;
     }
 }
 
@@ -193,25 +121,12 @@ export class FountainTransition extends FountainElement {
         super(Element.TRANSITION, text);
         this.forced = forced;
     }
-
-    write(params) {
-        let pad = "";
-        if (params.pretty)
-            pad = "\t".repeat(4);
-        if (this.forced)
-            return `>${this._text}`;
-        return `${pad}${this._text}`;
-    }
 }
 
 
 export class FountainPageBreak extends FountainElement {
     constructor() {
         super(Element.PAGEBREAK, "")
-    }
-
-    write(params) {
-        return "===";
     }
 }
 
@@ -235,11 +150,8 @@ export class FountainSection extends FountainElement {
         super(Element.SECTION, text);
         this.level = level;
     }
-
-    write(params) {
-        return `${"#".repeat(this.level)}`;
-    }
 }
+
 
 // Parsed script
 export class FountainScript {

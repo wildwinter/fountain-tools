@@ -48,7 +48,7 @@ describe('Test Function', () => {
     let script = fp.script;
     //script.dump();
     let fw = new FountainWriter();
-    //console.log(fw.write(script));
+    console.log(fw.write(script));
 //    assert.strictEqual(sum(1, 2), 3);
   });
 });

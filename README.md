@@ -99,7 +99,3 @@ Set to false if you want empty dialogue and actions.
 Set to false if you don't want indents in the output.
 ### write(script)
 Pass in a FountainScript, get back a UTF-8 string.
-
-
-TODO:
-* Move write functions into writer.js
