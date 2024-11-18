@@ -62,6 +62,14 @@ export class FountainAction extends FountainElement {
         this.centered = false;
         this.forced = forced;
     }
+
+    // For debugging
+    dump() {
+        let out = `${this.type}:"${this._text}"`
+        if (this.centered)
+            out+=" (centered)";
+        return out;
+    }
 }
 
 

@@ -1,0 +1,18 @@
+ACTION:"He opens the card. A simple little number inside of which is hand written:"
+ACTION:""
+ACTION:"    Scott --"
+ACTION:"    Jacob Billups"
+ACTION:"    Palace Hotel, RM 412"
+ACTION:"    1:00 pm tomorrow"
+ACTION:""
+ACTION:"Scott exasperatedly throws down the card on the table and picks up the phone, hitting speed dial #1…"
+ACTION:""
+ACTION:"Let's test some empty lines."
+ACTION:""
+ACTION:""
+ACTION:"Still okay?"
+CHARACTER:"RANDOM CHARACTER"
+DIALOGUE:"Just doing a bit of dialogue to see what happens."
+ACTION:" CENTERED BIT " (centered)
+ACTION:""
+ACTION:" ANOTHER CENTERED BIT " (centered)

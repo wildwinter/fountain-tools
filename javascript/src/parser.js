@@ -42,7 +42,7 @@ export class FountainParser {
         this._note = null;
 
         this._pending = [];
-        this._padNextAction = null;
+        this._padActions = [];
         
         this._line = "";
         this._lineTrim = "";
@@ -156,22 +156,28 @@ export class FountainParser {
 
             // If this follows an existing action line, put it on as possible padding.
             if (lastElem && lastElem.type == Element.ACTION) {
-                this._padNextAction = elem;
+                this._padActions.push(elem);
                 return;
             }
             return;
         }
 
         // Add padding if there's some outstanding and we're just about to add another action.
-        if (elem.type == Element.ACTION && this._padNextAction) {
+        if (elem.type == Element.ACTION && this._padActions.length>0) {
 
-            if (this.mergeActions && !lastElem.centered)
-                lastElem._text+="\n"+this._padNextAction._text;
-            else
-                this.script.elements.push(this._padNextAction);
+            if (this.mergeActions && !lastElem.centered) {
+                for(const padAction of this._padActions) {
+                    lastElem._text+="\n"+padAction._text;
+                }
+            }
+            else {
+                for(const padAction of this._padActions) {
+                    this.script.elements.push(padAction);
+                }
+            }
         }
 
-        this._padNextAction = null;
+        this._padActions = [];
 
         // If we're allowing actions to be merged, do it here.
         if (this.mergeActions && elem.type == Element.ACTION && !elem.centered) {    
@@ -209,7 +215,7 @@ export class FountainParser {
 
     _parseTitlePage() {
 
-        const regexTitleEntry = /^\s*(.+?)\s*:\s*(.*?)\s*$/;
+        const regexTitleEntry = /^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$/;
         const regexTitleMultilineEntry = /^( {3,}|\t)/;
 
         let match = this._line.match(regexTitleEntry);
