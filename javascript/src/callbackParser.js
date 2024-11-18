@@ -145,7 +145,7 @@ export class FountainCallbackParser extends FountainParser {
                 return;
 
             if (this.onSceneHeading)
-                this.onSceneHeading({text: elem.text});
+                this.onSceneHeading({text: elem.text, sceneNum: elem.sceneNum});
             return;
         }
 

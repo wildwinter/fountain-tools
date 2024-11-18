@@ -264,9 +264,17 @@ export class FountainParser {
         return false;
     }
 
+    _decodeHeading(line) {
+        const regex = /^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$/;
+        const match = line.match(regex);
+        return match ? { text: match[1].trim(), sceneNum: match[2] || null } : null;
+    }
+
     _parseForcedSceneHeading() {
-        if (this._lineTrim.startsWith('.')) {
-            this._addElement(new FountainHeading(this._lineTrim.slice(1), true));
+        const regex = /^\.[a-zA-Z0-9]/;
+        if (regex.test(this._lineTrim)) {
+            let heading = this._decodeHeading(this._lineTrim.slice(1));
+            this._addElement(new FountainHeading(heading.text, heading.sceneNum, true));
             return true;
         }
         return false;
@@ -274,9 +282,10 @@ export class FountainParser {
 
     _parseSceneHeading() {
 
-        const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/;
+        const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/i;
         if (regexHeading.test(this._line)) {
-            this._addElement(new FountainHeading(this._lineTrim));
+            let heading = this._decodeHeading(this._lineTrim);
+            this._addElement(new FountainHeading(heading.text, heading.sceneNum));
             return true;
         }
         return false;

@@ -66,9 +66,19 @@ export class FountainAction extends FountainElement {
 
 
 export class FountainHeading extends FountainElement {
-    constructor(text, forced = false) {
+    constructor(text, sceneNum, forced = false) {
         super(Element.HEADING, text);
+        this.sceneNum = sceneNum;
         this.forced = forced;
+    }
+
+    // For debugging
+    dump() {
+        let out =  `${this.type}:"${this.text}"`;
+        if (this.sceneNum) {
+            out+=` (${this.sceneNum})`;
+        }
+        return out;
     }
 }
 
@@ -164,13 +174,15 @@ export class FountainScript {
     }
 
     dump() {
+        let lines = [];
         for (const header of this.headers) {
-            console.log(`${header.dump()}`);
+            lines.push(`${header.dump()}`);
         }
         let i=0;
         for (const element of this.elements) {
-            console.log(`${element.dump()}`);
+            lines.push(`${element.dump()}`);
         }
+        return lines.join("\n");
     }
 
     getLastElem() {

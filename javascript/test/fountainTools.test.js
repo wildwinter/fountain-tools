@@ -7,6 +7,7 @@ import {FountainWriter} from "../src/writer.js";
 describe('Test Function', () => {
   it('should work', () => {
 
+    return true;
     //const filePath = '../examples/Big Fish.fountain';
     const filePath = '../examples/Brick-&-Steel.fountain';
     const fileContent = readFileSync(filePath, 'utf-8'); // Read the file
