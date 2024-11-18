@@ -356,7 +356,7 @@ export class FountainParser {
         // Remove any CONT'D notes
         if (this._lineTrim.startsWith("@")) {
 
-            let lineTrim = lineTrim.slice(1);
+            let lineTrim = this._lineTrim.slice(1);
 
             let character = this._decodeCharacter(lineTrim);
             if (character==null)
@@ -373,7 +373,7 @@ export class FountainParser {
 
         // Remove any CONT'D notes
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
-        let lineTrim = this._lineTrim.replace(regexCont, ""); 
+        let lineTrim = this._lineTrim.replace(regexCont, "").trim(); 
 
         const regexCharacter = /^([A-Z][A-Z0-9 ]*)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
         if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {

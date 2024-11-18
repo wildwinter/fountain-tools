@@ -49,4 +49,19 @@ describe('FountainParser', () => {
 
   });
 
+  describe('Character', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Character.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Character.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
