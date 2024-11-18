@@ -1,0 +1,19 @@
+CHARACTER:"SANBORN"
+DIALOGUE:"A good ‘ole boy. You know, loves the Army, blood runs green. Country boy. Seems solid."
+PARENTHESIS:"damn"
+CHARACTER:"DAN"
+PARENTHESIS:"asleep"
+DIALOGUE:"Then let’s retire them.
+_Permanently_."
+CHARACTER:"BOB"
+PARENTHESIS:"slowly"
+DIALOGUE:"Trying this."
+PARENTHESIS:"loudly"
+DIALOGUE:"(bouncy)
+Also trying this?"
+ACTION:"(Jack)
+Knife."
+CHARACTER:"MONKEY"
+DIALOGUE:"Boo!"
+PARENTHESIS:"pause"
+DIALOGUE:"Boo again!"

@@ -93,4 +93,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Parenthetical', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Parenthetical.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Parenthetical.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
