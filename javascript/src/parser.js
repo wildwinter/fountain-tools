@@ -48,6 +48,8 @@ export class FountainParser {
         this._lineTrim = "";
         this._lastLineEmpty = true;
         this._lastLine = "";
+
+        this._inDialogue = false;
     }
 
     // Expects UTF-8 text
@@ -154,6 +156,8 @@ export class FountainParser {
         // Are we trying to add a blank action line?
         if (elem.type == Element.ACTION && elem._text.trim()=="" && !elem.centered) {
 
+            this._inDialogue = false;
+
             // If this follows an existing action line, put it on as possible padding.
             if (lastElem && lastElem.type == Element.ACTION) {
                 this._padActions.push(elem);
@@ -188,6 +192,8 @@ export class FountainParser {
         }
 
         this.script.elements.push(elem);
+
+        this._inDialogue = (elem.type == Element.CHARACTER || elem.type == Element.PARENTHESIS || elem.type == Element.DIALOGUE);
     }
 
     _parsePending() {
@@ -328,7 +334,7 @@ export class FountainParser {
         const regexParenthesis = /^\s*\((.*)\)\s*$/
         let lastElem = this._getLastElem();
         let match = this._line.match(regexParenthesis);
-        if (match && lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) ) {
+        if (match && this._inDialogue && lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) ) {
             this._addElement(new FountainParenthesis(match[1]));
             return true;
         }

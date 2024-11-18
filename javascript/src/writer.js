@@ -87,6 +87,12 @@ export class FountainWriter {
 
         if (elem.type == Element.DIALOGUE) {
             let output = elem._text;
+
+            // Make sure blank lines in dialogue have at least a space
+            output = output.split("\n") 
+                    .map(line => line.trim()==""?" ":line) 
+                    .join("\n"); 
+                    
             if (this.prettyPrint)  {
                 // Ensure there's a tab at the front of each line
                 output = output.split("\n") 

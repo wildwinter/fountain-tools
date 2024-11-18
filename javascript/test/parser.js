@@ -64,4 +64,33 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Dialogue', () => {
+    it('should match merged', () => {
+
+      const source = readFileSync('../examples/tests/Dialogue.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Dialogue-Merged.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+
+    it('should match unmerged', () => {
+
+      const source = readFileSync('../examples/tests/Dialogue.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Dialogue-Unmerged.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.mergeDialogue = false;
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });

@@ -1,0 +1,19 @@
+CHARACTER:"SANBORN"
+DIALOGUE:"A good ‘ole boy. You know, loves the Army, blood runs green. Country boy. Seems solid."
+CHARACTER:"DAN"
+DIALOGUE:"Then let’s retire them.
+_Permanently_."
+CHARACTER:"BOB"
+PARENTHESIS:"slowly"
+DIALOGUE:"Trying this."
+PARENTHESIS:"loudly"
+DIALOGUE:"Also trying this?"
+ACTION:"(Jack)
+Knife."
+CHARACTER:"FISH"
+DIALOGUE:"I am
+
+a little fish."
+ACTION:"But I'm an action.
+
+BOSS"
