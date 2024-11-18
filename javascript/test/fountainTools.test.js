@@ -1,5 +1,6 @@
 import {readFileSync} from 'fs'; 
 import {strict as assert} from 'assert';
+import {FountainParser} from "../src/parser.js";
 import {FountainCallbackParser} from "../src/callbackParser.js";
 import {FountainWriter} from "../src/writer.js";
 
@@ -10,6 +11,7 @@ describe('Test Function', () => {
     const filePath = '../examples/Brick-&-Steel.fountain';
     const fileContent = readFileSync(filePath, 'utf-8'); // Read the file
 
+    //let fp = new FountainParser();
     let fp = new FountainCallbackParser();
     fp.onDialogue = (params) => {
       console.log(">>> DIALOGUE", params);
@@ -48,7 +50,7 @@ describe('Test Function', () => {
     let script = fp.script;
     //script.dump();
     let fw = new FountainWriter();
-    console.log(fw.write(script));
+    //console.log(fw.write(script));
 //    assert.strictEqual(sum(1, 2), 3);
   });
 });

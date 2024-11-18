@@ -29,6 +29,9 @@ export class FountainParser {
     constructor() {        
         this.script = new FountainScript();
 
+        this.mergeActions = true;
+        this.mergeDialogue = true;
+
         this._inTitlePage = true;
         this._multiLineHeader = false;
         
@@ -149,7 +152,7 @@ export class FountainParser {
         let lastElem = this._getLastElem();
 
         // Are we trying to add a blank action line?
-        if (elem.type == Element.ACTION && elem._text.trim()=="" ) {
+        if (elem.type == Element.ACTION && elem._text.trim()=="" && !elem.centered) {
 
             // If this follows an existing action line, put it on as possible padding.
             if (lastElem && lastElem.type == Element.ACTION) {
@@ -161,13 +164,24 @@ export class FountainParser {
 
         // Add padding if there's some outstanding and we're just about to add another action.
         if (elem.type == Element.ACTION && this._padNextAction) {
-            this.script.elements.push(this._padNextAction);
+
+            if (this.mergeActions && !lastElem.centered)
+                lastElem._text+="\n"+this._padNextAction._text;
+            else
+                this.script.elements.push(this._padNextAction);
         }
 
         this._padNextAction = null;
 
-        this.script.elements.push(elem);
+        // If we're allowing actions to be merged, do it here.
+        if (this.mergeActions && elem.type == Element.ACTION && !elem.centered) {    
+            if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
+                lastElem._text+= "\n"+elem._text;
+                return;
+            }
+        }
 
+        this.script.elements.push(elem);
     }
 
     _parsePending() {
@@ -381,14 +395,24 @@ export class FountainParser {
 
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
-                if (this._lastLineEmpty)
-                    this._addElement(new FountainDialogue(""));
-                this._addElement(new FountainDialogue(this._lineTrim)); 
+                if (this._lastLineEmpty) {
+                    if (this.mergeDialogue)
+                        lastElem._text+="\n";
+                    else
+                        this._addElement(new FountainDialogue(""));
+                }
+                if (this.mergeDialogue)
+                    lastElem._text+="\n" + this._lineTrim;
+                else
+                    this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
             }
 
             if (!this._lastLineEmpty && this._lineTrim.length>0) {
-                this._addElement(new FountainDialogue(this._lineTrim)); 
+                if (this.mergeDialogue)
+                    lastElem._text+="\n" + this._lineTrim;
+                else
+                    this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
             }
         }

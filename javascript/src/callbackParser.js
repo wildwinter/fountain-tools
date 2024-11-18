@@ -70,6 +70,9 @@ export class FountainCallbackParser extends FountainParser {
 
     addLine(line) {
 
+        this.mergeActions = false; // Don't merge actions, that's a problem for callbacks.
+        this.mergeDialogue = false; // Don't merge dialogue, that's a problem for callbacks.
+
         let elementCount = this.script.elements.length;
         let inTitlePage = this._inTitlePage;
 
