@@ -1,0 +1,9 @@
+ACTION:"The General Lee flies through the air. FREEZE FRAME."
+CHARACTER:"NARRATOR"
+DIALOGUE:"Shoot, to the Dukes that’s about like taking Grandma for a Sunday drive."
+ACTION:"**End of Act One**" (centered)
+PAGEBREAK:""
+PAGEBREAK:""
+ACTION:"**Act Two**" (centered)
+ACTION:""
+ACTION:"The General Lee hangs in the air, right where we left it. The NARRATOR’S voice kicks in."

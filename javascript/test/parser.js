@@ -167,4 +167,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('PageBreak', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/PageBreak.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/PageBreak.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
