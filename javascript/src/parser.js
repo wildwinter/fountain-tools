@@ -259,7 +259,7 @@ export class FountainParser {
     _parseLyrics() {
 
         if (this._lineTrim.startsWith('~')) {
-            this._addElement(new FountainLyric(this._lineTrim.slice(1)));
+            this._addElement(new FountainLyric(this._lineTrim.slice(1).trimStart()));
             return true;
         }
         return false;

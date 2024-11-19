@@ -108,4 +108,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Lyrics', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Lyrics.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Lyrics.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
