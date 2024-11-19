@@ -186,9 +186,18 @@ export class FountainScript {
         for (const header of this.headers) {
             lines.push(`${header.dump()}`);
         }
-        let i=0;
         for (const element of this.elements) {
             lines.push(`${element.dump()}`);
+        }
+        let i=0;
+        for (const note of this.notes) {
+            lines.push(`[[${i}]]${note.dump()}`);
+            i++;
+        }
+        i=0;
+        for (const boneyard of this.boneyards) {
+            lines.push(`/*${i}*/${boneyard.dump()}`);
+            i++;
         }
         return lines.join("\n");
     }
