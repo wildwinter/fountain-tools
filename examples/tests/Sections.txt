@@ -1,0 +1,14 @@
+TITLEENTRY:"CUT TO":""
+SECTION:"This is a Section" (1)
+HEADING:"INT. PALACE HALLWAY - NIGHT"
+ACTION:"You can nest Sections by adding more # characters."
+SECTION:"Act" (1)
+SECTION:"Sequence" (2)
+SECTION:"Scene" (3)
+SECTION:"Another Sequence" (2)
+SECTION:"Another Act" (1)
+SECTION:"ACT I" (1)
+SYNOPSIS:"Set up the characters and the story."
+HEADING:"EXT. BRICK’S PATIO - DAY"
+SYNOPSIS:"This scene sets up Brick & Steel’s new life as retirees. Warm sun, cold beer, and absolutely nothing to do."
+ACTION:"A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something."

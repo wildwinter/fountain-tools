@@ -10,7 +10,8 @@ export const Element = Object.freeze({
     PAGEBREAK: "PAGEBREAK",
     NOTES: "NOTES",
     BONEYARD: "BONEYARD",
-    SECTION: "SECTION"
+    SECTION: "SECTION",
+    SYNOPSIS: "SYNOPSIS"
 });
 
 
@@ -167,6 +168,17 @@ export class FountainSection extends FountainElement {
     constructor(level, text) {
         super(Element.SECTION, text);
         this.level = level;
+    }
+
+    // For debugging
+    dump() {
+        return `${this.type}:"${this._text}" (${this.level})`;
+    }
+}
+
+export class FountainSynopsis extends FountainElement {
+    constructor(text) {
+        super(Element.SYNOPSIS, text);
     }
 }
 

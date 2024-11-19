@@ -2,7 +2,8 @@ import {Element, FountainTitleEntry,
         FountainAction, FountainHeading, FountainCharacter, 
         FountainDialogue, FountainParenthesis, FountainLyric,
         FountainTransition, FountainPageBreak, FountainNote,
-        FountainBoneyard, FountainSection, FountainScript} from "./fountain.js";
+        FountainBoneyard, FountainSection, FountainScript,
+        FountainSynopsis} from "./fountain.js";
 
 // Incremental parser - use .addText(), .addLines(), .addLine() to parse, use .script to retrieve the parsed script.
 export class FountainParser {
@@ -91,6 +92,9 @@ export class FountainParser {
             return;
 
         if (this._parseLyrics())
+            return;
+
+        if (this._parseSynopsis())
             return;
 
         if (this._parseCentredText())
@@ -241,6 +245,16 @@ export class FountainParser {
 
         if (this._lineTrim.startsWith('~')) {
             this._addElement(new FountainLyric(this._lineTrim.slice(1).trimStart()));
+            return true;
+        }
+        return false;
+    }
+
+    _parseSynopsis() {
+
+        const regexSynopsis = /^=(?!\=)/;
+        if (regexSynopsis.test(this._lineTrim)) {
+            this._addElement(new FountainSynopsis(this._lineTrim.slice(1).trimStart()));
             return true;
         }
         return false;
