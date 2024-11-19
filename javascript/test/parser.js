@@ -152,4 +152,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('TitlePage', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/TitlePage.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/TitlePage.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });

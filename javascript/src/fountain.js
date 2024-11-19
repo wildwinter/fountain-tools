@@ -47,7 +47,7 @@ export class FountainTitleEntry extends FountainElement {
 
     // For debugging
     dump() {
-       return `${this.type}:"${this.key}: ${this._text}"`
+       return `${this.type}:"${this.key}":"${this._text}"`
     }
 }
 

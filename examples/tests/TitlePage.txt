@@ -1,0 +1,13 @@
+TITLEENTRY:"Title":"
+    _**BRICK & STEEL**_
+    _**FULL RETIRED**_"
+TITLEENTRY:"Credit":"Written by"
+TITLEENTRY:"Author":"Stu Maschwitz"
+TITLEENTRY:"Source":"Story by KTM"
+TITLEENTRY:"Draft date":"1/20/2012"
+TITLEENTRY:"Contact":"
+    Next Level Productions
+    1588 Mission Dr.
+    Solvang, CA 93463"
+ACTION:"Not a title entry.
+Still: Not a title entry."
