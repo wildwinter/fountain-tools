@@ -212,4 +212,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Boneyards', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Boneyards.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Boneyards.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
