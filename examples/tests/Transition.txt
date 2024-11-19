@@ -12,3 +12,4 @@ CHARACTER:"PERSON"
 DIALOGUE:"More dialogue"
 TRANSITION:"FORCE Transition"
 TRANSITION:"Another transition"
+ACTION:" This isn't a transition" (centered)

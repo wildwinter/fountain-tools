@@ -1,0 +1,22 @@
+<i>italics</i>
+<b>bold</b>
+<b><i>bold italics</i></b>
+<u>underline</u>
+
+From what seems like only INCHES AWAY. <u>Steel’s face FILLS the *Leupold Mark 4* scope</u>.
+
+Steel enters the code on the keypad: <b>*9765*</b>
+
+He dialed *69 and then *23, and then hung up.
+
+He dialed <i>69 and then 23</i>, and then hung up.
+
+He dialed <b><i>69 and then 23</i></b>, and then hung up.
+
+He dialed _69 and then 23 _, and then hung up.
+
+He dialed *69 and then 23*, and then hung up.
+
+As he rattles off the long list, Brick and Steel *share a look.
+
+This is going to be BAD.*

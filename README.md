@@ -60,13 +60,6 @@ Parse an array of UTF-8 text lines.
 ### addLine(line)
 Parse a UTF-8 text lines.
 
-### splitToFormatChunks
-Break a text line into an array of FountainChunk objects. Each object has the following properties:
-* italic (boolean)
-* bold (boolean)
-* underline (boolean)
-* text (string)
-
 ### script
 Parsed script
 
@@ -99,3 +92,6 @@ Set to false if you want empty dialogue and actions.
 Set to false if you don't want indents in the output.
 ### write(script)
 Pass in a FountainScript, get back a UTF-8 string.
+
+## fountainToHtml
+Convert Fountain markeup (*italic*, **bold**, ***bolditalic*** _underline_) to HTML.

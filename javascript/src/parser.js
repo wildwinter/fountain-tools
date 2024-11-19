@@ -4,25 +4,6 @@ import {Element, FountainTitleEntry,
         FountainTransition, FountainPageBreak, FountainNote,
         FountainBoneyard, FountainSection, FountainScript} from "./fountain.js";
 
-// Use FormatParser.splitToFormatChunks on any piece of text to get an array of format chunks 
-// e.g. from **BOLD** *ITALIC* ***BOLDITALIC*** _UNDERLINE_
-export class FountainChunk {
-    constructor() {
-        this.text = "";
-        this.bold = false;
-        this.italic = false;
-        this.underline = false;
-    }
-
-    copy() {
-        let chunk = new FountainChunk();
-        chunk.bold = this.bold;
-        chunk.italic = this.italic;
-        chunk.underline = this.underline;
-        return chunk;
-    }
-}
-
 // Incremental parser - use .addText(), .addLines(), .addLine() to parse, use .script to retrieve the parsed script.
 export class FountainParser {
 
@@ -565,71 +546,5 @@ export class FountainParser {
         }
         return false;
     }
-
-    // Take a single line, split it into bold / italic / underlined chunks
-    static splitToFormatChunks(line) {
-
-        let chunk = new FountainChunk();
-        let chunks = [chunk];
-        let isEscaped = false;
-        let stars = "";
-
-        for (const c of line) {
-
-            if (isEscaped) {
-                isEscaped = false;
-                chunk.text+=c;
-                continue;
-            }
-
-            if (stars!="" && c!=stars[0]) {
-
-                let newChunk = chunk;
-                if (chunk.text!="") {
-                    newChunk = chunk.copy();
-                    chunks.push(newChunk);
-                }
-                if (stars=="***") {
-                    newChunk.bold = !chunk.bold;
-                    newChunk.italic = !chunk.italic;
-                } else if (stars=="**") {
-                    newChunk.bold = !chunk.bold;
-                } else if (stars=="*") {
-                    newChunk.italic = !chunk.italic;
-                }
-                chunk = newChunk;
-                stars = ""
-            }
-
-            if (c=='\\') {
-                isEscaped = true;
-                continue;
-            }
-                                                                                        
-            if (c=='_') {
-                let newChunk = chunk;
-                if (chunk.text!="") {
-                    newChunk = chunk.copy();
-                    chunks.push(newChunk);
-                }
-                newChunk.underline = !chunk.underline;
-                chunk = newChunk
-                continue
-            }
-
-            if (c=='*') {
-                stars+=c;
-                continue;
-            }
-                        
-            chunk.text+=c;
-        }
-
-        // Remove the last item if it's empty
-        if (chunk.text=="") {
-            chunks.pop();
-        }
-
-        return chunks;
-    }
+    
 }

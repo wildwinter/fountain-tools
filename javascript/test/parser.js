@@ -1,6 +1,7 @@
 import {readFileSync} from 'fs'; 
 import {strict as assert} from 'assert';
 import {FountainParser} from "../src/parser.js";
+import {fountainToHtml} from '../src/formatHelper.js';
 
 describe('FountainParser', () => {
 
@@ -135,6 +136,19 @@ describe('FountainParser', () => {
       let output = fp.script.dump();
       //console.log(output);
       assert.equal(match, output);
+    });
+  });
+
+  describe('Formatted', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Formatted.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Formatted.txt', 'utf-8');
+
+      let formattedText = fountainToHtml(source);
+      
+      //console.log(formattedText);
+      assert.equal(match, formattedText);
     });
   });
 
