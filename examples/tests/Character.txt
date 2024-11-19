@@ -27,3 +27,13 @@ CHARACTER:"3CPO"
 DIALOGUE:"Works"
 CHARACTER:"DONT"
 DIALOGUE:"Forget padding."
+CHARACTER:"ME"
+DIALOGUE:"Should work"
+CHARACTER:"BUT" "(Dual)" (Dual)
+DIALOGUE:"Should work."
+ACTION:"AND ^ (Dual)
+Shouldn't work"
+CHARACTER:"TEST"
+DIALOGUE:"Proper dual."
+CHARACTER:"TEST2" (Dual)
+DIALOGUE:"Proper dual."

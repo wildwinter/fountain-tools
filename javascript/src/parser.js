@@ -344,7 +344,7 @@ export class FountainParser {
     _decodeCharacter(line) {
         // Remove any CONT'D notes
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
-        const regexCharacter = /^([^(\^]+?)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
+        const regexCharacter = /^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$/;
         
         let lineTrim = line.trim().replace(regexCont, ""); 
         
@@ -352,7 +352,7 @@ export class FountainParser {
         if (match) {
             const name = match[1].trim(); // Extract NAME
             const extension = match[2] ? match[2].trim() : null; // Extract extension if present
-            const hasCaret = line.includes('^'); // Check for the caret
+            const hasCaret = line.trim().endsWith('^'); // Check for the caret
             return { name:name, dual:hasCaret, extension:extension };
         }
         return null; // Invalid format
@@ -381,7 +381,7 @@ export class FountainParser {
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
         let lineTrim = this._lineTrim.replace(regexCont, "").trim(); 
 
-        const regexCharacter = /^([A-Z][A-Z0-9 ]*)\s*(?:\^\s*)?(?:\(([^)]+)\))?$/;
+        const regexCharacter = /^([A-Z][A-Z0-9 ]*)\s*(?:\(.*\))?(?:\s*\^\s*)?$/;
         if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {
 
             let character = this._decodeCharacter(lineTrim);
