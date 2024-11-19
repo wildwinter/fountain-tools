@@ -123,4 +123,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Transition', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/Transition.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/Transition.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });
