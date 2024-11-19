@@ -1,0 +1,50 @@
+TITLEPAGE:{"Title":"\n    _**BRICK & STEEL**_\n    _**FULL RETIRED**_","Credit":"Written by","Author":"Stu Maschwitz","Source":"Story by KTM","Draft date":"1/20/2012","Contact":"\n    Next Level Productions\n    1588 Mission Dr.\n    Solvang, CA 93463"}
+ACTION:{"text":"Not a title entry."}
+ACTION:{"text":"Still: Not a title entry."}
+TRANSITION:{"text":"CUT TO:"}
+SECTION:{"text":"This is a Section","level":1}
+HEADING:{"text":"INT. PALACE HALLWAY - NIGHT","sceneNum":null}
+ACTION:{"text":"You can nest Sections by adding more # characters."}
+SECTION:{"text":"Act","level":1}
+SECTION:{"text":"Sequence","level":2}
+SECTION:{"text":"Scene","level":3}
+SECTION:{"text":"Another Sequence","level":2}
+SECTION:{"text":"Another Act","level":1}
+SECTION:{"text":"ACT I","level":1}
+SYNOPSIS:{"text":"Set up the characters and the story."}
+HEADING:{"text":"EXT. BRICK’S PATIO - DAY","sceneNum":null}
+SYNOPSIS:{"text":"This scene sets up Brick & Steel’s new life as retirees. Warm sun, cold beer, and absolutely nothing to do."}
+ACTION:{"text":"A gorgeous day. The sun is shining. But BRICK BRADDOCK, retired police detective, is sitting quietly, contemplating -- something."}
+DIALOGUE:{"character":"STEEL","extension":null,"parenthetical":null,"line":"The man’s a myth!","dual":false}
+DIALOGUE:{"character":"STEEL","extension":null,"parenthetical":null,"line":"And now I'm padded!","dual":false}
+DIALOGUE:{"character":"STEEL","extension":null,"parenthetical":null,"line":"Ignoring cont.","dual":false}
+DIALOGUE:{"character":"BOB","extension":"test extension","parenthetical":null,"line":"This one has an extension.","dual":false}
+ACTION:{"text":"BOB"}
+ACTION:{"text":"This one shouldn't work, because blank line."}
+DIALOGUE:{"character":"MOM","extension":"O. S.","parenthetical":null,"line":"Luke! Come down for supper!","dual":false}
+ACTION:{"text":"Han (O. S.) "}
+ACTION:{"text":"This shouldn't work."}
+DIALOGUE:{"character":"Han","extension":"O.S.","parenthetical":null,"line":"This should.","dual":false}
+DIALOGUE:{"character":"STEEL","extension":"V.O.","parenthetical":null,"line":"Does this work with contd?","dual":false}
+DIALOGUE:{"character":"STEEL","extension":"V.O.","parenthetical":null,"line":"And this?","dual":false}
+ACTION:{"text":"3CPO"}
+ACTION:{"text":"Not work."}
+DIALOGUE:{"character":"C3PO","extension":null,"parenthetical":null,"line":"Works","dual":false}
+DIALOGUE:{"character":"3CPO","extension":null,"parenthetical":null,"line":"Works","dual":false}
+DIALOGUE:{"character":"DONT","extension":null,"parenthetical":null,"line":"Forget padding.","dual":false}
+DIALOGUE:{"character":"ME","extension":null,"parenthetical":null,"line":"Should work","dual":false}
+DIALOGUE:{"character":"BUT","extension":"Dual","parenthetical":null,"line":"Should work.","dual":true}
+ACTION:{"text":"AND ^ (Dual)"}
+ACTION:{"text":"Shouldn't work"}
+DIALOGUE:{"character":"TEST","extension":null,"parenthetical":null,"line":"Proper dual.","dual":false}
+DIALOGUE:{"character":"TEST2","extension":null,"parenthetical":null,"line":"Proper dual.","dual":true}
+DIALOGUE:{"character":"SANBORN","extension":null,"parenthetical":null,"line":"A good ‘ole boy. You know, loves the Army, blood runs green. Country boy. Seems solid.","dual":false}
+DIALOGUE:{"character":"DAN","extension":null,"parenthetical":null,"line":"Then let’s retire them.","dual":false}
+DIALOGUE:{"character":"DAN","extension":null,"parenthetical":null,"line":"_Permanently_.","dual":false}
+DIALOGUE:{"character":"BOB","extension":null,"parenthetical":"slowly","line":"Trying this.","dual":false}
+DIALOGUE:{"character":"BOB","extension":null,"parenthetical":"loudly","line":"Also trying this?","dual":false}
+ACTION:{"text":"(Jack)"}
+ACTION:{"text":"Knife."}
+DIALOGUE:{"character":"FISH","extension":null,"parenthetical":null,"line":"I am","dual":false}
+DIALOGUE:{"character":"FISH","extension":null,"parenthetical":null,"line":"a little fish.","dual":false}
+ACTION:{"text":"But I'm an action."}

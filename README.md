@@ -83,6 +83,8 @@ text: string
 ### onSection
 text: string
 level: number
+### onSynopsis
+text: string
 ### onPageBreak
 ### ignoreBlanks
 Set to false if you want empty dialogue and actions.

@@ -58,6 +58,13 @@ export class FountainCallbackParser extends FountainParser {
         */
         this.onSection = null;
 
+        /*  
+            {
+                text: string
+            }
+        */
+        this.onSynopsis = null;
+
         /* No params */
         this.onPageBreak = null;
 
@@ -171,11 +178,15 @@ export class FountainCallbackParser extends FountainParser {
     
         if (elem.type == Element.SECTION) {
 
-            if (this.ignoreBlanks && !elem.text.trim())
-                return;
-
             if (this.onSection)
                 this.onSection({text: elem.text, level:elem.level});
+            return;
+        }
+
+        if (elem.type == Element.SYNOPSIS) {
+
+            if (this.onSynopsis)
+                this.onSynopsis({text: elem.text});
             return;
         }
 
