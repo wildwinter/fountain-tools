@@ -1,0 +1,39 @@
+ACTION:"Murtaugh, springing hell bent for leather -- and folks, grab your hats … because just then, a BELL COBRA HELICOPTER crests the edge of the bluff.
+
+An explosion of sound…
+As it rises like an avenging angel …
+Hovers, shattering the air with turbo-throb, sandblasting the hillside with a roto-wash of loose dirt, tables, chairs, everything that’s not nailed down …
+
+Screaming, chaos, frenzy.
+Three words that apply to this scene."
+PAGEBREAK:""
+HEADING:"INT. CASINO - NIGHT"
+ACTION:"THE DEALER eyes the new player warily."
+CHARACTER:"SCANNING THE AISLES…"
+DIALOGUE:"Where is that pit boss?"
+ACTION:"No luck. He has no choice to deal the cards."
+PAGEBREAK:""
+HEADING:"INT. CASINO - NIGHT"
+ACTION:"THE DEALER eyes the new player warily.
+
+SCANNING THE AISLES…
+Where is that pit boss?
+
+No luck. He has no choice to deal the cards."
+PAGEBREAK:""
+CHARACTER:"DEALER"
+DIALOGUE:"Ten.
+Four.
+Dealer gets a seven."
+ACTION:"Hit or stand sir?"
+CHARACTER:"MONKEY"
+DIALOGUE:"Dude, I’m a monkey."
+PAGEBREAK:""
+CHARACTER:"DEALER"
+DIALOGUE:"Ten.
+Four.
+Dealer gets a seven.
+
+Hit or stand sir?"
+CHARACTER:"MONKEY"
+DIALOGUE:"Dude, I’m a monkey."

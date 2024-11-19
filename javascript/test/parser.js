@@ -182,4 +182,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('LineBreaks', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../examples/tests/LineBreaks.fountain', 'utf-8');
+      const match = readFileSync('../examples/tests/LineBreaks.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
+
 });

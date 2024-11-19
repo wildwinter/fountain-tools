@@ -362,7 +362,7 @@ export class FountainParser {
         const regexCont = /\(\s*CONT[’']D\s*\)/g;
         let lineTrim = this._lineTrim.replace(regexCont, "").trim(); 
 
-        const regexCharacter = /^([A-Z][A-Z0-9 ]*)\s*(?:\(.*\))?(?:\s*\^\s*)?$/;
+        const regexCharacter = /^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$/;
         if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {
 
             let character = this._decodeCharacter(lineTrim);
@@ -546,5 +546,5 @@ export class FountainParser {
         }
         return false;
     }
-    
+
 }
