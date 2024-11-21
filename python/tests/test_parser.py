@@ -12,15 +12,17 @@ class TestParser(unittest.TestCase):
         source = ""
         with open("../tests/SceneHeading.fountain", mode="r", encoding="utf-8") as file:
             source = file.read()
+        match = ""
+        with open("../tests/SceneHeading.txt", mode="r", encoding="utf-8") as file:
+            match = file.read()
 
         fp = FountainParser()
         fp.add_text(source)
 
         output = fp.script.dump();
 
-        match = "expected_output"
-        output = "expected_output"
-        self.assertEqual(match, output)
+        self.maxDiff = None
+        self.assertMultiLineEqual(match, output)
 
 if __name__ == "__main__":
     unittest.main()
