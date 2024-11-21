@@ -6,7 +6,11 @@
   "scripts": {
     "test": "npm run test:all",
     "test:js": "cd javascript && npm test",
-    "test:all": "npm run test:js"
+    "test:py": "cd python && python3 -m unittest discover -s tests",
+    "test:all": "npm run test:js && npm run test:py",
+    "dist": "npm run build:all",
+    "dist:js": "cd javascript && npx rollup -c",
+    "dist:all": "npm run dist:js"
   },
   "keywords": [],
   "author": "",
