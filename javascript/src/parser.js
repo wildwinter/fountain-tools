@@ -139,7 +139,7 @@ export class FountainParser {
         let lastElem = this._getLastElem();
 
         // Are we trying to add a blank action line?
-        if (elem.type == Element.ACTION && elem._text.trim()=="" && !elem.centered) {
+        if (elem.type == Element.ACTION && elem.isEmpty() && !elem.centered) {
 
             this._inDialogue = false;
 
@@ -156,7 +156,7 @@ export class FountainParser {
 
             if (this.mergeActions && !lastElem.centered) {
                 for(const padAction of this._padActions) {
-                    lastElem._text+="\n"+padAction._text;
+                    lastElem.appendLine(padAction.textRaw);
                 }
             }
             else {
@@ -171,7 +171,7 @@ export class FountainParser {
         // If we're allowing actions to be merged, do it here.
         if (this.mergeActions && elem.type == Element.ACTION && !elem.centered) {    
             if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
-                lastElem._text+= "\n"+elem._text;
+                lastElem.appendLine(elem.textRaw);
                 return;
             }
         }
@@ -221,7 +221,7 @@ export class FountainParser {
         if (this._multiLineHeader) { // If we're expecting text on this line
             if (regexTitleMultilineEntry.test(this._line)) {
                 let header = this.script.headers[this.script.headers.length-1];
-                header._text+="\n"+this._line;
+                header.appendLine(this._line);
                 return true;
             }
 
@@ -413,12 +413,12 @@ export class FountainParser {
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
                 if (this._lastLineEmpty) {
                     if (this.mergeDialogue)
-                        lastElem._text+="\n";
+                        lastElem.appendLine("");
                     else
                         this._addElement(new FountainDialogue(""));
                 }
                 if (this.mergeDialogue)
-                    lastElem._text+="\n" + this._lineTrim;
+                    lastElem.appendLine(this._lineTrim);
                 else
                     this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
@@ -426,7 +426,7 @@ export class FountainParser {
 
             if (!this._lastLineEmpty && this._lineTrim.length>0) {
                 if (this.mergeDialogue)
-                    lastElem._text+="\n" + this._lineTrim;
+                    lastElem.appendLine(this._lineTrim);
                 else
                     this._addElement(new FountainDialogue(this._lineTrim)); 
                 return true;
@@ -480,7 +480,7 @@ export class FountainParser {
             // Check for end of note content
             let idx = this._line.indexOf("*/", lastTag);
             if (idx>-1) {
-                this._boneyard._text+="\n"+this._line.slice(0, idx);
+                this._boneyard.appendLine(this._line.slice(0, idx));
                 this.script.boneyards.push(this._boneyard);
                 let tag = `/*${this.script.boneyards.length-1}*/`;
                 this._line = this._lineBeforeBoneyard+tag+this._line.slice(idx+2);
@@ -488,7 +488,7 @@ export class FountainParser {
                 this._boneyard = null;
             }
             else { // Still in boneyard
-                this._boneyard._text+="\n"+this._line;
+                this._boneyard.appendLine(this._line);
                 return true;
             }
         }
@@ -528,7 +528,7 @@ export class FountainParser {
             // Check for end of note content
             let idx = this._line.indexOf("]]", lastTag);
             if (idx>-1) {
-                this._note._text+="\n"+this._line.slice(0, idx);
+                this._note.appendLine(this._line.slice(0, idx));
                 this.script.notes.push(this._note);
                 let tag = `[[${this.script.notes.length-1}]]`;
                 this._line = this._lineBeforeNote+tag+this._line.slice(idx+2);
@@ -544,7 +544,7 @@ export class FountainParser {
                 this._note = null;
             }
             else { // Still in notes
-                this._note._text+="\n"+this._line;
+                this._note.appendLine(this._line);
                 return true;
             }
         } 

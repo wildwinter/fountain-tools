@@ -129,7 +129,7 @@ class FountainParser:
         last_elem = self._get_last_elem()
 
         # Handle blank action lines
-        if elem.type == Element.ACTION and not elem._text.strip() and not elem.centered:
+        if elem.type == Element.ACTION and elem.is_empty() and not elem.centered:
             self._inDialogue = False
 
             if last_elem and last_elem.type == Element.ACTION:
@@ -141,7 +141,7 @@ class FountainParser:
         if elem.type == Element.ACTION and self._padActions:
             if self.mergeActions and last_elem and not last_elem.centered:
                 for pad_action in self._padActions:
-                    last_elem._text += "\n" + pad_action._text
+                    last_elem.append_line(pad_action.text_raw)
             else:
                 self.script.elements.extend(self._padActions)
 
@@ -156,7 +156,7 @@ class FountainParser:
             and last_elem.type == Element.ACTION
             and not last_elem.centered
         ):
-            last_elem._text += "\n" + elem._text
+            last_elem.append_line(elem.text_raw)
             return
 
         # Add the element
@@ -196,7 +196,7 @@ class FountainParser:
             # If we're expecting text on this line
             if regex_title_multiline_entry.match(self._line):
                 header = self.script.headers[-1]
-                header.text += "\n" + self._line
+                header.append_line(self._line)
                 return True
 
         self._inTitlePage = False
@@ -303,7 +303,7 @@ class FountainParser:
         if regex_transition.match(self._line) and self._lastLineEmpty:
             # Add as pending to determine if it's a transition or action based on the next line
             self._pending.append({
-                "type": "TRANSITION",
+                "type": Element.TRANSITION,
                 "element": FountainTransition(self._lineTrim),
                 "backup": FountainAction(self._lineTrim)
             })
@@ -382,7 +382,7 @@ class FountainParser:
 
                 # Can't commit until the next line isn't empty
                 self._pending.append({
-                    "type": "CHARACTER",
+                    "type":  Element.CHARACTER,
                     "element": char_element,
                     "backup": FountainAction(self._lineTrim)
                 })
@@ -396,26 +396,32 @@ class FountainParser:
         """
         lastElem = self._get_last_elem()
 
-        # Case 1: Dialogue follows a character or parenthesis
-        if lastElem and self._line and lastElem.__class__.__name__ in ["FountainCharacter", "FountainParenthesis"]:
+        if lastElem and self._line and lastElem.type in [Element.CHARACTER, Element.PARENTHESIS]:
             self._add_element(FountainDialogue(self._lineTrim))
             return True
 
-        # Case 2: Dialogue continuation (merging lines)
-        if lastElem and lastElem.__class__.__name__ == "FountainDialogue":
+        # Dialogue continuation (merging lines)
+        if lastElem and lastElem.type == Element.DIALOGUE:
             # Special case: Line-break in dialogue
             if self._lastLineEmpty and self._lastLine.strip():
                 if self.mergeDialogue:
-                    lastElem.text += "\n"
+                    lastElem.append_line("")
                 else:
                     self._add_element(FountainDialogue(""))
             
-            # Merge current dialogue line
-            if self.mergeDialogue:
-                lastElem.text += "\n" + self._lineTrim
-            else:
-                self._add_element(FountainDialogue(self._lineTrim))
-            return True
+                # Merge current dialogue line
+                if self.mergeDialogue:
+                    lastElem.append_line(self._lineTrim)
+                else:
+                    self._add_element(FountainDialogue(self._lineTrim))
+                return True
+            
+            if not self._lastLineEmpty and self._lineTrim.strip():
+                if self.mergeDialogue:
+                    lastElem.append_line(self._lineTrim)
+                else:
+                    self._add_element(FountainDialogue(self._lineTrim))
+                return True
 
         return False
 
@@ -468,14 +474,14 @@ class FountainParser:
             # Check for the end of the current boneyard block
             idx = self._line.find("*/", last_tag_idx)
             if idx > -1:  # Boneyard ends
-                self._boneyard.text += "\n" + self._line[:idx]
+                self._boneyard.append_line(self._line[:idx])
                 self.script.boneyards.append(self._boneyard)
                 tag = f"/*{len(self.script.boneyards) - 1}*/"
                 self._line = self._lineBeforeBoneyard + tag + self._line[idx + 2:]
                 self._lineBeforeBoneyard = ""
                 self._boneyard = None
             else:  # Still in boneyard
-                self._boneyard.text += "\n" + self._line
+                self._boneyard.append_line(self._line)
                 return True
 
         return False
@@ -512,14 +518,14 @@ class FountainParser:
             # Check for the end of the current note block
             idx = self._line.find("}}", last_tag_idx)
             if idx > -1:  # Note block ends
-                self._note.text += "\n" + self._line[:idx]
+                self._note.append_line(self._line[:idx])
                 self.script.notes.append(self._note)
                 tag = f"{{{{{len(self.script.notes) - 1}}}}}"
                 self._line = self._lineBeforeNote + tag + self._line[idx + 2:]
                 self._lineBeforeNote = ""
                 self._note = None
             else:  # Still in the note block
-                self._note.text += "\n" + self._line
+                self._note.append_line(self._line)
                 return True
 
         return False

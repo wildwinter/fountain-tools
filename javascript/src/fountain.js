@@ -29,8 +29,16 @@ export class FountainElement {
     }
 
     // Returns with embedded notes (e.g. [[1]] means notes index 1) or boneyards (e.g. /*2*/ means boneyard index 2)
-    get textWithAnnotations() {
+    get textRaw() {
         return this._text;
+    }
+
+    appendLine(line) {
+        this._text+="\n"+line;
+    }
+
+    isEmpty() {
+        return this._text.trim()=="";
     }
 
     // For debugging

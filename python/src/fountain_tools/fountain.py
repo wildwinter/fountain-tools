@@ -32,9 +32,15 @@ class FountainElement:
         return re.sub(regex, "", self._text)
 
     @property
-    def text_with_annotations(self):
+    def text_raw(self):
         # Returns text with embedded notes or boneyards
         return self._text
+
+    def append_line(self, line):
+        self._text+="\n"+line
+
+    def is_empty(self):
+        return not self._text.strip()
 
     def dump(self):
         # For debugging
