@@ -230,7 +230,7 @@ class FountainParser:
     def _parse_centred_text(self):
         """Parses centered text if the line starts and ends with angle brackets '>' and '<'."""
         if self._lineTrim.startswith(">") and self._lineTrim.endswith("<"):
-            centered_text = self._lineTrim[1:-1].strip()
+            centered_text = self._lineTrim[1:-1]
             centered_action = FountainAction(centered_text)
             centered_action.centered = True
             self._add_element(centered_action)
@@ -256,7 +256,8 @@ class FountainParser:
         Parses a forced scene heading. 
         A forced scene heading starts with a dot (`.`) followed by text.
         """
-        if self._lineTrim.startswith("."):
+        regex = re.compile(r"^\.[a-zA-Z0-9]")
+        if regex.match(self._lineTrim):
             heading_data = self._decode_heading(self._lineTrim[1:])
             if heading_data:
                 self._add_element(FountainHeading(
@@ -316,7 +317,10 @@ class FountainParser:
         Parentheticals are lines enclosed in parentheses.
         """
         regex_parenthesis = re.compile(r"^\(.*\)$")
-        if regex_parenthesis.match(self._lineTrim):
+        lastElem = self._get_last_elem()
+        if regex_parenthesis.match(self._lineTrim) \
+            and self._inDialogue \
+            and lastElem and (lastElem.type == Element.CHARACTER or lastElem.type == Element.DIALOGUE):
             parenthesis_text = self._lineTrim.strip("()").strip()
             self._add_element(FountainParenthesis(parenthesis_text))
             return True
@@ -403,7 +407,7 @@ class FountainParser:
         # Dialogue continuation (merging lines)
         if lastElem and lastElem.type == Element.DIALOGUE:
             # Special case: Line-break in dialogue
-            if self._lastLineEmpty and self._lastLine.strip():
+            if self._lastLineEmpty and len(self._lastLine)>0:
                 if self.mergeDialogue:
                     lastElem.append_line("")
                 else:
@@ -416,7 +420,7 @@ class FountainParser:
                     self._add_element(FountainDialogue(self._lineTrim))
                 return True
             
-            if not self._lastLineEmpty and self._lineTrim.strip():
+            if not self._lastLineEmpty and len(self._lineTrim)>0:
                 if self.mergeDialogue:
                     lastElem.append_line(self._lineTrim)
                 else:
@@ -450,10 +454,10 @@ class FountainParser:
         """
         # Handle inline boneyards
         open_idx = self._line.find("/*")
-        close_idx = self._line.find("*/")
+        close_idx = self._line.find("*/", open_idx if open_idx>-1 else 0)
         last_tag_idx = -1
 
-        while open_idx > -1 and close_idx > -1:
+        while open_idx > -1 and close_idx > open_idx:
             # Extract boneyard content and replace it with a tag
             boneyard_text = self._line[open_idx + 2:close_idx]
             self.script.boneyards.append(FountainBoneyard(boneyard_text))
@@ -465,14 +469,14 @@ class FountainParser:
 
         # Check for the start of a boneyard block
         if not self._boneyard:
-            idx = self._line.find("/*", last_tag_idx)
+            idx = self._line.find("/*", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Entering a boneyard block
                 self._lineBeforeBoneyard = self._line[:idx]
                 self._boneyard = FountainBoneyard(self._line[idx + 2:])
                 return True
         else:
             # Check for the end of the current boneyard block
-            idx = self._line.find("*/", last_tag_idx)
+            idx = self._line.find("*/", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Boneyard ends
                 self._boneyard.append_line(self._line[:idx])
                 self.script.boneyards.append(self._boneyard)
@@ -489,39 +493,46 @@ class FountainParser:
 
     def _parse_notes(self):
         """
-        Parses note blocks ({{ ... }}).
+        Parses note blocks ([[ ... ]]).
         Notes are blocks of text ignored by the script but stored for reference.
         """
         # Handle inline notes
-        open_idx = self._line.find("{{")
-        close_idx = self._line.find("}}")
+        open_idx = self._line.find("[[")
+        close_idx = self._line.find("]]", open_idx if open_idx>-1 else 0 )
         last_tag_idx = -1
 
-        while open_idx > -1 and close_idx > -1:
+        while open_idx > -1 and close_idx > open_idx:
             # Extract note content and replace it with a tag
             note_text = self._line[open_idx + 2:close_idx]
             self.script.notes.append(FountainNote(note_text))
-            tag = f"{{{{{len(self.script.notes) - 1}}}}}"
+            tag = f"[[{len(self.script.notes) - 1}]]"
             self._line = self._line[:open_idx] + tag + self._line[close_idx + 2:]
             last_tag_idx = open_idx + len(tag)
-            open_idx = self._line.find("{{", last_tag_idx)
-            close_idx = self._line.find("}}", last_tag_idx)
+            open_idx = self._line.find("[[", last_tag_idx)
+            close_idx = self._line.find("]]", last_tag_idx)
 
         # Check for the start of a note block
         if not self._note:
-            idx = self._line.find("{{", last_tag_idx)
+            idx = self._line.find("[[", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Entering a note block
                 self._lineBeforeNote = self._line[:idx]
                 self._note = FountainNote(self._line[idx + 2:])
                 return True
         else:
             # Check for the end of the current note block
-            idx = self._line.find("}}", last_tag_idx)
+            idx = self._line.find("]]", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Note block ends
                 self._note.append_line(self._line[:idx])
                 self.script.notes.append(self._note)
-                tag = f"{{{{{len(self.script.notes) - 1}}}}}"
+                tag = f"[[{len(self.script.notes) - 1}]]"
                 self._line = self._lineBeforeNote + tag + self._line[idx + 2:]
+                self._lineBeforeNote = ""
+                self._note = None
+            elif self._line=="":
+                # End of note due to line break
+                self.script.notes.append(self._note)
+                tag = f"[[{len(self.script.notes) - 1}]]"
+                self._line = self._lineBeforeNote + tag
                 self._lineBeforeNote = ""
                 self._note = None
             else:  # Still in the note block
@@ -535,12 +546,16 @@ class FountainParser:
         Parses a section heading. 
         Section headings are lines starting with one or more '#' characters.
         """
-        regex_section = re.compile(r"^(#+)\s*(.*)$")
-        match = regex_section.match(self._lineTrim)
-
-        if match:
-            depth = len(match.group(1))  # Number of '#' characters determines the depth
-            section_text = match.group(2).strip()  # Text following the '#' characters
-            self._add_element(FountainSection(section_text, depth))
+        if self._lineTrim.startswith("###"):
+            self._add_element(FountainSection(3, self._lineTrim[3:].strip()))
             return True
+        
+        if self._lineTrim.startswith("##"):
+            self._add_element(FountainSection(2, self._lineTrim[2:].strip()))
+            return True
+        
+        if self._lineTrim.startswith("#"):
+            self._add_element(FountainSection(1, self._lineTrim[1:].strip()))
+            return True
+        
         return False

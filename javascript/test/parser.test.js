@@ -1,9 +1,23 @@
 import {readFileSync} from 'fs'; 
 import {strict as assert} from 'assert';
 import {FountainParser} from "../src/parser.js";
-import {fountainToHtml} from '../src/formatHelper.js';
 
 describe('FountainParser', () => {
+
+  describe('Scratch', () => {
+    it('should match', () => {
+
+      const source = readFileSync('../tests/Scratch.fountain', 'utf-8');
+      const match = readFileSync('../tests/Scratch.txt', 'utf-8');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(match, output);
+    });
+  });
 
   describe('SceneHeading', () => {
     it('should match', () => {
@@ -136,19 +150,6 @@ describe('FountainParser', () => {
       let output = fp.script.dump();
       //console.log(output);
       assert.equal(match, output);
-    });
-  });
-
-  describe('Formatted', () => {
-    it('should match', () => {
-
-      const source = readFileSync('../tests/Formatted.fountain', 'utf-8');
-      const match = readFileSync('../tests/Formatted.txt', 'utf-8');
-
-      let formattedText = fountainToHtml(source);
-      
-      //console.log(formattedText);
-      assert.equal(match, formattedText);
     });
   });
 

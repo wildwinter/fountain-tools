@@ -411,12 +411,10 @@ export class FountainParser {
 
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
-                if (this._lastLineEmpty) {
-                    if (this.mergeDialogue)
-                        lastElem.appendLine("");
-                    else
-                        this._addElement(new FountainDialogue(""));
-                }
+                if (this.mergeDialogue)
+                    lastElem.appendLine("");
+                else
+                    this._addElement(new FountainDialogue(""));
                 if (this.mergeDialogue)
                     lastElem.appendLine(this._lineTrim);
                 else
@@ -453,9 +451,9 @@ export class FountainParser {
 
         // Deal with any in-line boneyards
         let open = this._line.indexOf("/*");
-        let close = this._line.indexOf("*/");
+        let close = this._line.indexOf("*/", open>-1?open:0);
         let lastTag = -1;
-        while (open>-1 && close>-1) {
+        while (open>-1 && close>open) {
             let boneyardText = this._line.slice(open+2, close);
             this.script.boneyards.push(new FountainBoneyard(boneyardText));
             let tag = `/*${this.script.boneyards.length-1}*/`;
@@ -468,7 +466,7 @@ export class FountainParser {
         // If not in boneyard, check for boneyard content
         if (!this._boneyard) {
 
-            let idx = this._line.indexOf("/*", lastTag);
+            let idx = this._line.indexOf("/*", lastTag>-1?lastTag:0);
             if (idx>-1) { // Move into boneyard
                 this._lineBeforeBoneyard = this._line.slice(0, idx);
                 this._boneyard = new FountainBoneyard(this._line.slice(idx+2));
@@ -477,8 +475,8 @@ export class FountainParser {
 
         } else {
 
-            // Check for end of note content
-            let idx = this._line.indexOf("*/", lastTag);
+            // Check for end of boneyard content
+            let idx = this._line.indexOf("*/", lastTag>-1?lastTag:0);
             if (idx>-1) {
                 this._boneyard.appendLine(this._line.slice(0, idx));
                 this.script.boneyards.push(this._boneyard);
@@ -500,9 +498,9 @@ export class FountainParser {
 
         // Deal with any in-line notes
         let open = this._line.indexOf("[[");
-        let close = this._line.indexOf("]]");
+        let close = this._line.indexOf("]]", open>-1?open:0);
         let lastTag = -1;
-        while (open>-1 && close>-1) {
+        while (open>-1 && close>open) {
             let noteText = this._line.slice(open+2, close);
             this.script.notes.push(new FountainNote(noteText));
             let tag = `[[${this.script.notes.length-1}]]`;
@@ -515,7 +513,7 @@ export class FountainParser {
         // If not in notes, check for note content
         if (!this._note) {
 
-            let idx = this._line.indexOf("[[", lastTag);
+            let idx = this._line.indexOf("[[", lastTag>-1?lastTag:0);
             if (idx>-1) { // Move into notes
                 this._lineBeforeNote = this._line.slice(0, idx);
                 this._note = new FountainNote(this._line.slice(idx+2));
@@ -526,7 +524,7 @@ export class FountainParser {
         } else {
 
             // Check for end of note content
-            let idx = this._line.indexOf("]]", lastTag);
+            let idx = this._line.indexOf("]]", lastTag>-1?lastTag:0);
             if (idx>-1) {
                 this._note.appendLine(this._line.slice(0, idx));
                 this.script.notes.push(this._note);
