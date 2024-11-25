@@ -123,6 +123,7 @@ export class FountainParser {
     // This is automatically called by addLines() and addText()
     finalize() {
         this._line = "";
+        this._lineTrim = "";
         this._parsePending();
     }
 

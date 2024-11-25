@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Threading.Tasks.Dataflow;
 
 namespace Fountain
 {
@@ -201,7 +202,7 @@ namespace Fountain
 
         public override string Dump()
         {
-            return $"{Type}:\"{_text}\"" + (Forced ? " (forced)" : "");
+            return $"{Type}:\"{_text}\"";
         }
     }
 
@@ -210,11 +211,6 @@ namespace Fountain
     {
         public FountainPageBreak()
             : base(Element.PAGEBREAK, "") { }
-
-        public override string Dump()
-        {
-            return $"{Type}:<PAGE BREAK>";
-        }
     }
 
     // FountainNote: Represents note elements
@@ -254,7 +250,7 @@ namespace Fountain
 
         public override string Dump()
         {
-            return $"{Type}:\"{_text}\" (Level: {Level})";
+            return $"{Type}:\"{_text}\" ({Level})";
         }
     }
 

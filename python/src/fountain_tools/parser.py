@@ -116,6 +116,7 @@ class FountainParser:
     def finalize(self):
         """Complete parsing by processing any remaining pending elements."""
         self._line = ""
+        self._lineTrim = ""
         self._parse_pending()
 
     def _get_last_elem(self):
