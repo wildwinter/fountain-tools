@@ -8,9 +8,10 @@
     "test:js": "cd javascript && npm test",
     "test:py": "cd python && python3 -m unittest discover -s tests",
     "test:all": "npm run test:js && npm run test:py",
-    "dist": "npm run build:all",
+    "dist": "npm run dist:all",
     "dist:js": "cd javascript && npx rollup -c",
-    "dist:all": "npm run dist:js"
+    "dist:py": "cd python && python3 create_dist.py",
+    "dist:all": "npm run dist:js && npm run dist:py"
   },
   "keywords": [],
   "author": "",
