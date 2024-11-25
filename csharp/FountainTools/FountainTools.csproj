@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <PackageId>FountainTools</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Ian Thomas</Authors>
+    <Company>Storyworlds</Company>
+    <Description>A description of what your library does.</Description>
+    <PackageTags>csharp;library</PackageTags>
+
+  </PropertyGroup>
+
+</Project>

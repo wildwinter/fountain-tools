@@ -1,5 +1,5 @@
 {
-  "name": "javascript",
+  "name": "fountain-tools-js",
   "version": "1.0.0",
   "main": "fountainTools.js",
   "type": "module",
