@@ -9,7 +9,7 @@ public class FountainParser
     public FountainScript Script { get; private set; }
     public bool MergeActions;
     public bool MergeDialogue;
-    private bool inTitlePage;
+    protected bool inTitlePage;
     private bool multiLineHeader;
     private string lineBeforeBoneyard;
     private FountainBoneyard? boneyard;
@@ -50,13 +50,13 @@ public class FountainParser
         inDialogue = false;
     }
 
-    public void AddText(string inputText)
+    public virtual void AddText(string inputText)
     {
         var lines = inputText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         AddLines(lines);
     }
 
-    public void AddLines(string[] lines)
+    public virtual void AddLines(string[] lines)
     {
         foreach (var line in lines)
         {
@@ -65,7 +65,7 @@ public class FountainParser
         FinalizeParsing();
     }
 
-    public void AddLine(string inputLine)
+    public virtual void AddLine(string inputLine)
     {
         lastLine = line;
         lastLineEmpty = string.IsNullOrWhiteSpace(line);
@@ -505,14 +505,14 @@ public class FountainParser
         AddElement(new FountainAction(line));
     }
 
-    private (string Text, string SceneNum)? DecodeHeading(string line)
+    private (string Text, string? SceneNum)? DecodeHeading(string line)
     {
         var regex = new Regex(@"^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$");
         var match = regex.Match(line);
         if (match.Success)
         {
             var text = match.Groups[1].Value.Trim();
-            var sceneNum = match.Groups[2].Value;
+            string? sceneNum = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
             return (text, sceneNum);
         }
         return null;
@@ -529,7 +529,7 @@ public class FountainParser
         if (match.Success)
         {
             var name = match.Groups[1].Value.Trim();
-            var extension = match.Groups[2].Value?.Trim();
+            var extension = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
             var dual = line.Trim().EndsWith("^");
             return new CharacterInfo
             {

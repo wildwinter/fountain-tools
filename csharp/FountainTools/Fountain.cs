@@ -269,17 +269,17 @@ public class FountainSynopsis : FountainElement
 // Composite class for parsed script
 public class FountainScript
 {
-    public List<FountainElement> Headers { get; private set; }
+    public List<FountainTitleEntry> Headers { get; private set; }
     public List<FountainElement> Elements { get; private set; }
-    public List<FountainElement> Notes { get; private set; }
-    public List<FountainElement> Boneyards { get; private set; }
+    public List<FountainNote> Notes { get; private set; }
+    public List<FountainBoneyard> Boneyards { get; private set; }
 
     public FountainScript()
     {
-        Headers = new List<FountainElement>();
+        Headers = new List<FountainTitleEntry>();
         Elements = new List<FountainElement>();
-        Notes = new List<FountainElement>();
-        Boneyards = new List<FountainElement>();
+        Notes = new List<FountainNote>();
+        Boneyards = new List<FountainBoneyard>();
     }
 
     public string Dump()

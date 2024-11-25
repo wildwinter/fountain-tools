@@ -9,7 +9,7 @@ public class WriterTest
     }
 
     [Fact]
-    public void Scratch()
+    public void TestWrite()
     {
         string match = loadTestFile("Writer-output.fountain");
 
