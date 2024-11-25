@@ -54,6 +54,6 @@ describe('Simple Callback Parser', () => {
 
     let output = out.join("\n");
     //console.log(output);
-    assert.equal(match, output);
+    assert.equal(output, match);
   });
 });

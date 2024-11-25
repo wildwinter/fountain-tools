@@ -156,7 +156,7 @@ export class FountainCallbackParser extends FountainParser {
             return;
         }
 
-        if (elem.type == Element.LYRICS) {
+        if (elem.type == Element.LYRIC) {
 
             if (this.ignoreBlanks && !elem.text.trim())
                 return;

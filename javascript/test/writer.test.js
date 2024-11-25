@@ -21,7 +21,7 @@ describe('Writer', () => {
             let fw = new FountainWriter();
             let output = fw.write(fp.script);
 
-            assert.equal(match, output);
+            assert.equal(output, match);
             return;
         });
     });

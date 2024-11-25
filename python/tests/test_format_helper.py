@@ -26,4 +26,4 @@ class TestFormatHelper(unittest.TestCase):
         formattedText = fountain_to_html(source);
 
         #print(formattedText)
-        self.assertMultiLineEqual(match, formattedText)
+        self.assertMultiLineEqual(formattedText, match)

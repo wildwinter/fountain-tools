@@ -15,7 +15,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -30,7 +30,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -45,7 +45,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
 
     it('should match unmerged', () => {
@@ -59,7 +59,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
 
   });
@@ -75,7 +75,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -90,7 +90,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
 
     it('should match unmerged', () => {
@@ -104,7 +104,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -119,7 +119,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -134,7 +134,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -149,7 +149,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -164,7 +164,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -179,7 +179,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -194,7 +194,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -209,7 +209,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
@@ -224,7 +224,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
   
@@ -239,7 +239,7 @@ describe('FountainParser', () => {
 
       let output = fp.script.dump();
       //console.log(output);
-      assert.equal(match, output);
+      assert.equal(output, match);
     });
   });
 
