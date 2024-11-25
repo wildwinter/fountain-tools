@@ -309,7 +309,7 @@ namespace Fountain
             return string.Join("\n", lines);
         }
 
-        public FountainElement GetLastElement()
+        public FountainElement? GetLastElement()
         {
             if (Elements.Count == 0) return null;
             return Elements[^1];

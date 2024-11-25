@@ -10,7 +10,7 @@
     "test": "npm run test:all",
     "test:js": "cd javascript && npm test",
     "test:py": "cd python && python3 -m unittest discover -s tests",
-    "test:csharp": "cd csharp/FountainTools.Tests && dotnet test",
+    "test:csharp": "npm run build:csharp && cd csharp/FountainTools.Tests && dotnet test",
     "test:all": "npm run test:js && npm run test:py",
     "dist": "npm run dist:all",
     "dist:js": "cd javascript && npx rollup -c",

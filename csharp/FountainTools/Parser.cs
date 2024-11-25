@@ -121,7 +121,7 @@ namespace Fountain
                 inDialogue = false;
 
                 if (lastElement != null && lastElement.Type == Element.ACTION)
-                {
+                {   
                     padActions.Add((FountainAction)element);
                     return;
                 }
@@ -134,7 +134,7 @@ namespace Fountain
                 {
                     foreach (var padAction in padActions)
                     {
-                        lastAction.AppendLine(padAction.TextRaw);
+                        lastElement.AppendLine(padAction.TextRaw);
                     }
                 }
                 else
@@ -144,10 +144,11 @@ namespace Fountain
                         Script.Elements.Add(padAction);
                     }
                 }
-                padActions.Clear();
             }
 
-            if (mergeActions && element.Type == Element.ACTION && !((FountainAction)element).Centered)
+            padActions.Clear();
+
+            if (mergeActions && element is FountainAction action && !action.Centered)
             {
                 if (lastElement is FountainAction lastAction && !lastAction.Centered)
                 {
@@ -497,7 +498,8 @@ namespace Fountain
 
         private bool ParseForcedSceneHeading()
         {
-            if (lineTrim.StartsWith("."))
+            var regex = new Regex(@"^\.[a-zA-Z0-9]");
+            if (regex.IsMatch(lineTrim))
             {
                 var heading = DecodeHeading(lineTrim.Substring(1));
                 if (heading.HasValue)
@@ -507,7 +509,6 @@ namespace Fountain
                     return true;
                 }
             }
-
             return false;
         }
 
