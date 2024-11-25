@@ -9,7 +9,7 @@ public class FormatHelperTest
     }
 
     [Fact]
-    public void Scratch()
+    public void Formatting()
     {
         string source = loadTestFile("Formatted.fountain");
         string match = loadTestFile("Formatted.txt");
