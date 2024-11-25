@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Fountain;
@@ -7,47 +5,28 @@ namespace Fountain;
 public class FountainParser
 {
     public FountainScript Script { get; private set; }
-    public bool MergeActions;
-    public bool MergeDialogue;
-    protected bool inTitlePage;
-    private bool multiLineHeader;
-    private string lineBeforeBoneyard;
+    public bool MergeActions = true;
+    public bool MergeDialogue = true;
+    protected bool inTitlePage = true;
+
+    private bool multiLineHeader = false;
+    private string lineBeforeBoneyard="";
     private FountainBoneyard? boneyard;
-    private string lineBeforeNote;
+    private string lineBeforeNote="";
     private FountainNote? note;
     private List<PendingElement> pending;
     private List<FountainAction> padActions;
-    private string line;
-    private string lineTrim;
+    protected string line="";
+    protected string lineTrim="";
     private bool lastLineEmpty;
-    private string lastLine;
-    private bool inDialogue;
+    private string lastLine="";
+    protected bool inDialogue = false;
 
     public FountainParser()
     {
         Script = new FountainScript();
-
-        MergeActions = true;
-        MergeDialogue = true;
-
-        inTitlePage = true;
-        multiLineHeader = false;
-
-        lineBeforeBoneyard = "";
-        boneyard = null;
-
-        lineBeforeNote = "";
-        note = null;
-
         pending = new List<PendingElement>();
         padActions = new List<FountainAction>();
-
-        line = "";
-        lineTrim = "";
-        lastLineEmpty = true;
-        lastLine = "";
-
-        inDialogue = false;
     }
 
     public virtual void AddText(string inputText)
