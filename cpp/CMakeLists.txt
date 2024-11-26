@@ -29,7 +29,8 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Add a test executable
-add_executable(tests test/main.cpp)
+add_executable(tests 
+    test/test_main.cpp)
 
 # Link the library to the test executable
 target_link_libraries(tests PRIVATE FountainTools)

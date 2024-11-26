@@ -3,5 +3,5 @@
 
 
 TEST_CASE( "Basic test", "[say_hello]" ) {
-    REQUIRE( fountain::say_hello() == "Hello from Fountain!");
+    REQUIRE( Fountain::elementToString(Fountain::Element::BONEYARD) == "BONEYARD");
 }
