@@ -1,0 +1,9 @@
+{
+    "name": "fountain-tools-cpp",
+    "version": "1.0.0",
+    "scripts": {
+        "clean": "rm -rf build",
+        "build": "cmake -DBUILD_SHARED_LIBS=ON -S . -B build && cmake --build build"
+    }
+  }
+  

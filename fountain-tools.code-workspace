@@ -7,6 +7,9 @@
     "settings": {
         "python.analysis.extraPaths": [
             "./python/src"
-        ]
+        ],
+        "files.associations": {
+            "string": "cpp"
+        }
     }
 }
