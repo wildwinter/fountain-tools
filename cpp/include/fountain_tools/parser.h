@@ -10,14 +10,16 @@
 
 namespace Fountain {
 
-class Parser {
+class FountainParser {
 public:
-    Parser();
+    FountainParser();
 
     void addText(const std::string& inputText);
     void addLines(const std::vector<std::string>& lines);
     void addLine(const std::string& inputLine);
     void finalizeParsing();
+
+    std::shared_ptr<FountainScript> script;
 
 protected:
     struct CharacterInfo {
@@ -32,7 +34,6 @@ protected:
         std::shared_ptr<FountainElement> backup;       // Backup FountainElement
     };
 
-    std::shared_ptr<FountainScript> script;
     bool mergeActions = true;
     bool mergeDialogue = true;
     bool inTitlePage = true;
