@@ -1,7 +1,7 @@
-#include "fountain_tools/fountain.h"
-#include <iostream>
+#include <fountain_tools/fountain.h>
+#include <catch_amalgamated.hpp>
 
-int main() {
-    std::cout << fountain::say_hello() << std::endl;
-    return 0;
+
+TEST_CASE( "Basic test", "[say_hello]" ) {
+    REQUIRE( fountain::say_hello() == "Hello from Fountain!");
 }

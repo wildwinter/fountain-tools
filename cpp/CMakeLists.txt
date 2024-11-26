@@ -10,7 +10,7 @@ include_directories(include)
 
 # Source files
 file(GLOB LIB_SOURCES "src/*.cpp")
-file(GLOB LIB_HEADERS "include/fountaintools/*.h")
+file(GLOB LIB_HEADERS "include/fountain_tools/*.h")
 
 # Create the library (static or shared)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
@@ -25,8 +25,20 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib  # For shared libraries
     ARCHIVE DESTINATION lib  # For static libraries
-    PUBLIC_HEADER DESTINATION include/fountaintools
+    PUBLIC_HEADER DESTINATION include/fountain_tools
 )
 
-add_executable(test_fountaintools test/main.cpp)
-target_link_libraries(test_fountaintools PRIVATE FountainTools)
+# Add a test executable
+add_executable(tests test/main.cpp)
+
+# Link the library to the test executable
+target_link_libraries(tests PRIVATE FountainTools)
+
+# Include Catch2 header (if not installed globally)
+target_include_directories(tests PRIVATE include)
+
+# Enable testing (CMake's built-in test support)
+enable_testing()
+
+# Register the test executable
+add_test(NAME FountainToolsTests COMMAND tests)
