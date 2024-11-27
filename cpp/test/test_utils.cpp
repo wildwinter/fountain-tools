@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <locale>
 
 // Function definition
 std::string readFile(const std::string& filepath) {
@@ -12,6 +13,8 @@ std::string readFile(const std::string& filepath) {
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open file: " + path);
     }
+
+    file.imbue(std::locale("en_US.UTF-8"));
 
     std::ostringstream content;
     content << file.rdbuf(); // Read the entire file content

@@ -409,16 +409,14 @@ class FountainParser:
         if lastElem and lastElem.type == Element.DIALOGUE:
             # Special case: Line-break in dialogue
             if self._lastLineEmpty and len(self._lastLine)>0:
+
                 if self.mergeDialogue:
                     lastElem.append_line("")
-                else:
-                    self._add_element(FountainDialogue(""))
-            
-                # Merge current dialogue line
-                if self.mergeDialogue:
                     lastElem.append_line(self._lineTrim)
                 else:
+                    self._add_element(FountainDialogue(""))
                     self._add_element(FountainDialogue(self._lineTrim))
+
                 return True
             
             if not self._lastLineEmpty and len(self._lineTrim)>0:

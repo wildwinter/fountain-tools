@@ -4,6 +4,26 @@
 
 namespace Fountain {
 
+std::string trim(const std::string& str) {
+    return std::regex_replace(str, std::regex(R"(^\s+|\s+$)"), "");
+}
+
+std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t pos = 0;
+    while ((pos = str.find(from, pos)) != std::string::npos) {
+        str.replace(pos, from.length(), to);
+        pos += to.length(); // Advance position past the replacement
+    }
+    return str;
+}
+
+bool isEmptyOrWhitespace(const std::string& str) {
+    return std::all_of(str.begin(), str.end(), [](unsigned char c) {
+        return std::isspace(c);
+    });
+}
+
+
 FountainParser::FountainParser()
     : script(std::make_shared<FountainScript>()) {}
 
@@ -28,10 +48,10 @@ void FountainParser::addLines(const std::vector<std::string>& lines) {
 
 void FountainParser::addLine(const std::string& inputLine) {
     lastLine = line;
-    lastLineEmpty = line.empty();
+    lastLineEmpty = isEmptyOrWhitespace(line);
 
     line = inputLine;
-    lineTrim = std::regex_replace(line, std::regex("^\\s+|\\s+$"), "");
+    lineTrim = trim(line);
 
     if (parseBoneyard() || parseNotes()) return;
 
@@ -316,18 +336,18 @@ bool FountainParser::parseDialogue() {
 
 std::optional<FountainParser::CharacterInfo> FountainParser::decodeCharacter(const std::string& line) {
     // Regex to match "(CONT'D)"
-    static const std::regex regexCont(R"(\(\s*CONT[’']D\s*\))", std::regex::icase);
-    std::string modifiedLine = std::regex_replace(line, regexCont, "");
-    modifiedLine = std::regex_replace(modifiedLine, std::regex("^\\s+|\\s+$"), ""); // Trim whitespace
+    std::string noContLine = replaceAll(line, "(CONT'D)", "");
+    noContLine = replaceAll(noContLine, "(CONT’D)", "");
+    noContLine = trim(noContLine);
 
     // Regex to match a character line
     static const std::regex regexCharacter(R"(^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$)");
     std::smatch match;
 
-    if (std::regex_match(modifiedLine, match, regexCharacter)) {
+    if (std::regex_match(noContLine, match, regexCharacter)) {
         std::string name = match[1].str();
         std::string extension = match[2].matched ? match[2].str() : "";
-        bool dual = modifiedLine.back() == '^';
+        bool dual = noContLine.back() == '^';
 
         // Return a populated CharacterInfo struct
         return CharacterInfo{name, extension, dual};
@@ -336,22 +356,21 @@ std::optional<FountainParser::CharacterInfo> FountainParser::decodeCharacter(con
 }
 
 bool FountainParser::parseCharacter() {
-    // Regex to remove "(CONT'D)" and similar
-    static const std::regex regexCont(R"(\(\s*CONT[’']D\s*\))", std::regex::icase);
-    lineTrim = std::regex_replace(lineTrim, regexCont, ""); // Remove "(CONT'D)"
-    lineTrim = std::regex_replace(lineTrim, std::regex("^\\s+|\\s+$"), ""); // Trim whitespace
+    std::string noContLineTrim = replaceAll(lineTrim, "(CONT'D)", "");
+    noContLineTrim = replaceAll(noContLineTrim, "(CONT’D)", "");
+    noContLineTrim = trim(noContLineTrim);
 
     // Regex to identify character lines
     static const std::regex regexCharacter(R"(^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$)");
-    if (lastLineEmpty && std::regex_match(lineTrim, regexCharacter)) {
-        auto characterOpt = decodeCharacter(lineTrim); // Decode the character line
+    if (lastLineEmpty && std::regex_match(noContLineTrim, regexCharacter)) {
+        auto characterOpt = decodeCharacter(noContLineTrim); // Decode the character line
         if (characterOpt) {
             auto character = *characterOpt;
 
             // Add a new PendingElement to the pending vector
             pending.push_back(std::make_shared<PendingElement>(PendingElement{
                 Element::CHARACTER,
-                std::make_shared<FountainCharacter>(lineTrim, character.name, character.extension, character.dual),
+                std::make_shared<FountainCharacter>(noContLineTrim, character.name, character.extension, character.dual),
                 std::make_shared<FountainAction>(lineTrim)
             }));
 
@@ -445,7 +464,7 @@ bool FountainParser::parseForcedCharacter() {
     if (lineTrim.starts_with("@")) {
         // Remove the "@" prefix and trim the remaining string
         std::string trimmedLine = lineTrim.substr(1);
-        trimmedLine = std::regex_replace(trimmedLine, std::regex("^\\s+|\\s+$"), ""); // Trim whitespace
+        trimmedLine = trim(trimmedLine);
 
         // Decode the character details
         auto characterOpt = decodeCharacter(trimmedLine);

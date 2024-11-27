@@ -178,7 +178,7 @@ public:
     std::string dump() const override {
         std::string output = elementToString(type) + ":\"" + name + "\"";
         if (extension.has_value() && !extension->empty()) {
-            output += " (\"" + *extension + "\")";
+            output += " \"(" + *extension + ")\"";
         }
         if (isDualDialogue) {
             output += " (Dual)";

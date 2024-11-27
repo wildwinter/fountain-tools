@@ -412,14 +412,14 @@ export class FountainParser {
 
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {
-                if (this.mergeDialogue)
+                if (this.mergeDialogue) {
                     lastElem.appendLine("");
-                else
-                    this._addElement(new FountainDialogue(""));
-                if (this.mergeDialogue)
                     lastElem.appendLine(this._lineTrim);
-                else
+                }
+                else {
+                    this._addElement(new FountainDialogue(""));
                     this._addElement(new FountainDialogue(this._lineTrim)); 
+                }
                 return true;
             }
 

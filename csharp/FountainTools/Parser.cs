@@ -405,18 +405,18 @@ public class FountainParser
     private bool ParseCharacter()
     {
         var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)", RegexOptions.IgnoreCase);
-        lineTrim = regexCont.Replace(lineTrim, "").Trim();
+        var noContLineTrim = regexCont.Replace(lineTrim, "").Trim();
 
         var regexCharacter = new Regex(@"^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$");
-        if (lastLineEmpty && regexCharacter.IsMatch(lineTrim))
+        if (lastLineEmpty && regexCharacter.IsMatch(noContLineTrim))
         {
-            var character = DecodeCharacter(lineTrim);
+            var character = DecodeCharacter(noContLineTrim);
             if (character != null)
             {
                 pending.Add(new PendingElement
                 {
                     Type = Element.CHARACTER,
-                    Element = new FountainCharacter(lineTrim, character.Name, character.Extension, character.Dual),
+                    Element = new FountainCharacter(noContLineTrim, character.Name, character.Extension, character.Dual),
                     Backup = new FountainAction(lineTrim)
                 });
                 return true;
@@ -439,15 +439,16 @@ public class FountainParser
         {
             if (lastLineEmpty && lastLine.Length > 0)
             {
-                if (MergeDialogue)
+                if (MergeDialogue) 
+                {
                     lastElement.AppendLine("");
-                else
-                    AddElement(new FountainDialogue(""));
-                
-                if (MergeDialogue)
                     lastElement.AppendLine(lineTrim);
+                }
                 else
+                {
+                    AddElement(new FountainDialogue(""));
                     AddElement(new FountainDialogue(lineTrim));
+                }
                                 
                 return true;
             }
@@ -500,16 +501,16 @@ public class FountainParser
     private CharacterInfo? DecodeCharacter(string line)
     {
         var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)", RegexOptions.IgnoreCase);
-        line = regexCont.Replace(line, "").Trim();
+        var noContLine = regexCont.Replace(line, "").Trim();
 
         var regexCharacter = new Regex(@"^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$");
-        var match = regexCharacter.Match(line);
+        var match = regexCharacter.Match(noContLine);
 
         if (match.Success)
         {
             var name = match.Groups[1].Value.Trim();
             var extension = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
-            var dual = line.Trim().EndsWith("^");
+            var dual = noContLine.Trim().EndsWith("^");
             return new CharacterInfo
             {
                 Name = name,
