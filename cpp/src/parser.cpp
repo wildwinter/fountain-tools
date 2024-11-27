@@ -171,22 +171,27 @@ bool FountainParser::parseNotes() {
 }
 
 bool FountainParser::parseTitlePage() {
-    if (inTitlePage) {
-        if (lineTrim.empty()) {
-            inTitlePage = false; // Empty line signals end of the title page
-            return false;
-        }
+    static const std::regex regexTitleEntry(R"(^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$)");
+    static const std::regex regexTitleMultilineEntry(R"(^( {3,}|\t))");
 
-        auto colonPos = lineTrim.find(':');
-        if (colonPos != std::string::npos) {
-            std::string key = lineTrim.substr(0, colonPos);
-            std::string value = lineTrim.substr(colonPos + 1);
-            value = std::regex_replace(value, std::regex("^\\s+|\\s+$"), ""); // Trim value
-            auto titleEntry = std::make_shared<FountainTitleEntry>(key, value);
-            script->addHeader(titleEntry);
-            return true;
-        }
+    std::smatch match;
+    if (std::regex_match(line, match, regexTitleEntry)) {
+        std::string key = match[1].str();
+        std::string value = match[2].str();
+
+        script->addHeader(std::make_shared<FountainTitleEntry>(key, value));
+        multiLineHeader = value.empty();
+        return true;
     }
+
+    if (multiLineHeader && std::regex_match(line, regexTitleMultilineEntry)) {
+        if (!script->headers.empty()) {
+            script->headers.back()->appendLine(line);
+        }
+        return true;
+    }
+
+    inTitlePage = false;
     return false;
 }
 

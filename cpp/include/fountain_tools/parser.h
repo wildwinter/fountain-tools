@@ -20,7 +20,9 @@ public:
     void finalizeParsing();
 
     std::shared_ptr<FountainScript> script;
-
+    bool mergeActions = true;
+    bool mergeDialogue = true;
+    
 protected:
     struct CharacterInfo {
         std::string name;        // Character's name
@@ -34,8 +36,6 @@ protected:
         std::shared_ptr<FountainElement> backup;       // Backup FountainElement
     };
 
-    bool mergeActions = true;
-    bool mergeDialogue = true;
     bool inTitlePage = true;
     bool multiLineHeader = false;
 

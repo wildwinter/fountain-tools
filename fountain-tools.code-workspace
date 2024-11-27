@@ -69,7 +69,8 @@
             "unordered_map": "cpp",
             "variant": "cpp",
             "algorithm": "cpp",
-            "ranges": "cpp"
+            "ranges": "cpp",
+            "span": "cpp"
         }
     }
 }

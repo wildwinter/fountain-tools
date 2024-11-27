@@ -13,19 +13,48 @@ TEST_CASE( "Scratch") {
     fp.addText(source);
 
     const std::string output = fp.script->dump();
-    //console.log(output);
 
-    std::string output1;
-    std::string match1;
+    REQUIRE(match == output);
+}
 
-    std::regex pattern(R"(\n)");
-    std::string replacement = "|";
+TEST_CASE( "SceneHeading") {
+    
+    const std::string source = readFile("SceneHeading.fountain");
+    const std::string match = readFile("SceneHeading.txt");
 
-    output1 = std::regex_replace(output, pattern, replacement);
-    match1 = std::regex_replace(match, pattern, replacement);
+    Fountain::FountainParser fp;
 
+    fp.addText(source);
 
+    const std::string output = fp.script->dump();
 
-    REQUIRE( match1 == output1);
+    REQUIRE(match == output);
+}
 
+TEST_CASE( "ActionMerged") {
+    
+    const std::string source = readFile("Action.fountain");
+    const std::string match = readFile("Action-Merged.txt");
+
+    Fountain::FountainParser fp;
+
+    fp.addText(source);
+
+    const std::string output = fp.script->dump();
+
+    REQUIRE(match == output);
+}
+
+TEST_CASE( "ActionUnmerged") {
+    
+    const std::string source = readFile("Action.fountain");
+    const std::string match = readFile("Action-Unmerged.txt");
+
+    Fountain::FountainParser fp;
+    fp.mergeActions = false;
+    fp.addText(source);
+
+    const std::string output = fp.script->dump();
+
+    REQUIRE(match == output);
 }

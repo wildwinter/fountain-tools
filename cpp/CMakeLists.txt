@@ -43,4 +43,4 @@ target_include_directories(tests PRIVATE include)
 enable_testing()
 
 # Register the test executable
-add_test(NAME FountainToolsTests COMMAND tests)
+add_test(NAME FountainToolsTests COMMAND tests -r console)

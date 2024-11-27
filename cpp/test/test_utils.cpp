@@ -7,7 +7,6 @@
 
 // Function definition
 std::string readFile(const std::string& filepath) {
-    std::cout << std::filesystem::current_path().string() << std::endl;
     std::string path = std::filesystem::absolute("../../tests/" + filepath).string();
     std::ifstream file(path, std::ios::in); // Open file for reading
     if (!file.is_open()) {
