@@ -56,10 +56,12 @@ void FountainParser::finalizeParsing() {
 }
 
 void FountainParser::addElement(std::shared_ptr<FountainElement> element) {
+
     auto lastElement = getLastElement();
 
     if (element->getType() == Element::ACTION && element->isEmpty() &&
-        std::dynamic_pointer_cast<FountainAction>(element)->isCentered() == false) {
+        !std::dynamic_pointer_cast<FountainAction>(element)->isCentered()) {
+
         inDialogue = false;
 
         if (lastElement && lastElement->getType() == Element::ACTION) {
@@ -70,25 +72,34 @@ void FountainParser::addElement(std::shared_ptr<FountainElement> element) {
     }
 
     if (element->getType() == Element::ACTION && !padActions.empty()) {
-        if (mergeActions && lastElement && lastElement->getType() == Element::ACTION) {
-            auto lastAction = std::dynamic_pointer_cast<FountainAction>(lastElement);
+
+        if (mergeActions && lastElement && lastElement->getType() == Element::ACTION && 
+            !std::dynamic_pointer_cast<FountainAction>(lastElement)->isCentered()) {
+ 
             for (const auto& padAction : padActions) {
-                lastAction->appendLine(padAction->getTextRaw());
+                lastElement->appendLine(padAction->getTextRaw());
             }
+
         } else {
             for (const auto& padAction : padActions) {
                 script->addElement(padAction);
             }
-        }
-        padActions.clear();
-    }
 
-    if (mergeActions && element->getType() == Element::ACTION) {
-        if (lastElement && lastElement->getType() == Element::ACTION) {
-            auto lastAction = std::dynamic_pointer_cast<FountainAction>(lastElement);
-            lastAction->appendLine(element->getTextRaw());
+        }
+    }
+    
+    padActions.clear();
+
+    if (mergeActions && element->getType() == Element::ACTION &&
+        !std::dynamic_pointer_cast<FountainAction>(element)->isCentered()) {
+
+        if (lastElement && lastElement->getType() == Element::ACTION &&
+            !std::dynamic_pointer_cast<FountainAction>(lastElement)->isCentered()) {
+
+            lastElement->appendLine(element->getTextRaw());
             return;
         }
+
     }
 
     script->addElement(element);
@@ -207,7 +218,13 @@ bool FountainParser::parseForcedAction() {
 }
 
 bool FountainParser::parseForcedSceneHeading() {
-    if (lineTrim.rfind(".", 0) == 0) {
+
+        // Regex to match scene headings
+    static const std::regex regexHeading(R"(^\.[a-zA-Z0-9])");
+
+    // Check if the trimmed line matches the regex
+     std::smatch match; // Holds the match result
+    if (std::regex_search(lineTrim, match, regexHeading)) {
         auto heading = decodeHeading(lineTrim.substr(1));
         if (heading) {
             addElement(std::make_shared<FountainHeading>(heading->first, heading->second, true));
@@ -400,12 +417,13 @@ bool FountainParser::parseCenteredText() {
 bool FountainParser::parseSceneHeading() {
     // Regex to match scene headings
     static const std::regex regexHeading(
-        R"(^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*))", 
+        R"(^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*))",
         std::regex::icase
     );
 
     // Check if the trimmed line matches the regex
-    if (std::regex_match(lineTrim, regexHeading)) {
+     std::smatch match; // Holds the match result
+    if (std::regex_search(lineTrim, match, regexHeading)) {
         auto headingOpt = decodeHeading(lineTrim); // Decode the heading text and optional scene number
         if (headingOpt) {
             const auto& [text, sceneNum] = *headingOpt; // Extract text and scene number

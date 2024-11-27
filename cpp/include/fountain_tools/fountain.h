@@ -50,6 +50,17 @@ inline std::string elementToString(Element type) {
     return it != elementStrings.end() ? it->second : "UNKNOWN";
 }
 
+// Utility function to join
+inline std::string join(const std::vector<std::string>& strings, const std::string& delimiter) {
+    if (strings.empty()) return "";
+
+    std::string result = strings[0];
+    for (size_t i = 1; i < strings.size(); ++i) {
+        result += delimiter + strings[i];
+    }
+    return result;
+}
+
 // Base class for all elements
 class FountainElement {
 protected:
@@ -303,14 +314,22 @@ public:
     }
 
     std::string dump() const {
-        std::ostringstream output;
+
+        std::vector<std::string> lines;
+
         for (const auto& header : headers) {
-            output << header->dump() << "\n";
+            lines.push_back(header->dump());
         }
         for (const auto& element : elements) {
-            output << element->dump() << "\n";
+            lines.push_back(element->dump());
         }
-        return output.str();
+        for (int i=0;i<notes.size();i++) {
+            lines.push_back("[["+std::to_string(i)+"]]"+notes[i]->dump());
+        }
+        for (int i=0;i<boneyards.size();i++) {
+            lines.push_back("[["+std::to_string(i)+"]]"+boneyards[i]->dump());
+        }
+        return join(lines, "\n");
     }
 
     std::shared_ptr<FountainElement> getLastElement() const {

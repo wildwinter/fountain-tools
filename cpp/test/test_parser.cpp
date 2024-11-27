@@ -14,6 +14,18 @@ TEST_CASE( "Scratch") {
 
     const std::string output = fp.script->dump();
     //console.log(output);
-    REQUIRE( match == output);
+
+    std::string output1;
+    std::string match1;
+
+    std::regex pattern(R"(\n)");
+    std::string replacement = "|";
+
+    output1 = std::regex_replace(output, pattern, replacement);
+    match1 = std::regex_replace(match, pattern, replacement);
+
+
+
+    REQUIRE( match1 == output1);
 
 }

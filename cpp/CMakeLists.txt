@@ -30,7 +30,7 @@ install(TARGETS ${PROJECT_NAME}
 
 # Add a test executable
 add_executable(tests 
-    test/test_main.cpp
+    test/test_parser.cpp
     test/test_utils.cpp)
 
 # Link the library to the test executable
