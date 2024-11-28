@@ -51,9 +51,10 @@ void FountainParser::addLine(const std::string& inputLine) {
     lastLineEmpty = isEmptyOrWhitespace(line);
 
     line = inputLine;
-    lineTrim = trim(line);
 
     if (parseBoneyard() || parseNotes()) return;
+
+    lineTrim = trim(line);
 
     if (!pending.empty()) parsePending();
 
@@ -153,40 +154,123 @@ void FountainParser::parsePending() {
 }
 
 bool FountainParser::parseBoneyard() {
-    if (boneyard == nullptr) {
-        if (lineTrim.rfind("/*", 0) == 0) {
-            boneyard = std::make_shared<FountainBoneyard>(lineTrim);
-            lineBeforeBoneyard = line;
+
+    size_t open = line.find("/*");
+    size_t close = line.find("*/", (open != std::string::npos) ? open : 0);
+    size_t lastTag = std::string::npos;
+
+    // Handle in-line boneyards
+    while (open != std::string::npos && close != std::string::npos && close > open) {
+        // Extract boneyard content
+        std::string boneyardText = line.substr(open + 2, close - open - 2);
+        script->boneyards.push_back(std::make_shared<FountainBoneyard>(boneyardText));
+
+        // Replace boneyard content with a tag
+        std::string tag = "/*" + std::to_string(script->boneyards.size() - 1) + "*/";
+        line = line.substr(0, open) + tag + line.substr(close + 2);
+
+        // Update position of lastTag
+        lastTag = open + tag.length();
+
+        // Search for the next pair of delimiters
+        open = line.find("/*", lastTag);
+        close = line.find("*/", lastTag);
+    }
+
+    // Check for entering boneyard content
+    if (!boneyard) {
+        size_t idx = line.find("/*", (lastTag != std::string::npos) ? lastTag : 0);
+        if (idx != std::string::npos) {
+            lineBeforeBoneyard = line.substr(0, idx);
+            boneyard = std::make_shared<FountainBoneyard>(line.substr(idx + 2));
             return true;
         }
     } else {
-        boneyard->appendLine(lineTrim);
-        if (lineTrim.find("*/") != std::string::npos) {
-            // Boneyard ends
-            script->addElement(boneyard);
+        // Check for end of boneyard content
+        size_t idx = line.find("*/", (lastTag != std::string::npos) ? lastTag : 0);
+        if (idx != std::string::npos) {
+            // Append content and close the boneyard
+            boneyard->appendLine(line.substr(0, idx));
+            script->boneyards.push_back(boneyard);
+
+            // Replace with a tag
+            std::string tag = "/*" + std::to_string(script->boneyards.size() - 1) + "*/";
+            line = lineBeforeBoneyard + tag + line.substr(idx + 2);
+
+            // Reset state
+            lineBeforeBoneyard.clear();
             boneyard = nullptr;
+        } else {
+            // Still in boneyard
+            boneyard->appendLine(line);
+            return true;
         }
-        return true;
     }
+
     return false;
 }
 
 bool FountainParser::parseNotes() {
-    if (note == nullptr) {
-        if (lineTrim.rfind("[[", 0) == 0 && lineTrim.find("]]") == std::string::npos) {
-            note = std::make_shared<FountainNotes>(lineTrim.substr(2));
-            lineBeforeNote = line;
+
+    size_t open = line.find("[[");
+    size_t close = line.find("]]", (open != std::string::npos) ? open : 0);
+    size_t lastTag = std::string::npos;
+
+    while (open != std::string::npos && close != std::string::npos && close>open) {
+        // Extract note text
+        std::string noteText = line.substr(open + 2, close - open - 2);
+
+        // Add the note to the script
+        script->notes.push_back(std::make_shared<FountainNote>(noteText));
+
+        // Replace note with a tag
+        std::string tag = "[[" + std::to_string(script->notes.size() - 1) + "]]";
+        line = line.substr(0, open) + tag + line.substr(close + 2);
+
+        // Update lastTag position
+        lastTag = open + tag.length();
+
+        // Find the next set of delimiters
+        open = line.find("[[", lastTag);
+        close = line.find("]]", lastTag);
+    }
+
+    if (!note) {
+        // Start a new note
+        size_t idx = line.find("[[", (lastTag != std::string::npos) ? lastTag : 0);
+        if (idx != std::string::npos) {
+            lineBeforeNote = line.substr(0, idx);
+            note = std::make_shared<FountainNote>(line.substr(idx + 2));
+            line = lineBeforeNote;
             return true;
         }
     } else {
-        note->appendLine(lineTrim);
-        if (lineTrim.find("]]") != std::string::npos) {
-            // Note ends
-            script->addElement(note);
+        // End or continue an existing note
+        size_t idx = line.find("]]", (lastTag != std::string::npos) ? lastTag : 0);
+        if (idx != std::string::npos) {
+            // End of note found
+            note->appendLine(line.substr(0, idx));
+            script->notes.push_back(note);
+
+            std::string tag = "[[" + std::to_string(script->notes.size() - 1) + "]]";
+            line = lineBeforeNote + tag + line.substr(idx + 2);
+            lineBeforeNote = "";
             note = nullptr;
+        } else if (line=="") {
+            // End of note due to line break
+            script->notes.push_back(note);
+
+            std::string tag = "[[" + std::to_string(script->notes.size() - 1) + "]]";
+            line = lineBeforeNote + tag;
+            lineBeforeNote = "";
+            note = nullptr;
+        } else {
+            // Still in note content
+            note->appendLine(line);
+            return true;
         }
-        return true;
     }
+
     return false;
 }
 
@@ -217,17 +301,17 @@ bool FountainParser::parseTitlePage() {
 
 bool FountainParser::parseSection() {
     if (lineTrim.rfind("###", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(lineTrim.substr(3), 3));
+        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(3)), 3));
         return true;
     }
 
     if (lineTrim.rfind("##", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(lineTrim.substr(2), 2));
+        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(2)), 2));
         return true;
     }
 
     if (lineTrim.rfind("#", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(lineTrim.substr(1), 1));
+        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(1)), 1));
         return true;
     }
 
@@ -288,9 +372,11 @@ bool FountainParser::parseLyrics() {
 
 bool FountainParser::parseSynopsis() {
     static const std::regex synopsisRegex(R"(^=(?!\=))"); // Matches a single '=' not followed by another '='
-    if (std::regex_match(lineTrim, synopsisRegex)) {
+    
+     std::smatch match;
+    if (std::regex_search(lineTrim, match, synopsisRegex)) {
         // Create and add a FountainSynopsis element
-        addElement(std::make_shared<FountainSynopsis>(lineTrim.substr(1).substr(lineTrim.find_first_not_of(' '))));
+        addElement(std::make_shared<FountainSynopsis>(trim(lineTrim.substr(1))));
         return true;
     }
     return false;

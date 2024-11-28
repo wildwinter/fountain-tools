@@ -184,48 +184,41 @@ TEST_CASE( "LineBreaks") {
     REQUIRE(match == output);
 }
 
-/*
+TEST_CASE( "Notes") {
+    const std::string source = readFile("Notes.fountain");
+    const std::string match = readFile("Notes.txt");
 
+    Fountain::FountainParser fp;
 
-    [Fact]
-    public void Notes()
-    {
-        string source = loadTestFile("Notes.fountain");
-        string match = loadTestFile("Notes.txt");
+    fp.addText(source);
 
-        FountainParser fp = new FountainParser();
-        fp.AddText(source);
+    const std::string output = fp.script->dump();
 
-        string output = fp.Script.Dump();
-        //Console.WriteLine(output);
-        Assert.Equal(match, output);
-    }
+    REQUIRE(match == output);
+}
 
-    [Fact]
-    public void Boneyards()
-    {
-        string source = loadTestFile("Boneyards.fountain");
-        string match = loadTestFile("Boneyards.txt");
+TEST_CASE( "Boneyards") {
+    const std::string source = readFile("Boneyards.fountain");
+    const std::string match = readFile("Boneyards.txt");
 
-        FountainParser fp = new FountainParser();
-        fp.AddText(source);
+    Fountain::FountainParser fp;
 
-        string output = fp.Script.Dump();
-        //Console.WriteLine(output);
-        Assert.Equal(match, output);
-    }
+    fp.addText(source);
 
-   [Fact]
-    public void Sections()
-    {
-        string source = loadTestFile("Sections.fountain");
-        string match = loadTestFile("Sections.txt");
+    const std::string output = fp.script->dump();
 
-        FountainParser fp = new FountainParser();
-        fp.AddText(source);
+    REQUIRE(match == output);
+}
 
-        string output = fp.Script.Dump();
-        //Console.WriteLine(output);
-        Assert.Equal(match, output);
-    }
-    */
+TEST_CASE( "Sections") {
+    const std::string source = readFile("Sections.fountain");
+    const std::string match = readFile("Sections.txt");
+
+    Fountain::FountainParser fp;
+
+    fp.addText(source);
+
+    const std::string output = fp.script->dump();
+
+    REQUIRE(match == output);
+}

@@ -229,9 +229,9 @@ public:
 };
 
 // Derived class for Notes
-class FountainNotes : public FountainElement {
+class FountainNote : public FountainElement {
 public:
-    FountainNotes(const std::string& text)
+    FountainNote(const std::string& text)
         : FountainElement(Element::NOTES, text) {}
 };
 
@@ -253,7 +253,7 @@ public:
     int getLevel() const { return level; }
 
     std::string dump() const override {
-        return elementToString(type) + "(Level " + std::to_string(level) + "):\"" + text + "\"";
+        return elementToString(type) + ":\"" + text + "\" (" + std::to_string(level) + ")";
     }
 };
 
@@ -269,7 +269,7 @@ class FountainScript {
 public:
     std::vector<std::shared_ptr<FountainTitleEntry>> headers;
     std::vector<std::shared_ptr<FountainElement>> elements;
-    std::vector<std::shared_ptr<FountainNotes>> notes; 
+    std::vector<std::shared_ptr<FountainNote>> notes; 
     std::vector<std::shared_ptr<FountainBoneyard>> boneyards;
 
     void addHeader(const std::shared_ptr<FountainTitleEntry>& header) {
@@ -294,7 +294,7 @@ public:
             lines.push_back("[["+std::to_string(i)+"]]"+notes[i]->dump());
         }
         for (int i=0;i<boneyards.size();i++) {
-            lines.push_back("[["+std::to_string(i)+"]]"+boneyards[i]->dump());
+            lines.push_back("/*"+std::to_string(i)+"*/"+boneyards[i]->dump());
         }
         return join(lines, "\n");
     }

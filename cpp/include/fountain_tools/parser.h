@@ -43,7 +43,7 @@ protected:
     std::shared_ptr<FountainBoneyard> boneyard = nullptr;
 
     std::string lineBeforeNote = "";
-    std::shared_ptr<FountainNotes> note = nullptr;
+    std::shared_ptr<FountainNote> note = nullptr;
 
     std::vector<std::shared_ptr<FountainAction>> padActions;
     std::vector<std::shared_ptr<PendingElement>> pending;
