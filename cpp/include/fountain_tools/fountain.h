@@ -63,6 +63,9 @@ inline std::string join(const std::vector<std::string>& strings, const std::stri
 
 // Base class for all elements
 class FountainElement {
+
+friend class FountainWriter;
+
 protected:
     Element type;
     std::string text;
@@ -97,6 +100,9 @@ public:
 
 // Derived classes
 class FountainTitleEntry : public FountainElement {
+
+friend class FountainWriter;
+
     std::string key;
 
 public:
@@ -109,6 +115,9 @@ public:
 };
 
 class FountainAction : public FountainElement {
+
+friend class FountainWriter;
+
     bool centered;
     bool forced;
 
@@ -128,6 +137,9 @@ public:
 
 // FountainHeading: Represents a scene heading
 class FountainHeading : public FountainElement {
+
+friend class FountainWriter;
+
     std::string sceneNum; // Optional scene number
     bool forced;          // Indicates if the heading is forced
 
@@ -152,6 +164,9 @@ public:
 
 // FountainCharacter: Represents character elements
 class FountainCharacter : public FountainElement {
+
+friend class FountainWriter;
+
     std::string name;                 // Character's name
     std::optional<std::string> extension; // Optional extension (e.g., "V.O.", "O.S.")
     bool isDualDialogue;              // Indicates if this is dual dialogue
@@ -210,6 +225,8 @@ public:
 
 // FountainTransition: Represents transition elements
 class FountainTransition : public FountainElement {
+friend class FountainWriter;
+
     bool forced; // Indicates if the transition is forced
 
 public:
@@ -244,6 +261,9 @@ public:
 
 // Derived class for Section
 class FountainSection : public FountainElement {
+
+friend class FountainWriter;
+
     int level;
 
 public:
@@ -254,7 +274,7 @@ public:
 
     std::string dump() const override {
         return elementToString(type) + ":\"" + text + "\" (" + std::to_string(level) + ")";
-    }
+    }friend class FountainWriter;
 };
 
 // Derived class for Synopsis

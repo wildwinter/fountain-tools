@@ -96,8 +96,11 @@ class FountainWriter:
                 return f">{elem._text}<"
             return elem._text
 
-        if elem_type in [Element.LYRIC, Element.SYNOPSIS]:
+        if elem_type == Element.LYRIC:
             return f"~ {elem._text}"
+        
+        if elem_type == Element.SYNOPSIS:
+            return f"= {elem._text}"
 
         self._last_char = None
 

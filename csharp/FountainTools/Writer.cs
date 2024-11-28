@@ -93,8 +93,10 @@ public class FountainWriter
                 return WriteAction((FountainAction)elem);
 
             case Element.LYRIC:
-            case Element.SYNOPSIS:
                 return $"~ {elem.TextRaw}";
+
+            case Element.SYNOPSIS:
+                return $"= {elem.TextRaw}";
 
             case Element.TITLEENTRY:
                 return $"{((FountainTitleEntry)elem).Key}: {elem.TextRaw}";

@@ -122,7 +122,7 @@ export class FountainWriter {
         }
 
         if (elem.type == Element.SYNOPSIS) {
-            return `~ ${elem._text}`; 
+            return `= ${elem._text}`; 
         }
 
         this._lastChar = null;
