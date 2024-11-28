@@ -204,7 +204,7 @@ bool FountainParser::parseTitlePage() {
         return true;
     }
 
-    if (multiLineHeader && std::regex_match(line, regexTitleMultilineEntry)) {
+    if (multiLineHeader && std::regex_search(line, match, regexTitleMultilineEntry)) {
         if (!script->headers.empty()) {
             script->headers.back()->appendLine(line);
         }
@@ -248,7 +248,7 @@ bool FountainParser::parseForcedSceneHeading() {
     static const std::regex regexHeading(R"(^\.[a-zA-Z0-9])");
 
     // Check if the trimmed line matches the regex
-     std::smatch match; // Holds the match result
+    std::smatch match; // Holds the match result
     if (std::regex_search(lineTrim, match, regexHeading)) {
         auto heading = decodeHeading(lineTrim.substr(1));
         if (heading) {
@@ -270,7 +270,7 @@ bool FountainParser::parsePageBreak() {
 bool FountainParser::parseForcedTransition() {
     if (lineTrim.starts_with(">") && !lineTrim.ends_with("<")) {
         // Add a forced FountainTransition element with trimmed content
-        addElement(std::make_shared<FountainTransition>(lineTrim.substr(1), true));
+        addElement(std::make_shared<FountainTransition>(trim(lineTrim.substr(1)), true));
         return true;
     }
 
@@ -280,7 +280,7 @@ bool FountainParser::parseForcedTransition() {
 bool FountainParser::parseLyrics() {
     if (lineTrim.starts_with("~")) {
         // Create and add a FountainLyric element
-        addElement(std::make_shared<FountainLyric>(lineTrim.substr(1).substr(lineTrim.find_first_not_of(' '))));
+        addElement(std::make_shared<FountainLyric>(trim(lineTrim.substr(1))));
         return true;
     }
     return false;

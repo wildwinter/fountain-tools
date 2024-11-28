@@ -3,3 +3,5 @@ Regularise package.json scripts
 Fix up dists
 
 Look at localisation / tags?
+
+Test utf8

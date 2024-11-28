@@ -192,10 +192,6 @@ class FountainDialogue : public FountainElement {
 public:
     FountainDialogue(const std::string& text)
         : FountainElement(Element::DIALOGUE, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Derived class for Parenthesis
@@ -203,10 +199,6 @@ class FountainParenthesis : public FountainElement {
 public:
     FountainParenthesis(const std::string& text)
         : FountainElement(Element::PARENTHESIS, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Derived class for Lyric
@@ -214,10 +206,6 @@ class FountainLyric : public FountainElement {
 public:
     FountainLyric(const std::string& text)
         : FountainElement(Element::LYRIC, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // FountainTransition: Represents transition elements
@@ -231,22 +219,13 @@ public:
 
     // Accessor for forced property
     bool isForced() const { return forced; }
-
-    // Override dump for debugging
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Derived class for Page Break
 class FountainPageBreak : public FountainElement {
 public:
     FountainPageBreak()
-        : FountainElement(Element::PAGEBREAK, "---") {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
+        : FountainElement(Element::PAGEBREAK, "") {}
 };
 
 // Derived class for Notes
@@ -254,10 +233,6 @@ class FountainNotes : public FountainElement {
 public:
     FountainNotes(const std::string& text)
         : FountainElement(Element::NOTES, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Derived class for Boneyard
@@ -265,10 +240,6 @@ class FountainBoneyard : public FountainElement {
 public:
     FountainBoneyard(const std::string& text)
         : FountainElement(Element::BONEYARD, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Derived class for Section
@@ -291,10 +262,6 @@ class FountainSynopsis : public FountainElement {
 public:
     FountainSynopsis(const std::string& text)
         : FountainElement(Element::SYNOPSIS, text) {}
-
-    std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\"";
-    }
 };
 
 // Composite class for parsed script
