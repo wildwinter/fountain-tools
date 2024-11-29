@@ -26,5 +26,23 @@ describe('Writer', () => {
             return;
         });
     });
+
+    describe('Write UTF8', () => {
+        it('should match', () => {
+    
+            const match = loadTestFile('UTF8-output.fountain');
+      
+            let fp = new FountainParser();
+
+            fp.addText(loadTestFile('UTF8.fountain'));
+      
+            let fw = new FountainWriter();
+            let output = fw.write(fp.script);
+
+            //console.log(output);
+            assert.equal(output, match);
+            return;
+        });
+    });
     
 });

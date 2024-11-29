@@ -54,7 +54,7 @@ class FountainWriter:
             text,
         )
 
-        return text
+        return text.strip()
 
     def _write_elem(self, elem):
         elem_type = elem.type

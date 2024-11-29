@@ -73,7 +73,7 @@ public class FountainWriter
             return $"/*{script.Boneyards[num].Text}*/";
         });
 
-        return text;
+        return text.Trim();
     }
 
     private string WriteElement(FountainElement elem)

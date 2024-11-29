@@ -1,4 +1,5 @@
 #include "fountain_tools/writer.h"
+#include "fountain_tools/utils.h"
 
 namespace Fountain {
 
@@ -102,7 +103,7 @@ std::string FountainWriter::write(const FountainScript& script) {
     // Replace boneyards
     text = replaceBoneyards(text, script);
  
-    return text;
+    return trim(text);
 }
 
 std::string FountainWriter::writeElement(const std::shared_ptr<FountainElement>& elem) {

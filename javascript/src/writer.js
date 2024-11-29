@@ -61,7 +61,7 @@ export class FountainWriter {
             return `/*${script.boneyards[num].text}*/`;
         });
 
-        return text;
+        return text.trim();
     }
 
     _writeElem(elem) {

@@ -25,4 +25,19 @@ public class WriterTest
         //Console.WriteLine(output);
         Assert.Equal(match, output);
     }
+
+    [Fact]
+    public void TestWriteUTF8()
+    {
+        string match = loadTestFile("UTF8-output.fountain");
+
+        FountainParser fp = new FountainParser();
+        fp.AddText(loadTestFile("UTF8.fountain"));
+
+        FountainWriter fw = new FountainWriter();
+        string output = fw.Write(fp.Script);
+
+        //Console.WriteLine(output);
+        Assert.Equal(match, output);
+    }
 }

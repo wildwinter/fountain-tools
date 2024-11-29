@@ -21,3 +21,18 @@ TEST_CASE( "Writer") {
     //std::cout << output << std::endl;
     REQUIRE(match == output);
 }
+
+TEST_CASE( "UTF8Writer") {
+    
+    const std::string match = loadTestFile("UTF8-output.fountain");
+
+    Fountain::FountainParser fp;
+
+    fp.addText(loadTestFile("UTF8.fountain"));
+
+    Fountain::FountainWriter fw;
+    const std::string output = fw.write(*fp.script);
+
+    //std::cout << output << std::endl;
+    REQUIRE(match == output);
+}

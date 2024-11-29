@@ -35,3 +35,17 @@ class TestWriter(unittest.TestCase):
 
         #print(output)
         self.assertMultiLineEqual(match, output)
+
+    def test_write_utf8(self):
+
+        match = self._load_file("UTF8-output.fountain")
+
+        fp = FountainParser()
+
+        fp.add_text(self._load_file("UTF8.fountain"))
+
+        fw = FountainWriter()
+        output = fw.write(fp.script)
+
+        #print(output)
+        self.assertMultiLineEqual(match, output)
