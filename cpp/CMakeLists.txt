@@ -33,6 +33,7 @@ add_executable(tests
     test/catch_amalgamated.cpp
     test/test_parser.cpp
     test/test_format_helper.cpp
+    test/test_callback_parser.cpp
     test/test_writer.cpp
     test/test_utils.cpp)
 

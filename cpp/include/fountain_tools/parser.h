@@ -14,10 +14,12 @@ class FountainParser {
 public:
     FountainParser();
 
-    void addText(const std::string& inputText);
-    void addLines(const std::vector<std::string>& lines);
-    void addLine(const std::string& inputLine);
-    void finalizeParsing();
+    virtual ~FountainParser() = default;
+
+    virtual void addText(const std::string& inputText);
+    virtual void addLines(const std::vector<std::string>& lines);
+    virtual void addLine(const std::string& inputLine);
+    virtual void finalizeParsing();
 
     std::shared_ptr<FountainScript> script;
     bool mergeActions = true;

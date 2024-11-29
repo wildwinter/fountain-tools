@@ -4,6 +4,6 @@
 #include <string>
 
 // Function declaration
-std::string readFile(const std::string& filepath);
+std::string loadTestFile(const std::string& filepath);
 
 #endif

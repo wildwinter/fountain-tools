@@ -1,20 +1,19 @@
-#include <fountain_tools/parser.h>
-#include <fountain_tools/writer.h>
+#include "fountain_tools/parser.h"
+#include "fountain_tools/writer.h"
 #include <catch_amalgamated.hpp>
-#include <string>
 #include <iostream>
 #include "test_utils.h"
 
 TEST_CASE( "Writer") {
     
-    const std::string match = readFile("Writer-output.fountain");
+    const std::string match = loadTestFile("Writer-output.fountain");
 
     Fountain::FountainParser fp;
 
-    fp.addText(readFile("TitlePage.fountain"));
-    fp.addText(readFile("Sections.fountain"));
-    fp.addText(readFile("Character.fountain"));
-    fp.addText(readFile("Dialogue.fountain"));
+    fp.addText(loadTestFile("TitlePage.fountain"));
+    fp.addText(loadTestFile("Sections.fountain"));
+    fp.addText(loadTestFile("Character.fountain"));
+    fp.addText(loadTestFile("Dialogue.fountain"));
 
     Fountain::FountainWriter fw;
     const std::string output = fw.write(*fp.script);

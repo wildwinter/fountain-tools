@@ -64,13 +64,12 @@ inline std::string join(const std::vector<std::string>& strings, const std::stri
 // Base class for all elements
 class FountainElement {
 
-friend class FountainWriter;
-
 protected:
-    Element type;
     std::string text;
 
 public:
+    Element type;
+
     FountainElement(Element type, const std::string& text)
         : type(type), text(text) {}
 
@@ -100,12 +99,9 @@ public:
 
 // Derived classes
 class FountainTitleEntry : public FountainElement {
-
-friend class FountainWriter;
-
+public:
     std::string key;
 
-public:
     FountainTitleEntry(const std::string& key, const std::string& text)
         : FountainElement(Element::TITLEENTRY, text), key(key) {}
 
@@ -115,13 +111,10 @@ public:
 };
 
 class FountainAction : public FountainElement {
-
-friend class FountainWriter;
-
+public:
     bool centered;
     bool forced;
 
-public:
     FountainAction(const std::string& text, bool forced = false)
         : FountainElement(Element::ACTION, text), centered(false), forced(forced) {}
 
@@ -137,13 +130,10 @@ public:
 
 // FountainHeading: Represents a scene heading
 class FountainHeading : public FountainElement {
-
-friend class FountainWriter;
-
+public:
     std::string sceneNum; // Optional scene number
     bool forced;          // Indicates if the heading is forced
 
-public:
     // Constructor
     FountainHeading(const std::string& text, const std::optional<std::string>& sceneNum = std::nullopt, bool forced = false)
         : FountainElement(Element::HEADING, text), sceneNum(sceneNum.value_or("")), forced(forced) {}
@@ -166,13 +156,12 @@ public:
 class FountainCharacter : public FountainElement {
 
 friend class FountainWriter;
-
+public:
     std::string name;                 // Character's name
     std::optional<std::string> extension; // Optional extension (e.g., "V.O.", "O.S.")
     bool isDualDialogue;              // Indicates if this is dual dialogue
     bool forced;                      // Indicates if the character was forced
 
-public:
     // Constructor
     FountainCharacter(const std::string& text, const std::string& name, 
                       const std::optional<std::string>& extension = std::nullopt, 
@@ -226,10 +215,9 @@ public:
 // FountainTransition: Represents transition elements
 class FountainTransition : public FountainElement {
 friend class FountainWriter;
-
+public:
     bool forced; // Indicates if the transition is forced
 
-public:
     // Constructor
     FountainTransition(const std::string& text, bool forced = false)
         : FountainElement(Element::TRANSITION, text), forced(forced) {}
@@ -261,12 +249,9 @@ public:
 
 // Derived class for Section
 class FountainSection : public FountainElement {
-
-friend class FountainWriter;
-
+public:
     int level;
 
-public:
     FountainSection(const std::string& text, int level)
         : FountainElement(Element::SECTION, text), level(level) {}
 

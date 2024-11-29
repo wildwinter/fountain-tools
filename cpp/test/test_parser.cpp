@@ -1,12 +1,11 @@
-#include <fountain_tools/parser.h>
+#include "fountain_tools/parser.h"
 #include <catch_amalgamated.hpp>
-#include <string>
 #include "test_utils.h"
 
 TEST_CASE( "Scratch") {
     
-    const std::string source = readFile("Scratch.fountain");
-    const std::string match = readFile("Scratch.txt");
+    const std::string source = loadTestFile("Scratch.fountain");
+    const std::string match = loadTestFile("Scratch.txt");
 
     Fountain::FountainParser fp;
 
@@ -19,8 +18,8 @@ TEST_CASE( "Scratch") {
 
 TEST_CASE( "SceneHeading") {
     
-    const std::string source = readFile("SceneHeading.fountain");
-    const std::string match = readFile("SceneHeading.txt");
+    const std::string source = loadTestFile("SceneHeading.fountain");
+    const std::string match = loadTestFile("SceneHeading.txt");
 
     Fountain::FountainParser fp;
 
@@ -33,8 +32,8 @@ TEST_CASE( "SceneHeading") {
 
 TEST_CASE( "ActionMerged") {
     
-    const std::string source = readFile("Action.fountain");
-    const std::string match = readFile("Action-Merged.txt");
+    const std::string source = loadTestFile("Action.fountain");
+    const std::string match = loadTestFile("Action-Merged.txt");
 
     Fountain::FountainParser fp;
 
@@ -47,8 +46,8 @@ TEST_CASE( "ActionMerged") {
 
 TEST_CASE( "ActionUnmerged") {
     
-    const std::string source = readFile("Action.fountain");
-    const std::string match = readFile("Action-Unmerged.txt");
+    const std::string source = loadTestFile("Action.fountain");
+    const std::string match = loadTestFile("Action-Unmerged.txt");
 
     Fountain::FountainParser fp;
     fp.mergeActions = false;
@@ -61,8 +60,8 @@ TEST_CASE( "ActionUnmerged") {
 
 TEST_CASE( "Character") {
     
-    const std::string source = readFile("Character.fountain");
-    const std::string match = readFile("Character.txt");
+    const std::string source = loadTestFile("Character.fountain");
+    const std::string match = loadTestFile("Character.txt");
 
     Fountain::FountainParser fp;
 
@@ -75,8 +74,8 @@ TEST_CASE( "Character") {
 
 TEST_CASE( "DialogueMerged") {
     
-    const std::string source = readFile("Dialogue.fountain");
-    const std::string match = readFile("Dialogue-Merged.txt");
+    const std::string source = loadTestFile("Dialogue.fountain");
+    const std::string match = loadTestFile("Dialogue-Merged.txt");
 
     Fountain::FountainParser fp;
 
@@ -89,8 +88,8 @@ TEST_CASE( "DialogueMerged") {
 
 TEST_CASE( "DialogueUnmerged") {
     
-    const std::string source = readFile("Dialogue.fountain");
-    const std::string match = readFile("Dialogue-Unmerged.txt");
+    const std::string source = loadTestFile("Dialogue.fountain");
+    const std::string match = loadTestFile("Dialogue-Unmerged.txt");
 
     Fountain::FountainParser fp;
     fp.mergeDialogue = false;
@@ -103,8 +102,8 @@ TEST_CASE( "DialogueUnmerged") {
 
 TEST_CASE( "Parenthetical") {
     
-    const std::string source = readFile("Parenthetical.fountain");
-    const std::string match = readFile("Parenthetical.txt");
+    const std::string source = loadTestFile("Parenthetical.fountain");
+    const std::string match = loadTestFile("Parenthetical.txt");
 
     Fountain::FountainParser fp;
 
@@ -117,8 +116,8 @@ TEST_CASE( "Parenthetical") {
 
 TEST_CASE( "Lyrics") {
     
-    const std::string source = readFile("Lyrics.fountain");
-    const std::string match = readFile("Lyrics.txt");
+    const std::string source = loadTestFile("Lyrics.fountain");
+    const std::string match = loadTestFile("Lyrics.txt");
 
     Fountain::FountainParser fp;
 
@@ -131,8 +130,8 @@ TEST_CASE( "Lyrics") {
 
 TEST_CASE( "Transition") {
     
-    const std::string source = readFile("Transition.fountain");
-    const std::string match = readFile("Transition.txt");
+    const std::string source = loadTestFile("Transition.fountain");
+    const std::string match = loadTestFile("Transition.txt");
 
     Fountain::FountainParser fp;
 
@@ -145,8 +144,8 @@ TEST_CASE( "Transition") {
 
 TEST_CASE( "TitlePage") {
     
-    const std::string source = readFile("TitlePage.fountain");
-    const std::string match = readFile("TitlePage.txt");
+    const std::string source = loadTestFile("TitlePage.fountain");
+    const std::string match = loadTestFile("TitlePage.txt");
 
     Fountain::FountainParser fp;
 
@@ -159,8 +158,8 @@ TEST_CASE( "TitlePage") {
 
 TEST_CASE( "PageBreak") {
     
-    const std::string source = readFile("PageBreak.fountain");
-    const std::string match = readFile("PageBreak.txt");
+    const std::string source = loadTestFile("PageBreak.fountain");
+    const std::string match = loadTestFile("PageBreak.txt");
 
     Fountain::FountainParser fp;
 
@@ -172,8 +171,8 @@ TEST_CASE( "PageBreak") {
 }
 
 TEST_CASE( "LineBreaks") {
-    const std::string source = readFile("LineBreaks.fountain");
-    const std::string match = readFile("LineBreaks.txt");
+    const std::string source = loadTestFile("LineBreaks.fountain");
+    const std::string match = loadTestFile("LineBreaks.txt");
 
     Fountain::FountainParser fp;
 
@@ -185,8 +184,8 @@ TEST_CASE( "LineBreaks") {
 }
 
 TEST_CASE( "Notes") {
-    const std::string source = readFile("Notes.fountain");
-    const std::string match = readFile("Notes.txt");
+    const std::string source = loadTestFile("Notes.fountain");
+    const std::string match = loadTestFile("Notes.txt");
 
     Fountain::FountainParser fp;
 
@@ -198,8 +197,8 @@ TEST_CASE( "Notes") {
 }
 
 TEST_CASE( "Boneyards") {
-    const std::string source = readFile("Boneyards.fountain");
-    const std::string match = readFile("Boneyards.txt");
+    const std::string source = loadTestFile("Boneyards.fountain");
+    const std::string match = loadTestFile("Boneyards.txt");
 
     Fountain::FountainParser fp;
 
@@ -211,8 +210,8 @@ TEST_CASE( "Boneyards") {
 }
 
 TEST_CASE( "Sections") {
-    const std::string source = readFile("Sections.fountain");
-    const std::string match = readFile("Sections.txt");
+    const std::string source = loadTestFile("Sections.fountain");
+    const std::string match = loadTestFile("Sections.txt");
 
     Fountain::FountainParser fp;
 
