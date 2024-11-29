@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs'; 
+import {loadTestFile} from '../test/testUtils.js';
 import {strict as assert} from 'assert';
 import {fountainToHtml} from '../src/formatHelper.js';
 
@@ -7,8 +7,8 @@ describe('FormatHelper', () => {
     describe('Formatted', () => {
         it('should match', () => {
     
-          const source = readFileSync('../tests/Formatted.fountain', 'utf-8');
-          const match = readFileSync('../tests/Formatted.txt', 'utf-8');
+          const source = loadTestFile('Formatted.fountain');
+          const match = loadTestFile('Formatted.txt');
     
           let formattedText = fountainToHtml(source);
           

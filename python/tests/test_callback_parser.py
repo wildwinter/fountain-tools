@@ -19,10 +19,10 @@ class TestParser(unittest.TestCase):
         except Exception as e:
             self.fail(f"Error loading {file_name}: {e}")
 
-    def _write_title_page(self, keyvals):
+    def _write_title_page(self, entries):
         page = "TITLEPAGE:"
-        for key in keyvals:
-            page += f" {key}:{keyvals[key]}"
+        for entry in entries:
+            page += f" {entry.key}:{entry.value}"
         return page
 
     def test_callback_parser(self):
@@ -38,7 +38,7 @@ class TestParser(unittest.TestCase):
             f" extension:{args.extension}"
             f" parenthetical:{args.parenthetical}"
             f" line:{args.line}"
-            f" dual:{args.dual}");
+            f" dual:{args.dual}")
 
         fp.onAction = lambda args: out.append(f"ACTION: text:{args.text}")
 
@@ -54,7 +54,7 @@ class TestParser(unittest.TestCase):
 
         fp.onPageBreak = lambda: out.append("PAGEBREAK")
 
-        fp.onTitlePage = lambda keyvals: out.append(self._write_title_page(keyvals))
+        fp.onTitlePage = lambda entries: out.append(self._write_title_page(entries))
 
         fp.ignoreBlanks = True
 

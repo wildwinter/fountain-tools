@@ -1,6 +1,11 @@
 from .fountain import Element
 from .parser import FountainParser
 
+class TitleEntry:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
 class Dialogue:
     def __init__(self, character, extension, parenthetical, line, dual):
         self.character = character
@@ -52,8 +57,8 @@ class FountainCallbackParser(FountainParser):
         if in_title_page and not self._inTitlePage:
             # Finished reading title page
             if self.onTitlePage:
-                keyvals = {header.key: header.text for header in self.script.headers}
-                self.onTitlePage(keyvals)
+                entries = [TitleEntry(header.key, header.text) for header in self.script.headers]
+                self.onTitlePage(entries)
 
         while element_count < len(self.script.elements):
             self._handle_new_element(self.script.elements[element_count])

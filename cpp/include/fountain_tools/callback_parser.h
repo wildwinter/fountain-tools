@@ -9,35 +9,36 @@
 
 namespace Fountain {
 
-struct TitleEntry {
-    std::string key;
-    std::string value;
-};
-
-struct Dialogue {
-    std::string character;
-    std::optional<std::string> extension;
-    std::optional<std::string> parenthetical;
-    std::string line;
-    bool dual;
-};
-
-struct TextElement {
-    std::string text;
-};
-
-struct SceneHeading {
-    std::string text;
-    std::optional<std::string> sceneNum;
-};
-
-struct Section {
-    std::string text;
-    int level;
-};
-
 class FountainCallbackParser : public FountainParser {
 public:
+
+    struct TitleEntry {
+        std::string key;
+        std::string value;
+    };
+
+    struct Dialogue {
+        std::string character;
+        std::optional<std::string> extension;
+        std::optional<std::string> parenthetical;
+        std::string line;
+        bool dual;
+    };
+
+    struct TextElement {
+        std::string text;
+    };
+
+    struct SceneHeading {
+        std::string text;
+        std::optional<std::string> sceneNum;
+    };
+
+    struct Section {
+        std::string text;
+        int level;
+    };
+
     FountainCallbackParser();
 
     // Callback properties

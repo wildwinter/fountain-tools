@@ -2,8 +2,39 @@ namespace Fountain;
 
 public class FountainCallbackParser : FountainParser
 {
+    public class TitleEntry {
+        public required string Key;
+        public required string Value;
+    };
+
+    public class Dialogue
+    {
+        public required string Character { get; set; }
+        public string? Extension { get; set; }
+        public string? Parenthetical { get; set; }
+        public required string Line { get; set; }
+        public bool Dual { get; set; }
+    }
+
+    public class TextElement
+    {
+        public required string Text { get; set; }
+    }
+
+    public class SceneHeading
+    {
+        public required string Text { get; set; }
+        public string? SceneNum { get; set; }
+    }
+
+    public class Section
+    {
+        public required string Text { get; set; }
+        public int Level { get; set; }
+    }
+
     // Callback properties
-    public Action<Dictionary<string, string>>? OnTitlePage { get; set; }
+    public Action<List<TitleEntry>>? OnTitlePage { get; set; }
     public Action<Dialogue>? OnDialogue { get; set; }
     public Action<TextElement>? OnAction { get; set; }
     public Action<SceneHeading>? OnSceneHeading { get; set; }
@@ -39,12 +70,12 @@ public class FountainCallbackParser : FountainParser
             // Finished reading title page
             if (OnTitlePage != null)
             {
-                var keyvals = new Dictionary<string, string>();
+                var entries = new List<TitleEntry>();
                 foreach (var header in Script.Headers)
                 {
-                    keyvals[header.Key] = header.TextRaw;
-                }
-                OnTitlePage(keyvals);
+                    entries.Add(new TitleEntry{Key = header.Key, Value = header.TextRaw})
+;               }
+                OnTitlePage(entries);
             }
         }
 
@@ -135,31 +166,4 @@ public class FountainCallbackParser : FountainParser
                 break;
         }
     }
-}
-
-// Supporting data structures for callbacks
-public class Dialogue
-{
-    public required string Character { get; set; }
-    public string? Extension { get; set; }
-    public string? Parenthetical { get; set; }
-    public required string Line { get; set; }
-    public bool Dual { get; set; }
-}
-
-public class TextElement
-{
-    public required string Text { get; set; }
-}
-
-public class SceneHeading
-{
-    public required string Text { get; set; }
-    public string? SceneNum { get; set; }
-}
-
-public class Section
-{
-    public required string Text { get; set; }
-    public int Level { get; set; }
 }

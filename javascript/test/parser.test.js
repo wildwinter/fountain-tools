@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs'; 
+import {loadTestFile} from '../test/testUtils.js';
 import {strict as assert} from 'assert';
 import {FountainParser} from "../src/parser.js";
 
@@ -7,8 +7,8 @@ describe('FountainParser', () => {
   describe('Scratch', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Scratch.fountain', 'utf-8');
-      const match = readFileSync('../tests/Scratch.txt', 'utf-8');
+      const source = loadTestFile('Scratch.fountain');
+      const match = loadTestFile('Scratch.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -22,8 +22,8 @@ describe('FountainParser', () => {
   describe('SceneHeading', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/SceneHeading.fountain', 'utf-8');
-      const match = readFileSync('../tests/SceneHeading.txt', 'utf-8');
+      const source = loadTestFile('SceneHeading.fountain');
+      const match = loadTestFile('SceneHeading.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -37,8 +37,8 @@ describe('FountainParser', () => {
   describe('Actions', () => {
     it('should match merged', () => {
 
-      const source = readFileSync('../tests/Action.fountain', 'utf-8');
-      const match = readFileSync('../tests/Action-Merged.txt', 'utf-8');
+      const source = loadTestFile('Action.fountain');
+      const match = loadTestFile('Action-Merged.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -50,8 +50,8 @@ describe('FountainParser', () => {
 
     it('should match unmerged', () => {
 
-      const source = readFileSync('../tests/Action.fountain', 'utf-8');
-      const match = readFileSync('../tests/Action-Unmerged.txt', 'utf-8');
+      const source = loadTestFile('Action.fountain');
+      const match = loadTestFile('Action-Unmerged.txt');
 
       let fp = new FountainParser();
       fp.mergeActions = false;
@@ -67,8 +67,8 @@ describe('FountainParser', () => {
   describe('Character', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Character.fountain', 'utf-8');
-      const match = readFileSync('../tests/Character.txt', 'utf-8');
+      const source = loadTestFile('Character.fountain');
+      const match = loadTestFile('Character.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -82,8 +82,8 @@ describe('FountainParser', () => {
   describe('Dialogue', () => {
     it('should match merged', () => {
 
-      const source = readFileSync('../tests/Dialogue.fountain', 'utf-8');
-      const match = readFileSync('../tests/Dialogue-Merged.txt', 'utf-8');
+      const source = loadTestFile('Dialogue.fountain');
+      const match = loadTestFile('Dialogue-Merged.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -95,8 +95,8 @@ describe('FountainParser', () => {
 
     it('should match unmerged', () => {
 
-      const source = readFileSync('../tests/Dialogue.fountain', 'utf-8');
-      const match = readFileSync('../tests/Dialogue-Unmerged.txt', 'utf-8');
+      const source = loadTestFile('Dialogue.fountain');
+      const match = loadTestFile('Dialogue-Unmerged.txt');
 
       let fp = new FountainParser();
       fp.mergeDialogue = false;
@@ -111,8 +111,8 @@ describe('FountainParser', () => {
   describe('Parenthetical', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Parenthetical.fountain', 'utf-8');
-      const match = readFileSync('../tests/Parenthetical.txt', 'utf-8');
+      const source = loadTestFile('Parenthetical.fountain');
+      const match = loadTestFile('Parenthetical.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -126,8 +126,8 @@ describe('FountainParser', () => {
   describe('Lyrics', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Lyrics.fountain', 'utf-8');
-      const match = readFileSync('../tests/Lyrics.txt', 'utf-8');
+      const source = loadTestFile('Lyrics.fountain');
+      const match = loadTestFile('Lyrics.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -141,8 +141,8 @@ describe('FountainParser', () => {
   describe('Transition', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Transition.fountain', 'utf-8');
-      const match = readFileSync('../tests/Transition.txt', 'utf-8');
+      const source = loadTestFile('Transition.fountain');
+      const match = loadTestFile('Transition.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -156,8 +156,8 @@ describe('FountainParser', () => {
   describe('TitlePage', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/TitlePage.fountain', 'utf-8');
-      const match = readFileSync('../tests/TitlePage.txt', 'utf-8');
+      const source = loadTestFile('TitlePage.fountain');
+      const match = loadTestFile('TitlePage.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -171,8 +171,8 @@ describe('FountainParser', () => {
   describe('PageBreak', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/PageBreak.fountain', 'utf-8');
-      const match = readFileSync('../tests/PageBreak.txt', 'utf-8');
+      const source = loadTestFile('PageBreak.fountain');
+      const match = loadTestFile('PageBreak.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -186,8 +186,8 @@ describe('FountainParser', () => {
   describe('LineBreaks', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/LineBreaks.fountain', 'utf-8');
-      const match = readFileSync('../tests/LineBreaks.txt', 'utf-8');
+      const source = loadTestFile('LineBreaks.fountain');
+      const match = loadTestFile('LineBreaks.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -201,8 +201,8 @@ describe('FountainParser', () => {
   describe('Notes', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Notes.fountain', 'utf-8');
-      const match = readFileSync('../tests/Notes.txt', 'utf-8');
+      const source = loadTestFile('Notes.fountain');
+      const match = loadTestFile('Notes.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -216,8 +216,8 @@ describe('FountainParser', () => {
   describe('Boneyards', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Boneyards.fountain', 'utf-8');
-      const match = readFileSync('../tests/Boneyards.txt', 'utf-8');
+      const source = loadTestFile('Boneyards.fountain');
+      const match = loadTestFile('Boneyards.txt');
 
       let fp = new FountainParser();
       fp.addText(source);
@@ -231,8 +231,8 @@ describe('FountainParser', () => {
   describe('Sections', () => {
     it('should match', () => {
 
-      const source = readFileSync('../tests/Sections.fountain', 'utf-8');
-      const match = readFileSync('../tests/Sections.txt', 'utf-8');
+      const source = loadTestFile('Sections.fountain');
+      const match = loadTestFile('Sections.txt');
 
       let fp = new FountainParser();
       fp.addText(source);

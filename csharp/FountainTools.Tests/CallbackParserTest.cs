@@ -61,11 +61,11 @@ public class CallbackParserTest
             outLines.Add("PAGEBREAK");
         };
 
-        fp.OnTitlePage = keyvals => {
+        fp.OnTitlePage = entries => {
             var page = "TITLEPAGE:";
-            foreach (var kvp in keyvals)
+            foreach (var entry in entries)
             {
-                page+=$" {kvp.Key}:{kvp.Value}";
+                page+=$" {entry.Key}:{entry.Value}";
             }
             outLines.Add(page);
         };

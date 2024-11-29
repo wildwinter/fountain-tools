@@ -1,11 +1,11 @@
-import {readFileSync} from 'fs'; 
+import {loadTestFile} from '../test/testUtils.js';
 import {strict as assert} from 'assert';
 import {FountainCallbackParser} from "../src/callbackParser.js";
 
 describe('Simple Callback Parser', () => {
   it('should work', () => {
 
-    const match = readFileSync('../tests/SimpleCallbackParser.txt', 'utf-8');
+    const match = loadTestFile("SimpleCallbackParser.txt");
 
     let out = [];
 
@@ -48,20 +48,20 @@ describe('Simple Callback Parser', () => {
         out.push("PAGEBREAK");
     }
 
-    fp.onTitlePage = (keyvals) => {
+    fp.onTitlePage = (entries) => {
         let page = "TITLEPAGE:";
-        for (const key in keyvals) {
-            page+=` ${key}:${keyvals[key]}`;
+        for (const entry of entries) {
+            page+=` ${entry.key}:${entry.value}`;
         }
         out.push(page);
     }
 
     fp.ignoreBlanks = true;
 
-    fp.addText(readFileSync('../tests/TitlePage.fountain', 'utf-8'));
-    fp.addText(readFileSync('../tests/Sections.fountain', 'utf-8'));
-    fp.addText(readFileSync('../tests/Character.fountain', 'utf-8'));
-    fp.addText(readFileSync('../tests/Dialogue.fountain', 'utf-8'));
+    fp.addText(loadTestFile("TitlePage.fountain"));
+    fp.addText(loadTestFile("Sections.fountain"));
+    fp.addText(loadTestFile("Character.fountain"));
+    fp.addText(loadTestFile("Dialogue.fountain"));
 
     let output = out.join("\n");
     //console.log(output);

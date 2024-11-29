@@ -7,7 +7,7 @@ export class FountainCallbackParser extends FountainParser {
         super();
         
         /*  
-            object map of keys/values
+            array of {key:"key", value:"value"} 
         */
         this.onTitlePage = null;
 
@@ -89,11 +89,11 @@ export class FountainCallbackParser extends FountainParser {
         if (inTitlePage && !this._inTitlePage) {
             // Finished reading title page
             if (this.onTitlePage) {
-                let keyvals = {};
+                let entries = [];
                 for (const header of this.script.headers) {
-                    keyvals[header.key] = header.text;
+                    entries.push({"key":header.key, "value":header.text});
                 }
-                this.onTitlePage(keyvals);
+                this.onTitlePage(entries);
             }
         }
 

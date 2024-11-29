@@ -22,7 +22,7 @@ TEST_CASE( "CallbackParser") {
 
     Fountain::FountainCallbackParser fp;
 
-    fp.onDialogue = [&oss](const Fountain::Dialogue& args) {
+    fp.onDialogue = [&oss](const Fountain::FountainCallbackParser::Dialogue& args) {
         oss << "DIALOGUE:"
             << " character:" << args.character
             << " extension:" << asNull(args.extension)
@@ -31,27 +31,27 @@ TEST_CASE( "CallbackParser") {
             << " dual:" << asBool(args.dual) << std::endl;
     };
 
-    fp.onAction = [&oss](const Fountain::TextElement& args) {
+    fp.onAction = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
         oss << "ACTION: text:" << args.text << std::endl;
     };
 
-    fp.onSceneHeading = [&oss](const Fountain::SceneHeading& args) {
+    fp.onSceneHeading = [&oss](const Fountain::FountainCallbackParser::SceneHeading& args) {
         oss << "HEADING: text:" << args.text << " sceneNum:" << asNull(args.sceneNum) << std::endl;
     };
 
-    fp.onLyrics = [&oss](const Fountain::TextElement& args) {
+    fp.onLyrics = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
         oss << "LYRICS: text:" << args.text << std::endl;
     };
 
-    fp.onTransition = [&oss](const Fountain::TextElement& args) {
+    fp.onTransition = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
         oss << "TRANSITION: text:" << args.text << std::endl;
     };
 
-    fp.onSection = [&oss](const Fountain::Section& args) {
+    fp.onSection = [&oss](const Fountain::FountainCallbackParser::Section& args) {
         oss << "SECTION: level:" << args.level << " text:" << args.text << std::endl;
     };
 
-    fp.onSynopsis = [&oss](const Fountain::TextElement& args) {
+    fp.onSynopsis = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
         oss << "SYNOPSIS: text:" << args.text << std::endl;
     };
 
@@ -59,7 +59,7 @@ TEST_CASE( "CallbackParser") {
         oss << "PAGEBREAK" << std::endl;
     };
 
-    fp.onTitlePage = [&oss](const std::vector<Fountain::TitleEntry>& entries) {
+    fp.onTitlePage = [&oss](const std::vector<Fountain::FountainCallbackParser::TitleEntry>& entries) {
         oss << "TITLEPAGE:";
         for (const auto& entry : entries) {
             oss << " " << entry.key << ":" << entry.value;
