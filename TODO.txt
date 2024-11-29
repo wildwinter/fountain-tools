@@ -1,6 +1,4 @@
-Regularise package.json scripts
-
-Fix up dists
+Sort out dists for all platforms
 
 Look at localisation / tags?
 

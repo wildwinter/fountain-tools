@@ -9,22 +9,10 @@ public class CallbackParserTest
         return File.ReadAllText("../../../../../tests/"+fileName);
     }
 
-    private string JWrap(object obj)
-    {
-        // Serialize the object to JSON with compact formatting
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = false, // Compact JSON output
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // Escape unicode properly
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        string json = JsonSerializer.Serialize(obj, options);
-
-        // Replace newlines with escaped newlines
-        json = json.Replace("\n", "\\n");
-
-        return json;
+    private string asNull(string? value) {
+        if (value==null)
+            return "null";
+        return value;
     }
 
     [Fact]
@@ -37,39 +25,51 @@ public class CallbackParserTest
         FountainCallbackParser fp = new FountainCallbackParser();
 
         fp.OnDialogue = args => {
-            outLines.Add("DIALOGUE:"+JWrap(args));
+            outLines.Add("DIALOGUE:"+
+                " character:"+args.Character+
+                " extension:"+asNull(args.Extension)+
+                " parenthetical:"+asNull(args.Parenthetical)+
+                " line:"+args.Line+
+                " dual:"+args.Dual);
         };
 
         fp.OnAction = args => {
-            outLines.Add("ACTION:"+JWrap(args));
+            outLines.Add("ACTION: text:"+args.Text);
         };
 
         fp.OnSceneHeading = args => {
-            outLines.Add("HEADING:"+JWrap(args));
+            outLines.Add("HEADING: text:"+args.Text+" sceneNum:"+asNull(args.SceneNum));
         };
 
         fp.OnLyrics = args => {
-            outLines.Add("LYRICS:"+JWrap(args));
+            outLines.Add("LYRICS: text:"+args.Text);
         };
 
         fp.OnTransition = args => {
-            outLines.Add("TRANSITION:"+JWrap(args));
+            outLines.Add("TRANSITION: text:"+args.Text);
         };
 
         fp.OnSection = args => {
-            outLines.Add("SECTION:"+JWrap(args));
+            outLines.Add("SECTION: level:"+args.Level+" text:"+args.Text);
         };
 
         fp.OnSynopsis = args => {
-            outLines.Add("SYNOPSIS:"+JWrap(args));
+            outLines.Add("SYNOPSIS: text:"+args.Text);
         };
 
         fp.OnPageBreak = () => {
-            outLines.Add("PAGEBREAK:");
+            outLines.Add("PAGEBREAK");
         };
 
-        fp.OnTitlePage = args => {
-            outLines.Add("TITLEPAGE:"+JWrap(args));
+        fp.OnTitlePage = keyvals => {
+
+            var page = "TITLEPAGE:";
+            foreach (var kvp in keyvals)
+            {
+                Console.WriteLine($"Key: {kvp.Key}, Value: {kvp.Value}");
+                page+=$" {kvp.Key}:{kvp.Value}";
+            }
+            outLines.Add(page);
         };
 
         fp.IgnoreBlanks = true;
@@ -79,10 +79,10 @@ public class CallbackParserTest
         fp.AddText(loadTestFile("Character.fountain"));
         fp.AddText(loadTestFile("Dialogue.fountain"));
 
-        FountainWriter fw = new FountainWriter();
-
-        
         string output = string.Join("\n", outLines);
+        output = output.Replace("False", "false");
+         output = output.Replace("True", "true");
+         
         //Console.WriteLine(output);
         Assert.Equal(match, output);
     }
