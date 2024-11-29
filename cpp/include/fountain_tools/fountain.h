@@ -131,22 +131,18 @@ public:
 // FountainHeading: Represents a scene heading
 class FountainHeading : public FountainElement {
 public:
-    std::string sceneNum; // Optional scene number
+    std::optional<std::string> sceneNum; // Optional scene number
     bool forced;          // Indicates if the heading is forced
 
     // Constructor
     FountainHeading(const std::string& text, const std::optional<std::string>& sceneNum = std::nullopt, bool forced = false)
-        : FountainElement(Element::HEADING, text), sceneNum(sceneNum.value_or("")), forced(forced) {}
-
-    // Accessors
-    std::string getSceneNum() const { return sceneNum; }
-    bool isForced() const { return forced; }
+        : FountainElement(Element::HEADING, text), sceneNum(sceneNum), forced(forced) {}
 
     // Override Dump for debugging
     std::string dump() const override {
         std::string output = elementToString(type) + ":\"" + getText() + "\"";
-        if (!sceneNum.empty()) {
-            output += " (" + sceneNum + ")";
+        if (sceneNum.has_value()) {
+            output += " (" + sceneNum.value() + ")";
         }
         return output;
     }
@@ -155,7 +151,6 @@ public:
 // FountainCharacter: Represents character elements
 class FountainCharacter : public FountainElement {
 
-friend class FountainWriter;
 public:
     std::string name;                 // Character's name
     std::optional<std::string> extension; // Optional extension (e.g., "V.O.", "O.S.")
@@ -214,7 +209,6 @@ public:
 
 // FountainTransition: Represents transition elements
 class FountainTransition : public FountainElement {
-friend class FountainWriter;
 public:
     bool forced; // Indicates if the transition is forced
 
@@ -259,7 +253,7 @@ public:
 
     std::string dump() const override {
         return elementToString(type) + ":\"" + text + "\" (" + std::to_string(level) + ")";
-    }friend class FountainWriter;
+    }
 };
 
 // Derived class for Synopsis

@@ -413,7 +413,7 @@ std::optional<FountainParser::CharacterInfo> FountainParser::decodeCharacter(con
 
     if (std::regex_match(noContLine, match, regexCharacter)) {
         std::string name = match[1].str();
-        std::string extension = match[2].matched ? match[2].str() : "";
+        std::optional<std::string> extension = match[2].matched ? std::optional(match[2].str()) : std::nullopt;
         bool dual = noContLine.back() == '^';
 
         // Return a populated CharacterInfo struct
@@ -551,12 +551,14 @@ void FountainParser::parseAction() {
     addElement(std::make_shared<FountainAction>(line));
 }
 
-std::optional<std::pair<std::string, std::string>> FountainParser::decodeHeading(const std::string& line) {
+std::optional<std::pair<std::string, std::optional<std::string>>> FountainParser::decodeHeading(const std::string& line) {
     std::regex regex(R"((.*?)(?:\s*#(.*?)#)?)");
     std::smatch match;
 
     if (std::regex_match(line, match, regex)) {
-        return std::make_pair(match[1], match[2]);
+        std::string text = match[1];
+        std::optional<std::string> sceneNum = match[2].matched ? std::optional(match[2].str()) : std::nullopt;
+        return std::make_pair(text, sceneNum);
     }
     return std::nullopt;
 }

@@ -142,7 +142,7 @@ std::string FountainWriter::writeCharacter(const std::shared_ptr<FountainCharact
     if (elem->isDualDialogue) {
         charText += " ^";
     }
-    if (!elem->extension.has_value()) {
+    if (elem->extension.has_value()) {
         charText += " (" + elem->extension.value() + ")";
     }
     if (elem->forced) {
@@ -194,7 +194,7 @@ std::string FountainWriter::writeAction(const std::shared_ptr<FountainAction>& e
 }
 
 std::string FountainWriter::writeHeading(const std::shared_ptr<FountainHeading>& elem) {
-    std::string sceneNum = !elem->sceneNum.empty() ? " #" + elem->sceneNum + "#" : "";
+    std::string sceneNum = elem->sceneNum.has_value() ? " #" + elem->sceneNum.value() + "#" : "";
     if (elem->forced) {
         return "\n." + elem->getTextRaw() + sceneNum;
     }
@@ -225,7 +225,9 @@ std::string FountainWriter::addTabs(const std::string& input, int count) {
     std::ostringstream oss;
     std::string line;
     while (std::getline(iss, line)) {
-        oss << std::string(count, '\t') << line << "\n";
+        if (!oss.str().empty())
+            oss << "\n";
+        oss << std::string(count, '\t') << line;
     }
     return oss.str();
 }

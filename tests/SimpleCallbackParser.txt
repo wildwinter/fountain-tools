@@ -10,6 +10,7 @@ TRANSITION: text:CUT TO:
 SECTION: level:1 text:This is a Section
 HEADING: text:INT. PALACE HALLWAY - NIGHT sceneNum:null
 ACTION: text:You can nest Sections by adding more # characters.
+HEADING: text:INT. PALACE BALLROOM sceneNum:1a
 SECTION: level:1 text:Act
 SECTION: level:2 text:Sequence
 SECTION: level:3 text:Scene

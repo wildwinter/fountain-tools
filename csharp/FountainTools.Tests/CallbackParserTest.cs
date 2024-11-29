@@ -62,11 +62,9 @@ public class CallbackParserTest
         };
 
         fp.OnTitlePage = keyvals => {
-
             var page = "TITLEPAGE:";
             foreach (var kvp in keyvals)
             {
-                Console.WriteLine($"Key: {kvp.Key}, Value: {kvp.Value}");
                 page+=$" {kvp.Key}:{kvp.Value}";
             }
             outLines.Add(page);
@@ -81,8 +79,8 @@ public class CallbackParserTest
 
         string output = string.Join("\n", outLines);
         output = output.Replace("False", "false");
-         output = output.Replace("True", "true");
-         
+        output = output.Replace("True", "true");
+
         //Console.WriteLine(output);
         Assert.Equal(match, output);
     }

@@ -18,6 +18,6 @@ TEST_CASE( "Writer") {
     Fountain::FountainWriter fw;
     const std::string output = fw.write(*fp.script);
 
-    std::cout << output << std::endl;
-    //REQUIRE(match == output);
+    //std::cout << output << std::endl;
+    REQUIRE(match == output);
 }

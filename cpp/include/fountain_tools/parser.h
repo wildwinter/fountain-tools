@@ -28,7 +28,7 @@ public:
 protected:
     struct CharacterInfo {
         std::string name;        // Character's name
-        std::string extension;   // Optional extension (e.g., "V.O.", "O.S.")
+        std::optional<std::string> extension;   // Optional extension (e.g., "V.O.", "O.S.")
         bool dual;               // Whether this is a dual dialogue (^)
     };
 
@@ -82,7 +82,7 @@ protected:
     void parseAction();
 
     // Utility methods
-    std::optional<std::pair<std::string, std::string>> decodeHeading(const std::string& line);
+    std::optional<std::pair<std::string, std::optional<std::string>>> decodeHeading(const std::string& line);
     std::optional<CharacterInfo> decodeCharacter(const std::string& line);
 };
 

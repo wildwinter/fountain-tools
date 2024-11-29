@@ -9,7 +9,11 @@
 
 namespace Fountain {
 
-// Supporting data structures for callbacks
+struct TitleEntry {
+    std::string key;
+    std::string value;
+};
+
 struct Dialogue {
     std::string character;
     std::optional<std::string> extension;
@@ -24,7 +28,7 @@ struct TextElement {
 
 struct SceneHeading {
     std::string text;
-    std::string sceneNum;
+    std::optional<std::string> sceneNum;
 };
 
 struct Section {
@@ -37,7 +41,7 @@ public:
     FountainCallbackParser();
 
     // Callback properties
-    std::function<void(const std::map<std::string, std::string>&)> onTitlePage;
+    std::function<void(const std::vector<TitleEntry>&)> onTitlePage;
     std::function<void(const Dialogue&)> onDialogue;
     std::function<void(const TextElement&)> onAction;
     std::function<void(const SceneHeading&)> onSceneHeading;

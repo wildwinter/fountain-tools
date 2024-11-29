@@ -2,6 +2,7 @@
 #include "fountain_tools/utils.h"
 #include <cctype>
 #include <algorithm>
+#include <iostream>
 
 namespace Fountain {
 
@@ -19,11 +20,11 @@ void FountainCallbackParser::addLine(const std::string& inputLine) {
     if (wasInTitlePage && !inTitlePage) {
         // Finished reading title page
         if (onTitlePage) {
-            std::map<std::string, std::string> keyvals;
+            std::vector<TitleEntry> entries;
             for (const auto& header : script->headers) {
-                keyvals[header->key] = header->getTextRaw();
+                entries.emplace_back(TitleEntry(header->key, header->getTextRaw()));
             }
-            onTitlePage(keyvals);
+            onTitlePage(entries);
         }
     }
 

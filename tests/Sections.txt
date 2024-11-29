@@ -2,6 +2,7 @@ TITLEENTRY:"CUT TO":""
 SECTION:"This is a Section" (1)
 HEADING:"INT. PALACE HALLWAY - NIGHT"
 ACTION:"You can nest Sections by adding more # characters."
+HEADING:"INT. PALACE BALLROOM" (1a)
 SECTION:"Act" (1)
 SECTION:"Sequence" (2)
 SECTION:"Scene" (3)

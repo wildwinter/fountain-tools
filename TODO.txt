@@ -3,3 +3,5 @@ Sort out dists for all platforms
 Look at localisation / tags?
 
 Test utf8
+
+Make all titlepages pairs
