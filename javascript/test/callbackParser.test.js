@@ -10,39 +10,50 @@ describe('Simple Callback Parser', () => {
     let out = [];
 
     let fp = new FountainCallbackParser();
-    fp.onDialogue = (params) => {
-        out.push("DIALOGUE:"+JSON.stringify(params));
+    fp.onDialogue = (args) => {
+        out.push("DIALOGUE:"+
+            ` character:${args.character}`+
+            ` extension:${args.extension}`+
+            ` parenthetical:${args.parenthetical}`+
+            ` line:${args.line}`+
+            ` dual:${args.dual}`);
     }
-    fp.onAction = (params) => {
-        out.push("ACTION:"+JSON.stringify(params));
-    }
-
-    fp.onSceneHeading = (params) => {
-        out.push("HEADING:"+JSON.stringify(params));
-    }
-
-    fp.onLyrics = (params) => {
-        out.push("LYRICS:"+JSON.stringify(params));
+    fp.onAction = (args) => {
+        out.push(`ACTION: text:${args.text}`);
     }
 
-    fp.onTransition = (params) => {
-        out.push("TRANSITION:"+JSON.stringify(params));
+    fp.onSceneHeading = (args) => {
+        out.push(`HEADING: text:${args.text} sceneNum:${args.sceneNum}`);
     }
 
-    fp.onSection = (params) => {
-        out.push("SECTION:"+JSON.stringify(params));
+    fp.onLyrics = (args) => {
+        out.push(`LYRICS: text:${args.text}`);
     }
 
-    fp.onSynopsis = (params) => {
-        out.push("SYNOPSIS:"+JSON.stringify(params));
+    fp.onTransition = (args) => {
+        out.push(`TRANSITION: text:${args.text}`);
+    }
+
+    fp.onSection = (args) => {
+        out.push("SECTION:"+
+            ` level:${args.level}`+
+            ` text:${args.text}`);
+    }
+
+    fp.onSynopsis = (args) => {
+        out.push(`SYNOPSIS: text:${args.text}`);
     }
 
     fp.onPageBreak = () => {
-        out.push("PAGEBREAK:");
+        out.push("PAGEBREAK");
     }
 
     fp.onTitlePage = (keyvals) => {
-        out.push("TITLEPAGE:"+JSON.stringify(keyvals));
+        let page = "TITLEPAGE:";
+        for (const key in keyvals) {
+            page+=` ${key}:${keyvals[key]}`;
+        }
+        out.push(page);
     }
 
     fp.ignoreBlanks = true;
