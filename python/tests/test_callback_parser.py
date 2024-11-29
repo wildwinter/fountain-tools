@@ -19,11 +19,11 @@ class TestParser(unittest.TestCase):
         except Exception as e:
             self.fail(f"Error loading {file_name}: {e}")
 
-    def jwrap(self, obj):
-        # Mangle the json-dump to match the same test case as JS
-        out = json.dumps(obj, separators=(',', ':')).encode("utf-8").decode("unicode-escape")
-        out = out.replace("\n","\\n")
-        return out
+    def _write_title_page(self, keyvals):
+        page = "TITLEPAGE:"
+        for key in keyvals:
+            page += f" {key}:{keyvals[key]}"
+        return page
 
     def test_callback_parser(self):
 
@@ -33,23 +33,40 @@ class TestParser(unittest.TestCase):
 
         fp = FountainCallbackParser()
 
-        fp.onDialogue = lambda params: out.append(f"DIALOGUE:{self.jwrap(params)}")
-        fp.onAction = lambda params: out.append(f"ACTION:{self.jwrap(params)}")
-        fp.onSceneHeading = lambda params: out.append("HEADING:{\"text\":\""+params["text"]+"\",\"sceneNum\":null}")
-        fp.onLyrics = lambda params: out.append(f"LYRICS:{self.jwrap(params)}")
-        fp.onTransition = lambda params: out.append(f"TRANSITION:{self.jwrap(params)}")
-        fp.onSection = lambda params: out.append(f"SECTION:{self.jwrap(params)}")
-        fp.onSynopsis = lambda params: out.append(f"SYNOPSIS:{self.jwrap(params)}")
+        fp.onDialogue = lambda args: out.append(f"DIALOGUE:"
+            f" character:{args.character}"
+            f" extension:{args.extension}"
+            f" parenthetical:{args.parenthetical}"
+            f" line:{args.line}"
+            f" dual:{args.dual}");
+
+        fp.onAction = lambda args: out.append(f"ACTION: text:{args.text}")
+
+        fp.onSceneHeading = lambda args: out.append(f"HEADING: text:{args.text} sceneNum:{args.sceneNum}")
+          
+        fp.onLyrics = lambda args: out.append(f"LYRICS: text:{args.text}")
+        
+        fp.onTransition = lambda args: out.append(f"TRANSITION: text:{args.text}")
+        
+        fp.onSection = lambda args: out.append(f"SECTION: level:{args.level} text:{args.text}")
+
+        fp.onSynopsis = lambda args: out.append(f"SYNOPSIS: text:{args.text}")
+
         fp.onPageBreak = lambda: out.append("PAGEBREAK")
-        fp.onTitlePage = lambda params: out.append(f"TITLEPAGE:{self.jwrap(params)}")
+
+        fp.onTitlePage = lambda keyvals: out.append(self._write_title_page(keyvals))
 
         fp.ignoreBlanks = True
 
         fp.add_text(self._load_file('TitlePage.fountain'))
         fp.add_text(self._load_file('Sections.fountain'))
         fp.add_text(self._load_file('Character.fountain'))
-        fp.add_text(self._load_file('/Dialogue.fountain'))
+        fp.add_text(self._load_file('Dialogue.fountain'))
 
         output = "\n".join(out)
+        
+        output = output.replace("None", "null")
+        output = output.replace("False", "false")
+        output = output.replace("True", "true")
         #print(output)
         self.assertMultiLineEqual(match, output)

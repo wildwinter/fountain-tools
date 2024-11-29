@@ -1,0 +1,9 @@
+{
+    "name": "fountain-tools-python",
+    "version": "1.0.0",
+    "scripts": {
+        "test": "python3 -m unittest discover -s tests",
+        "dist": "python3 create_dist.py"
+    }
+  }
+  

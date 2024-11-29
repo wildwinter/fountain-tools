@@ -31,7 +31,8 @@ export class FountainCallbackParser extends FountainParser {
 
         /*  
             {
-                text: string
+                text: string,
+                sceneNum: string
             }
         */
         this.onSceneHeading = null;

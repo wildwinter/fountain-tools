@@ -1,0 +1,9 @@
+{
+    "name": "fountain-tools-csharp",
+    "version": "1.0.0",
+    "scripts": {
+        "build": "cd FountainTools && dotnet build",
+        "test": "npm run build && cd FountainTools.Tests && dotnet test"
+    }
+  }
+  

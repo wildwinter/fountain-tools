@@ -4,7 +4,8 @@
   "main": "fountainTools.js",
   "type": "module",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "dist": "npx rollup -c"
   },
   "keywords": [],
   "author": "",

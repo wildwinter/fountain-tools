@@ -1,6 +1,28 @@
 from .fountain import Element
 from .parser import FountainParser
 
+class Dialogue:
+    def __init__(self, character, extension, parenthetical, line, dual):
+        self.character = character
+        self.extension = extension
+        self.parenthetical = parenthetical
+        self.line = line
+        self.dual = dual
+
+class TextElement:
+    def __init__(self, text):
+        self.text = text
+
+class SceneHeading:
+    def __init__(self, text, sceneNum):
+        self.text = text
+        self.sceneNum = sceneNum
+
+class Section:
+    def __init__(self, text, level):
+        self.text = text
+        self.level = level
+
 class FountainCallbackParser(FountainParser):
     def __init__(self):
         super().__init__()
@@ -47,16 +69,16 @@ class FountainCallbackParser(FountainParser):
             return
 
         if elem.type == Element.DIALOGUE:
-            dialogue = {
-                "character": self._lastChar.name,
-                "extension": self._lastChar.extension,
-                "parenthetical": self._lastParen.text if self._lastParen else None,
-                "line": elem.text,
-                "dual": self._lastChar.is_dual_dialogue
-            }
+            dialogue = Dialogue(
+                character =  self._lastChar.name,
+                extension = self._lastChar.extension,
+                parenthetical = self._lastParen.text if self._lastParen else None,
+                line = elem.text,
+                dual = self._lastChar.is_dual_dialogue
+            )
             self._lastParen = None
 
-            if self.ignoreBlanks and not dialogue["line"].strip():
+            if self.ignoreBlanks and not dialogue.line.strip():
                 return
 
             if self.onDialogue:
@@ -71,7 +93,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onAction:
-                self.onAction({"text": elem.text})
+                self.onAction(TextElement(elem.text))
             return
 
         if elem.type == Element.HEADING:
@@ -79,8 +101,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onSceneHeading:
-                print(elem.dump())
-                self.onSceneHeading({"text": elem.text, "scene_num": elem.scene_num})
+                self.onSceneHeading(SceneHeading(elem.text, elem.scene_num))
             return
 
         if elem.type == Element.LYRIC:
@@ -88,7 +109,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onLyrics:
-                self.onLyrics({"text": elem.text})
+                self.onLyrics(TextElement(elem.text))
             return
 
         if elem.type == Element.TRANSITION:
@@ -96,17 +117,17 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onTransition:
-                self.onTransition({"text": elem.text})
+                self.onTransition(TextElement(elem.text))
             return
 
         if elem.type == Element.SECTION:
             if self.onSection:
-                self.onSection({"text": elem.text, "level": elem.level})
+                self.onSection(Section(elem.text, elem.level))
             return
 
         if elem.type == Element.SYNOPSIS:
             if self.onSynopsis:
-                self.onSynopsis({"text": elem.text})
+                self.onSynopsis(TextElement(elem.text))
             return
 
         if elem.type == Element.PAGEBREAK:
