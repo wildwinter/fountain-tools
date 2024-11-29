@@ -212,5 +212,17 @@ class TestParser(unittest.TestCase):
         #print(output)
         self.assertMultiLineEqual(match, output)
 
+    def test_utf8(self):
+
+        source = self._load_file("UTF8.fountain")
+        match = self._load_file("UTF8.txt")
+
+        fp = FountainParser()
+        fp.add_text(source)
+
+        output = fp.script.dump();
+        #print(output)
+        self.assertMultiLineEqual(match, output)
+
 if __name__ == "__main__":
     unittest.main()

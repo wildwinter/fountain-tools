@@ -233,4 +233,18 @@ public class ParserTest
         //Console.WriteLine(output);
         Assert.Equal(match, output);
     }
+
+   [Fact]
+    public void UTF8()
+    {
+        string source = loadTestFile("UTF8.fountain");
+        string match = loadTestFile("UTF8.txt");
+
+        FountainParser fp = new FountainParser();
+        fp.AddText(source);
+
+        string output = fp.Script.Dump();
+        //Console.WriteLine(output);
+        Assert.Equal(match, output);
+    }
 }

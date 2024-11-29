@@ -221,3 +221,16 @@ TEST_CASE( "Sections") {
 
     REQUIRE(match == output);
 }
+
+TEST_CASE( "UTF8") {
+    const std::string source = loadTestFile("UTF8.fountain");
+    const std::string match = loadTestFile("UTF8.txt");
+
+    Fountain::FountainParser fp;
+
+    fp.addText(source);
+
+    const std::string output = fp.script->dump();
+
+    REQUIRE(match == output);
+}

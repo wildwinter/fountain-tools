@@ -243,4 +243,19 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('UTF8', () => {
+    it('should match', () => {
+
+      const source = loadTestFile('UTF8.fountain');
+      const match = loadTestFile('UTF8.txt');
+
+      let fp = new FountainParser();
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(output, match);
+    });
+  });
+
 });

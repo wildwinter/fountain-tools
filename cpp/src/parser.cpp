@@ -552,7 +552,7 @@ void FountainParser::parseAction() {
 }
 
 std::optional<std::pair<std::string, std::optional<std::string>>> FountainParser::decodeHeading(const std::string& line) {
-    std::regex regex(R"((.*?)(?:\s*#(.*?)#)?)");
+    std::regex regex(R"((.*?)(?:\s*#([a-zA-Z0-9\-.]+?)#)?)");
     std::smatch match;
 
     if (std::regex_match(line, match, regex)) {
