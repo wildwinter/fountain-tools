@@ -1,10 +1,11 @@
 {
-    "name": "fountain-tools-cpp",
-    "version": "1.0.0",
+    "name": "fountain-tools-cpp-src",
     "scripts": {
         "clean": "rm -rf build",
         "build": "cmake -DBUILD_SHARED_LIBS=ON -S . -B build && cmake --build build",
-        "test": "npm run build && cd build && ctest --output-on-failure"
+        "test": "npm run build && cd build && ctest --output-on-failure",
+        "dist": "rm -rf ./dist && mkdir -p ./dist/src && mkdir -p ./dist/include/fountain_tools && cp ./src/*.cpp ./dist/src && cp ./include/fountain_tools/*.h ./dist/include/fountain_tools",
+        "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist"
     }
   }
   

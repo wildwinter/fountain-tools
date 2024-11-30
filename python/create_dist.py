@@ -23,9 +23,7 @@ def copy_all_files(src_folder, dist_folder):
                 src_file = os.path.join(root, file_name)
                 dest_file = os.path.join(dest_path, file_name)
                 shutil.copy2(src_file, dest_file)
-                print(f"Copied: {src_file} -> {dest_file}")
 
-# Example usage:
 src = "src"
 dist = "dist"
 copy_all_files(src, dist)

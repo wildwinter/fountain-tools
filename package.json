@@ -5,21 +5,34 @@
   "scripts": {
     "clean": "npm run clean:all",
     "clean:cpp": "cd cpp && npm run clean",
-    "clean:all": "npm run clean:cpp",
+    "clean:cs": "cd csharp && npm run clean",
+    "clean:all": "npm run clean:cpp && npm run clean:cs",
+
     "build": "npm run build:all",
-    "build:csharp": "cd csharp && npm run build",
+    "build:cs": "cd csharp && npm run build",
     "build:cpp": "cd cpp && npm run build",
-    "build:all": "npm run build:csharp && npm:build:cpp",
+    "build:all": "npm run build:cs && npm:build:cpp",
+
     "test": "npm run test:all",
     "test:js": "cd javascript && npm test",
     "test:py": "cd python && npm run test",
-    "test:csharp": "cd csharp && npm run test",
+    "test:cs": "cd csharp && npm run test",
     "test:cpp": "cd cpp && npm run test",
-    "test:all": "npm run test:js && npm run test:py && npm run test:csharp && npm run test:cpp",
+    "test:all": "npm run test:js && npm run test:py && npm run test:cs && npm run test:cpp",
+
     "dist": "npm run dist:all",
     "dist:js": "cd javascript && npm run dist",
     "dist:py": "cd python && npm run dist",
-    "dist:all": "npm run dist:js && npm run dist:py"
+    "dist:cs": "cd csharp && npm run dist",
+    "dist:cpp": "cd cpp && npm run dist",
+    "dist:all": "npm run dist:js && npm run dist:py && npm run dist:cs && npm run dist:cpp",
+
+    "pack": "npm run pack:all",
+    "pack:js": "cd javascript && npm run pack",
+    "pack:py": "cd python && npm run pack",
+    "pack:cs": "cd csharp && npm run pack",
+    "pack:cpp": "cd cpp && npm run pack",
+    "pack:all": "rm -rf ./dist/v$npm_package_version && npm run pack:js && npm run pack:py && npm run pack:cs && npm run pack:cpp"
   },
   "keywords": [],
   "author": "Ian Thomas",
