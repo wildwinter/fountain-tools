@@ -11,7 +11,7 @@ TEST_CASE( "Scratch") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -25,7 +25,7 @@ TEST_CASE( "SceneHeading") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -39,7 +39,7 @@ TEST_CASE( "ActionMerged") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -53,7 +53,7 @@ TEST_CASE( "ActionUnmerged") {
     fp.mergeActions = false;
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -67,7 +67,7 @@ TEST_CASE( "Character") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -81,7 +81,7 @@ TEST_CASE( "DialogueMerged") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -95,7 +95,7 @@ TEST_CASE( "DialogueUnmerged") {
     fp.mergeDialogue = false;
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -109,7 +109,7 @@ TEST_CASE( "Parenthetical") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -123,7 +123,7 @@ TEST_CASE( "Lyrics") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -137,7 +137,7 @@ TEST_CASE( "Transition") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -151,7 +151,7 @@ TEST_CASE( "TitlePage") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -165,7 +165,7 @@ TEST_CASE( "PageBreak") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -178,7 +178,7 @@ TEST_CASE( "LineBreaks") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -191,7 +191,7 @@ TEST_CASE( "Notes") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -204,7 +204,7 @@ TEST_CASE( "Boneyards") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -217,7 +217,7 @@ TEST_CASE( "Sections") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }
@@ -230,7 +230,7 @@ TEST_CASE( "UTF8") {
 
     fp.addText(source);
 
-    const std::string output = fp.script->dump();
+    const std::string output = fp.getScript()->dump();
 
     REQUIRE(match == output);
 }

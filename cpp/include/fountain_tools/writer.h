@@ -10,25 +10,24 @@
 
 namespace Fountain {
 
-class FountainWriter {
+class Writer {
 public:
-    FountainWriter();
+    Writer();
     std::string write(const Script& script);
     bool prettyPrint = true;
 
 private:
-    std::string lastChar;
+    std::string _lastChar;
 
-    std::string writeElement(const std::shared_ptr<Element>& elem);
-    std::string writeCharacter(const std::shared_ptr<Character>& elem);
-    std::string writeDialogue(const std::shared_ptr<Dialogue>& elem);
-    std::string writeParenthesis(const std::shared_ptr<Parenthesis>& elem);
-    std::string writeAction(const std::shared_ptr<Action>& elem);
-    std::string writeHeading(const std::shared_ptr<SceneHeading>& elem);
-    std::string writeTransition(const std::shared_ptr<Transition>& elem);
+    std::string _writeElement(const std::shared_ptr<Element>& elem);
+    std::string _writeCharacter(const std::shared_ptr<Character>& elem);
+    std::string _writeDialogue(const std::shared_ptr<Dialogue>& elem);
+    std::string _writeParenthesis(const std::shared_ptr<Parenthesis>& elem);
+    std::string _writeAction(const std::shared_ptr<Action>& elem);
+    std::string _writeHeading(const std::shared_ptr<SceneHeading>& elem);
+    std::string _writeTransition(const std::shared_ptr<Transition>& elem);
 
-    std::string joinLines(const std::vector<std::string>& lines, const std::string& delimiter);
-    std::string addTabs(const std::string& input, int count);
+    std::string _addTabs(const std::string& input, int count);
 };
 
 } // namespace Fountain

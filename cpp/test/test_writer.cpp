@@ -15,8 +15,8 @@ TEST_CASE( "Writer") {
     fp.addText(loadTestFile("Character.fountain"));
     fp.addText(loadTestFile("Dialogue.fountain"));
 
-    Fountain::FountainWriter fw;
-    const std::string output = fw.write(*fp.script);
+    Fountain::Writer fw;
+    const std::string output = fw.write(*fp.getScript());
 
     //std::cout << output << std::endl;
     REQUIRE(match == output);
@@ -30,8 +30,8 @@ TEST_CASE( "UTF8Writer") {
 
     fp.addText(loadTestFile("UTF8.fountain"));
 
-    Fountain::FountainWriter fw;
-    const std::string output = fw.write(*fp.script);
+    Fountain::Writer fw;
+    const std::string output = fw.write(*fp.getScript());
 
     //std::cout << output << std::endl;
     REQUIRE(match == output);

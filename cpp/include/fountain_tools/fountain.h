@@ -54,26 +54,6 @@ inline std::string elementTypeToString(ElementType type) {
 
 // Base class for all elements
 class Element {
-private: 
-    std::string _textRaw;
-     // Clean version doesn't have Note/Boneyard references
-    std::string _textClean;
-    bool _isEmpty;
-
-protected:
-    Element(ElementType type, const std::string& text)
-        : _type(type), _textRaw(text), _isEmpty(false) {
-            _updateText();
-    }
-
-    ElementType _type;
-
-    void _updateText() {
-        const std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
-        _textClean = std::regex_replace(_textRaw, regex, "");
-        _isEmpty = isWhitespaceOrEmpty(_textRaw);
-    }
-
 public:
     virtual ~Element() = default;
 
@@ -99,14 +79,32 @@ public:
     virtual std::string dump() const {
         return elementTypeToString(_type) + ":\"" + _textRaw + "\"";
     }
+
+protected:
+    Element(ElementType type, const std::string& text)
+        : _type(type), _textRaw(text), _isEmpty(false) {
+            _updateText();
+    }
+
+    ElementType _type;
+
+    void _updateText() {
+        const std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
+        _textClean = std::regex_replace(_textRaw, regex, "");
+        _isEmpty = isWhitespaceOrEmpty(_textRaw);
+    }
+
+private: 
+    std::string _textRaw;
+     // Clean version doesn't have Note/Boneyard references
+    std::string _textClean;
+    bool _isEmpty;
+
 };
 
 // Entry on the Title Page
 // key: text
 class TitleEntry : public Element {
-protected:
-    std::string _key;
-
 public:
     TitleEntry(const std::string& key, const std::string& text)
         : Element(ElementType::TITLEENTRY, text), _key(key) {}
@@ -116,14 +114,14 @@ public:
     std::string dump() const override {
         return getTypeAsString() + ":\"" + _key + "\":\"" + getTextRaw() + "\"";
     }
+
+protected:
+    std::string _key;
+
 };
 
 // Action text element
 class Action : public Element {
-protected:
-    bool _centered;
-    bool _forced;
-
 public:
     Action(const std::string& text, bool forced = false)
         : Element(ElementType::ACTION, text), _centered(false), _forced(forced) {}
@@ -137,14 +135,14 @@ public:
         if (_centered) output += " (centered)";
         return output;
     }
+
+protected:
+    bool _centered;
+    bool _forced;
 };
 
 // Scene Heading
 class SceneHeading : public Element {
-protected:
-    std::optional<std::string> _sceneNumber;
-    bool _forced;
-
 public:
     SceneHeading(const std::string& text, const std::optional<std::string>& sceneNumber = std::nullopt, bool forced = false)
         : Element(ElementType::HEADING, text), _sceneNumber(sceneNumber), _forced(forced) {}
@@ -159,16 +157,14 @@ public:
         }
         return output;
     }
+
+protected:
+    std::optional<std::string> _sceneNumber;
+    bool _forced;
 };
 
 // Character heading
 class Character : public Element {
-protected:
-    std::string _name;                 // Character's name
-    std::optional<std::string> _extension; // Optional extension (e.g., "V.O.", "O.S.")
-    bool _isDualDialogue;              // Indicates if this is dual dialogue e.g.s ^
-    bool _forced;                      // Indicates if the character was forced
-
 public:
     Character(const std::string& text, const std::string& name, 
                       const std::optional<std::string>& extension = std::nullopt, 
@@ -194,6 +190,13 @@ public:
         }
         return output;
     }
+
+protected:
+    std::string _name;                 // Character's name
+    std::optional<std::string> _extension; // Optional extension (e.g., "V.O.", "O.S.")
+    bool _isDualDialogue;              // Indicates if this is dual dialogue e.g.s ^
+    bool _forced;                      // Indicates if the character was forced
+
 };
 
 // Dialogue line
@@ -219,14 +222,14 @@ public:
 
 // Transition e.g. CUT TO:
 class Transition : public Element {
-protected:
-    bool _forced; 
-
 public:
     Transition(const std::string& text, bool forced = false)
         : Element(ElementType::TRANSITION, text), _forced(forced) {}
 
     bool isForced() const { return _forced; }
+
+protected:
+    bool _forced;
 };
 
 // Derived class for Page Break
@@ -238,9 +241,6 @@ public:
 
 // Derived class for Section
 class Section : public Element {
-protected:
-    int _level;
-
 public:
     Section(const std::string& text, int level)
         : Element(ElementType::SECTION, text), _level(level) {}
@@ -250,6 +250,9 @@ public:
     std::string dump() const override {
         return getTypeAsString() + ":\"" + getTextRaw() + "\" (" + std::to_string(_level) + ")";
     }
+
+protected:
+    int _level;
 };
 
 // Synopsis
@@ -275,12 +278,6 @@ public:
 
 // Parsed Script
 class Script {
-protected:
-    std::vector<std::shared_ptr<TitleEntry>> _titleEntries;
-    std::vector<std::shared_ptr<Element>> _elements;
-    std::vector<std::shared_ptr<Note>> _notes; 
-    std::vector<std::shared_ptr<Boneyard>> _boneyards;
-
 public:
     Script() {}
 
@@ -325,6 +322,13 @@ public:
         }
         return join(lines, "\n");
     }
+
+protected:
+    std::vector<std::shared_ptr<TitleEntry>> _titleEntries;
+    std::vector<std::shared_ptr<Element>> _elements;
+    std::vector<std::shared_ptr<Note>> _notes; 
+    std::vector<std::shared_ptr<Boneyard>> _boneyards;
+
 };
 
 } // namespace Fountain
