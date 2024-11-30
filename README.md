@@ -264,9 +264,10 @@ Dialogue line.)";
 
 ## API
 ### Parser
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainParser|fountain_tools.parser.Parser|Fountain.Parser|Fountain::Parser|
+    JS: FountainParser
+    Python: fountain_tools.parser.Parser
+    C#: Fountain.Parser
+    C++: Fountain::Parser
 
 The normal incremental parser. It stores the parsed script in the `script` property. Consider `CallbackParser` if you want something which bundles up the dialogue in a more useful way.
 
@@ -290,9 +291,10 @@ Parse a single UTF-8 text line.
 Parsed script. Grows as more lines are parsed!
 
 ### Script
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainScript|fountain_tools.fountain.Script|Fountain.Script|Fountain::Script|
+    JS: FountainScript
+    Python: fountain_tools.fountain.Script
+    C#: Fountain.Script
+    C++: Fountain::Script
 
 The parsed script.
 
@@ -309,9 +311,10 @@ Returns a list of embedded notes as `Note` objects. This isn't much use in parsi
 Returns a list of commented-out chunks of text as `Boneyard` objects. This isn't much use in parsing, and is merely to preserve info read from the original Fountain file.
 
 ### Element
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainElement|fountain_tools.fountain.Element|Fountain.Element|Fountain::Element|
+    JS: FountainElement
+    Python: fountain_tools.fountain.Element
+    C#: Fountain.Element
+    C++: Fountain::Element
 
 Superclass of all the elements in the script. Use `type`/`getType()` to figure out what type it can be downcast to.
 
@@ -325,20 +328,22 @@ Gives the main text element of the asset but doesn't include other parsed inform
 Take a look at the [Fountain](https://fountain.io/syntax/) syntax to understand what these all are.
 
 #### TitleEntry
+    JS: FountainTitleEntry
+    Python: fountain_tools.fountain.TitleEntry
+    C#: Fountain.TitleEntry
+    C++: Fountain::TitleEntry
 https://fountain.io/syntax/#title-page
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainTitleEntry|fountain_tools.fountain.TitleEntry|Fountain.TitleEntry|Fountain::TitleEntry|
 
 Entry on the title page. Consists of a `key` and `text`. This element will only be found inside the `getTitleEntries()` section of the script.
 
 `Author: Dave Smith`
 
 #### Action
+    JS: FountainAction
+    Python: fountain_tools.fountain.Action
+    C#: Fountain.Action
+    C++: Fountain::Action
 https://fountain.io/syntax/#action
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainAction|fountain_tools.fountain.Action|Fountain.Action|Fountain::Action|
 
 Single line of action in `text`. If `centered` is true, the text is intended to be center-justified.
 
@@ -347,10 +352,11 @@ Single line of action in `text`. If `centered` is true, the text is intended to 
 `> Centered <`
 
 #### Scene Heading
+    JS: FountainSceneHeading
+    Python: fountain_tools.fountain.SceneHeading
+    C#: Fountain.SceneHeading
+    C++: Fountain::SceneHeading
 https://fountain.io/syntax/#scene-headings
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainSceneHeading|fountain_tools.fountain.SceneHeading|Fountain.SceneHeading|Fountain::SceneHeading|
 
 Heading for a scene as `text`. Optional `sceneNumber`.
 
@@ -359,10 +365,11 @@ Heading for a scene as `text`. Optional `sceneNumber`.
 `INT. BATHROOM - DAY #1-a#` - text #sceneNumber#
 
 #### Character
+    JS: FountainCharacter
+    Python: fountain_tools.fountain.Character
+    C#: Fountain.Character
+    C++: Fountain::Character
 https://fountain.io/syntax/#charater
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainCharacter|fountain_tools.fountain.Character|Fountain.Character|Fountain::Character|
 
 Character header. Consists of `name`, optional `extension`, and `isDualDialogue` can be true.
 
@@ -373,60 +380,66 @@ Character header. Consists of `name`, optional `extension`, and `isDualDialogue`
 `DAVE (V.O.) ^` - name, (extension), isDualDialogue=true
 
 #### Dialogue
+    JS: FountainDialogue
+    Python: fountain_tools.fountain.Dialogue
+    C#: Fountain.Dialogue
+    C++: Fountain::Dialogue
 https://fountain.io/syntax/#dialogue
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainDialogue|fountain_tools.fountain.Dialogue|Fountain.Dialogue|Fountain::Dialogue|
 
 Line of dialogue as `text`.
 
 `Hello everyone!`
 
 #### Parenthetical
+    JS: FountainParenthetical
+    Python: fountain_tools.fountain.Parenthetical
+    C#: Fountain.Parenthetical
+    C++: Fountain::Parenthetical
 https://fountain.io/syntax/#parenthetical
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainParenthetical|fountain_tools.fountain.Parenthetical|Fountain.Parenthetical|Fountain::Parenthetical|
 
 Direction in parenthesis before a line of dialogue. Doesn't include the parenthesis in the `text`.
 
 `(underhandedly)`
 
 #### Lyrics
+    JS: FountainLyric
+    Python: fountain_tools.fountain.Lyric
+    C#: Fountain.Lyric
+    C++: Fountain::Lyric
 https://fountain.io/syntax/#lyrics
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainLyric|fountain_tools.fountain.Lyric|Fountain.Lyric|Fountain::Lyric|
 
 Line of lyrics, as `text`.
 
 `~ These are some song lyrics.`
 
 #### Transition
+    JS: FountainTransition
+    Python: fountain_tools.fountain.Transition
+    C#: Fountain.Transition
+    C++: Fountain::Transition
 https://fountain.io/syntax/#transition
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainTransition|fountain_tools.fountain.Transition|Fountain.Transition|Fountain::Transition|
 
 Transition line, as `text`.
 
 `    CUT TO:`
 
 #### Page Break
+    JS: FountainPageBreak
+    Python: fountain_tools.fountain.PageBreak
+    C#: Fountain.PageBreak
+    C++: Fountain::PageBreak
 https://fountain.io/syntax/#page-breaks
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|Page break|FountainPageBreak|fountain_tools.fountain.PageBreak|Fountain.PageBreak|Fountain::PageBreak|
 
 Uh, a page break.
 
 `===`
 
-#### Section 
+#### Section
+    JS: FountainSection
+    Python: fountain_tools.fountain.Section
+    C#: Fountain.Section
+    C++: Fountain::Section
 https://fountain.io/syntax/#sections-synopses
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainSection|fountain_tools.fountain.Section|Fountain.Section|Fountain::Section|
 
 A section header as `text` and a number `level`.
 
@@ -435,20 +448,22 @@ A section header as `text` and a number `level`.
 `## This is a level 2 section`
 
 #### Synopsis 
+    JS: FountainSynopsis
+    Python: fountain_tools.fountain.Synopsis
+    C#: Fountain.Synopsis
+    C++: Fountain::Synopsis
 https://fountain.io/syntax/#sections-synopses
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainSynopsis|fountain_tools.fountain.Synopsis|Fountain.Synopsis|Fountain::Synopsis|
 
 A synopsis in `text`.
 
 `= Synopsis of this section`
 
 #### Note 
+    JS: FountainNote
+    Python: fountain_tools.fountain.Note
+    C#: Fountain.Note
+    C++: Fountain::Note
 https://fountain.io/syntax/#notes
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainNote|fountain_tools.fountain.Note|Fountain.Note|Fountain::Note|
 
 The content of a parsed note, as `text`.
 
@@ -456,11 +471,12 @@ This element will only be found inside the `getNotes()` section of the script.
 
 `Here is a normal line [[This is a note though]].`
 
-#### Boneyard 
+#### Boneyard
+    JS: FountainBoneyard
+    Python: fountain_tools.fountain.Boneyard
+    C#: Fountain.Boneyard
+    C++: Fountain::Boneyard
 https://fountain.io/syntax/#boneyard
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainBoneyard|fountain_tools.fountain.Boneyard|Fountain.Boneyard|Fountain::Boneyard|
 
 The content of a boneyard, also known as a commented-out section, as `text`.
 
@@ -469,40 +485,12 @@ This element will only be found inside the `getBoneyards()` section of the scrip
 `Here is a normal line /*This is a boneyard*/.`
 
 ### CallbackParser
-| JS | Python | C# | C++ |
-|-|-|-|-|
-|FountainCallbackParser|fountain_tools.callback_parser.CallbackParser|Fountain.CallbackParser|Fountain::CallbackParser|
+    JS: FountainCallbackParser
+    Python: fountain_tools.callback_parser.CallbackParser
+    C#: Fountain.CallbackParser
+    C++: Fountain::CallbackParser
 
 A version of the parser which lets you set up callbacks which will be called as lines are parsed.
-
-
-        // character:string, extension:string, parenthetical:string, line:string, isDualDialogue:bool
-        this.onDialogue = null; 
-
-        // text:string
-        this.onAction = null;
-
-        // text:string, sceneNumber:string
-        this.onSceneHeading = null;
-
-        // text:string
-        this.onLyrics = null;
-
-        // text:string
-        this.onTransition = null;
-
-        // text:string, level:int
-        this.onSection = null;
-
-        // text:string
-        this.onSynopsis = null;
-
-        // No params 
-        this.onPageBreak = null;
-
-
-
-        this.ignoreBlanks = true; 
 
 #### onTitlePage
 * `entries` - a list of key/values for the title page.
@@ -540,16 +528,27 @@ A version of the parser which lets you set up callbacks which will be called as 
 Set to false if you want empty dialogue and actions.
 
 ### Writer
+    JS: FountainWriter
+    Python: fountain_tools.writer.Writer
+    C#: Fountain.Writer
+    C++: Fountain::Writer
+
 A simpler writer to write a script as UTF-8 text.
 
 #### prettyPrint 
 Set to false if you don't want indents in the output.
+
 #### write(script)
 Pass in a FountainScript, get back a UTF-8 string.
 
 ### FormatHelper
+    JS: Fountain
+    Python: fountain_tools.formatHelper.FormatHelper
+    C#: Fountain.FormatHelper
+    C++: Fountain::FormatHelper
+
 #### fountainToHtml
-Convert Fountain markeup (*italic*, **bold**, ***bolditalic*** _underline_) to HTML.
+Convert Fountain markup (*italic*, **bold**, ***bolditalic*** _underline_) to HTML.
 
 ## License
 ```
