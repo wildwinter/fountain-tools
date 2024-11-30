@@ -17,44 +17,24 @@ public:
         std::string value;
     };
 
-    struct Dialogue {
-        std::string character;
-        std::optional<std::string> extension;
-        std::optional<std::string> parenthetical;
-        std::string line;
-        bool dual;
-    };
-
-    struct TextElement {
-        std::string text;
-    };
-
-    struct SceneHeading {
-        std::string text;
-        std::optional<std::string> sceneNum;
-    };
-
-    struct Section {
-        std::string text;
-        int level;
-    };
-
     FountainCallbackParser();
 
-    // Callback properties
+    // Callbacks!
     std::function<void(const std::vector<TitleEntry>&)> onTitlePage;
-    std::function<void(const Dialogue&)> onDialogue;
-    std::function<void(const TextElement&)> onAction;
-    std::function<void(const SceneHeading&)> onSceneHeading;
-    std::function<void(const TextElement&)> onLyrics;
-    std::function<void(const TextElement&)> onTransition;
-    std::function<void(const Section&)> onSection;
-    std::function<void(const TextElement&)> onSynopsis;
+    std::function<void(const std::string& character, const std::optional<std::string> extension, 
+        const std::optional<std::string> parenthetical, const std::string&line, const bool isDualDialogue)> onDialogue;
+    std::function<void(const std::string& text)> onAction;
+    std::function<void(const std::string& text, const std::optional<std::string> sceneNum)> onSceneHeading;
+    std::function<void(const std::string& text)> onLyrics;
+    std::function<void(const std::string& text)> onTransition;
+    std::function<void(const std::string& text, const int level)> onSection;
+    std::function<void(const std::string& text)> onSynopsis;
     std::function<void()> onPageBreak;
 
-    void addLine(const std::string& inputLine) override;
-
+    // Don't get called back if there's a blank entry
     bool ignoreBlanks = true;
+
+    void addLine(const std::string& inputLine) override;
 
 private:
     std::shared_ptr<FountainCharacter> lastChar;

@@ -46,20 +46,20 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
 
         case Element::DIALOGUE:
             if (lastChar) {
-                Dialogue dialogue{
-                    lastChar->name,
-                    lastChar->extension,
-                    lastParen ? std::optional<std::string>(lastParen->getTextRaw()) : std::nullopt,
-                    elem->getTextRaw(),
-                    lastChar->isDualDialogue
-                };
+
+                std::string name = lastChar->name;
+                std::optional<std::string> extension = lastChar->extension;
+                std::optional<std::string> parenthetical = lastParen ? std::optional<std::string>(lastParen->getTextRaw()) : std::nullopt;
+                std::string line = elem->getTextRaw();
+                bool isDualDialogue = lastChar->isDualDialogue;
+
                 lastParen = nullptr;
 
-                if (ignoreBlanks && isEmptyOrWhitespace(dialogue.line))
+                if (ignoreBlanks && isEmptyOrWhitespace(line))
                     return;
 
                 if (onDialogue)
-                    onDialogue(dialogue);
+                    onDialogue(name, extension, parenthetical, line, isDualDialogue);
             }
             break;
 
@@ -68,7 +68,7 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
                 return;
 
             if (onAction)
-                onAction({elem->getTextRaw()});
+                onAction(elem->getTextRaw());
             break;
 
         case Element::HEADING:
@@ -77,7 +77,7 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
 
             if (onSceneHeading) {
                 auto heading = std::dynamic_pointer_cast<FountainHeading>(elem);
-                onSceneHeading({heading->getTextRaw(), heading->sceneNum});
+                onSceneHeading(heading->getTextRaw(), heading->sceneNum);
             }
             break;
 
@@ -86,7 +86,7 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
                 return;
 
             if (onLyrics)
-                onLyrics({elem->getTextRaw()});
+                onLyrics(elem->getTextRaw());
             break;
 
         case Element::TRANSITION:
@@ -94,19 +94,19 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
                 return;
 
             if (onTransition)
-                onTransition({elem->getTextRaw()});
+                onTransition(elem->getTextRaw());
             break;
 
         case Element::SECTION:
             if (onSection) {
                 auto section = std::dynamic_pointer_cast<FountainSection>(elem);
-                onSection({section->getTextRaw(), section->level});
+                onSection(section->getTextRaw(), section->level);
             }
             break;
 
         case Element::SYNOPSIS:
             if (onSynopsis)
-                onSynopsis({elem->getTextRaw()});
+                onSynopsis(elem->getTextRaw());
             break;
 
         case Element::PAGEBREAK:

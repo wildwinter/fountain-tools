@@ -4,13 +4,13 @@
 #include "fountain_tools/utils.h"
 #include <iostream>
 
-std::string asNull(std::optional<std::string> value) {
+std::string asNull(const std::optional<std::string> value) {
     if (value.has_value())
         return value.value();
     return "null";
 }
 
-std::string asBool(bool value) {
+std::string asBool(const bool value) {
     return value?"true":"false";
 }
 
@@ -22,37 +22,38 @@ TEST_CASE( "CallbackParser") {
 
     Fountain::FountainCallbackParser fp;
 
-    fp.onDialogue = [&oss](const Fountain::FountainCallbackParser::Dialogue& args) {
+    fp.onDialogue = [&oss](const std::string& character, const std::optional<std::string> extension, 
+        const std::optional<std::string> parenthetical, const std::string&line, const bool isDualDialogue) {
         oss << "DIALOGUE:"
-            << " character:" << args.character
-            << " extension:" << asNull(args.extension)
-            << " parenthetical:" << asNull(args.parenthetical)
-            << " line:" << args.line 
-            << " dual:" << asBool(args.dual) << std::endl;
+            << " character:" << character
+            << " extension:" << asNull(extension)
+            << " parenthetical:" << asNull(parenthetical)
+            << " line:" << line 
+            << " dual:" << asBool(isDualDialogue) << std::endl;
     };
 
-    fp.onAction = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
-        oss << "ACTION: text:" << args.text << std::endl;
+    fp.onAction = [&oss](const std::string& text) {
+        oss << "ACTION: text:" << text << std::endl;
     };
 
-    fp.onSceneHeading = [&oss](const Fountain::FountainCallbackParser::SceneHeading& args) {
-        oss << "HEADING: text:" << args.text << " sceneNum:" << asNull(args.sceneNum) << std::endl;
+    fp.onSceneHeading = [&oss](const std::string& text, std::optional<std::string> sceneNum) {
+        oss << "HEADING: text:" << text << " sceneNum:" << asNull(sceneNum) << std::endl;
     };
 
-    fp.onLyrics = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
-        oss << "LYRICS: text:" << args.text << std::endl;
+    fp.onLyrics = [&oss](const std::string& text) {
+        oss << "LYRICS: text:" << text << std::endl;
     };
 
-    fp.onTransition = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
-        oss << "TRANSITION: text:" << args.text << std::endl;
+    fp.onTransition = [&oss](const std::string& text) {
+        oss << "TRANSITION: text:" << text << std::endl;
     };
 
-    fp.onSection = [&oss](const Fountain::FountainCallbackParser::Section& args) {
-        oss << "SECTION: level:" << args.level << " text:" << args.text << std::endl;
+    fp.onSection = [&oss](const std::string& text, const int level) {
+        oss << "SECTION: level:" << level << " text:" << text << std::endl;
     };
 
-    fp.onSynopsis = [&oss](const Fountain::FountainCallbackParser::TextElement& args) {
-        oss << "SYNOPSIS: text:" << args.text << std::endl;
+    fp.onSynopsis = [&oss](const std::string& text) {
+        oss << "SYNOPSIS: text:" << text << std::endl;
     };
 
     fp.onPageBreak = [&oss]() {
