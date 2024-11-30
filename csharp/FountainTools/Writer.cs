@@ -172,7 +172,7 @@ public class FountainWriter
 
     private string WriteHeading(FountainHeading elem)
     {
-        string sceneNum = !string.IsNullOrEmpty(elem.SceneNum) ? $" #{elem.SceneNum}#" : string.Empty;
+        string sceneNum = !string.IsNullOrEmpty(elem.SceneNumber) ? $" #{elem.SceneNumber}#" : string.Empty;
         if (elem.Forced)
             return $"\n.{elem.TextRaw}{sceneNum}";
         return $"\n{elem.TextRaw}{sceneNum}";

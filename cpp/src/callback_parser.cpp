@@ -2,11 +2,10 @@
 #include "fountain_tools/utils.h"
 #include <cctype>
 #include <algorithm>
-#include <iostream>
 
 namespace Fountain {
 
-FountainCallbackParser::FountainCallbackParser() : lastChar(nullptr), lastParen(nullptr) {
+FountainCallbackParser::FountainCallbackParser() : _lastChar(nullptr), _lastParen(nullptr) {
     mergeActions = false;  // Don't merge actions, callbacks need them separated.
     mergeDialogue = false; // Don't merge dialogue, callbacks need them separated.
 }
@@ -29,31 +28,31 @@ void FountainCallbackParser::addLine(const std::string& inputLine) {
     }
 
     while (elementCount < script->elements.size()) {
-        handleNewElement(script->elements[elementCount]);
+        _handleNewElement(script->elements[elementCount]);
         elementCount++;
     }
 }
 
-void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElement>& elem) {
+void FountainCallbackParser::_handleNewElement(const std::shared_ptr<FountainElement>& elem) {
     switch (elem->type) {
         case Element::CHARACTER:
-            lastChar = std::dynamic_pointer_cast<FountainCharacter>(elem);
+            _lastChar = std::dynamic_pointer_cast<FountainCharacter>(elem);
             break;
 
         case Element::PARENTHESIS:
-            lastParen = std::dynamic_pointer_cast<FountainParenthesis>(elem);
+            _lastParen = std::dynamic_pointer_cast<FountainParenthesis>(elem);
             break;
 
         case Element::DIALOGUE:
-            if (lastChar) {
+            if (_lastChar) {
 
-                std::string name = lastChar->name;
-                std::optional<std::string> extension = lastChar->extension;
-                std::optional<std::string> parenthetical = lastParen ? std::optional<std::string>(lastParen->getTextRaw()) : std::nullopt;
+                std::string name = _lastChar->name;
+                std::optional<std::string> extension = _lastChar->extension;
+                std::optional<std::string> parenthetical = _lastParen ? std::optional<std::string>(_lastParen->getTextRaw()) : std::nullopt;
                 std::string line = elem->getTextRaw();
-                bool isDualDialogue = lastChar->isDualDialogue;
+                bool isDualDialogue = _lastChar->isDualDialogue;
 
-                lastParen = nullptr;
+                _lastParen = nullptr;
 
                 if (ignoreBlanks && isEmptyOrWhitespace(line))
                     return;
@@ -77,7 +76,7 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
 
             if (onSceneHeading) {
                 auto heading = std::dynamic_pointer_cast<FountainHeading>(elem);
-                onSceneHeading(heading->getTextRaw(), heading->sceneNum);
+                onSceneHeading(heading->getTextRaw(), heading->sceneNumber);
             }
             break;
 
@@ -115,8 +114,8 @@ void FountainCallbackParser::handleNewElement(const std::shared_ptr<FountainElem
             break;
 
         default:
-            lastChar = nullptr;
-            lastParen = nullptr;
+            _lastChar = nullptr;
+            _lastParen = nullptr;
             break;
     }
 }

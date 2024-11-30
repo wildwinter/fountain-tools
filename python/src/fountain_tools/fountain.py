@@ -74,15 +74,15 @@ class FountainAction(FountainElement):
 
 
 class FountainHeading(FountainElement):
-    def __init__(self, text, scene_num=None, forced=False):
+    def __init__(self, text, scene_number=None, forced=False):
         super().__init__(Element.HEADING, text)
-        self.scene_num = scene_num
+        self.scene_number = scene_number
         self.forced = forced
 
     def dump(self):
         out = f'{self.type.value}:"{self.text}"'
-        if self.scene_num:
-            out += f" ({self.scene_num})"
+        if self.scene_number:
+            out += f" ({self.scene_number})"
         return out
 
 

@@ -131,18 +131,18 @@ public:
 // FountainHeading: Represents a scene heading
 class FountainHeading : public FountainElement {
 public:
-    std::optional<std::string> sceneNum; // Optional scene number
+    std::optional<std::string> sceneNumber; // Optional scene number
     bool forced;          // Indicates if the heading is forced
 
     // Constructor
-    FountainHeading(const std::string& text, const std::optional<std::string>& sceneNum = std::nullopt, bool forced = false)
-        : FountainElement(Element::HEADING, text), sceneNum(sceneNum), forced(forced) {}
+    FountainHeading(const std::string& text, const std::optional<std::string>& sceneNumber = std::nullopt, bool forced = false)
+        : FountainElement(Element::HEADING, text), sceneNumber(sceneNumber), forced(forced) {}
 
     // Override Dump for debugging
     std::string dump() const override {
         std::string output = elementToString(type) + ":\"" + getText() + "\"";
-        if (sceneNum.has_value()) {
-            output += " (" + sceneNum.value() + ")";
+        if (sceneNumber.has_value()) {
+            output += " (" + sceneNumber.value() + ")";
         }
         return output;
     }

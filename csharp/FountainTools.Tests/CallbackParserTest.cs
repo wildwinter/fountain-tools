@@ -38,7 +38,7 @@ public class CallbackParserTest
         };
 
         fp.OnSceneHeading = args => {
-            outLines.Add("HEADING: text:"+args.Text+" sceneNum:"+asNull(args.SceneNum));
+            outLines.Add("HEADING: text:"+args.Text+" sceneNum:"+asNull(args.SceneNumber));
         };
 
         fp.OnLyrics = args => {

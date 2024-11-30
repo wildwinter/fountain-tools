@@ -108,10 +108,10 @@ class FountainWriter:
             return f"{elem.key}: {elem._text}"
 
         if elem_type == Element.HEADING:
-            scene_num = f" #{elem.scene_num}#" if elem.scene_num else ""
+            scene_number = f" #{elem.scene_number}#" if elem.scene_number else ""
             if elem.forced:
-                return f"\n.{elem._text}{scene_num}"
-            return f"\n{elem._text}{scene_num}"
+                return f"\n.{elem._text}{scene_number}"
+            return f"\n{elem._text}{scene_number}"
 
         if elem_type == Element.TRANSITION:
             pad = "\t" * 4 if self.pretty_print else ""

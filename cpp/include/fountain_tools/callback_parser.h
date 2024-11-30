@@ -24,7 +24,7 @@ public:
     std::function<void(const std::string& character, const std::optional<std::string> extension, 
         const std::optional<std::string> parenthetical, const std::string&line, const bool isDualDialogue)> onDialogue;
     std::function<void(const std::string& text)> onAction;
-    std::function<void(const std::string& text, const std::optional<std::string> sceneNum)> onSceneHeading;
+    std::function<void(const std::string& text, const std::optional<std::string> sceneNumber)> onSceneHeading;
     std::function<void(const std::string& text)> onLyrics;
     std::function<void(const std::string& text)> onTransition;
     std::function<void(const std::string& text, const int level)> onSection;
@@ -37,10 +37,10 @@ public:
     void addLine(const std::string& inputLine) override;
 
 private:
-    std::shared_ptr<FountainCharacter> lastChar;
-    std::shared_ptr<FountainParenthesis> lastParen;
+    std::shared_ptr<FountainCharacter> _lastChar;
+    std::shared_ptr<FountainParenthesis> _lastParen;
 
-    void handleNewElement(const std::shared_ptr<FountainElement>& elem);
+    void _handleNewElement(const std::shared_ptr<FountainElement>& elem);
 };
 
 }

@@ -248,7 +248,7 @@ class FountainParser:
         if match:
             return {
                 "text": match.group(1).strip(),
-                "scene_num": match.group(2) if match.group(2) else None
+                "scene_number": match.group(2) if match.group(2) else None
             }
         return None
 
@@ -263,7 +263,7 @@ class FountainParser:
             if heading_data:
                 self._add_element(FountainHeading(
                     text=heading_data["text"],
-                    scene_num=heading_data["scene_num"],
+                    scene_number=heading_data["scene_number"],
                     forced=True
                 ))
                 return True
@@ -280,7 +280,7 @@ class FountainParser:
             if heading_data:
                 self._add_element(FountainHeading(
                     text=heading_data["text"],
-                    scene_num=heading_data["scene_num"],
+                    scene_number=heading_data["scene_number"],
                     forced=False
                 ))
                 return True

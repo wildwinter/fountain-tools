@@ -195,7 +195,7 @@ std::string FountainWriter::writeAction(const std::shared_ptr<FountainAction>& e
 }
 
 std::string FountainWriter::writeHeading(const std::shared_ptr<FountainHeading>& elem) {
-    std::string sceneNum = elem->sceneNum.has_value() ? " #" + elem->sceneNum.value() + "#" : "";
+    std::string sceneNum = elem->sceneNumber.has_value() ? " #" + elem->sceneNumber.value() + "#" : "";
     if (elem->forced) {
         return "\n." + elem->getTextRaw() + sceneNum;
     }

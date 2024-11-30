@@ -6,39 +6,26 @@ class TitleEntry:
         self.key = key
         self.value = value
 
-class Dialogue:
-    def __init__(self, character, extension, parenthetical, line, dual):
-        self.character = character
-        self.extension = extension
-        self.parenthetical = parenthetical
-        self.line = line
-        self.dual = dual
-
-class TextElement:
-    def __init__(self, text):
-        self.text = text
-
-class SceneHeading:
-    def __init__(self, text, sceneNum):
-        self.text = text
-        self.sceneNum = sceneNum
-
-class Section:
-    def __init__(self, text, level):
-        self.text = text
-        self.level = level
-
 class FountainCallbackParser(FountainParser):
     def __init__(self):
         super().__init__()
+        # Array of TitleEntry
         self.onTitlePage = None
+        # character:string, extension:string, parenthetical:string, line:string, is_dual_dialogue:bool
         self.onDialogue = None
+        # text:string
         self.onAction = None
+        # text:string, scene_number:string
         self.onSceneHeading = None
+        # text:string
         self.onLyrics = None
+        # text:string
         self.onTransition = None
+        # text:string, level:int
         self.onSection = None
+        # text:string
         self.onSynopsis = None
+        # no params
         self.onPageBreak = None
 
         self.ignoreBlanks = True
@@ -74,20 +61,19 @@ class FountainCallbackParser(FountainParser):
             return
 
         if elem.type == Element.DIALOGUE:
-            dialogue = Dialogue(
-                character =  self._lastChar.name,
-                extension = self._lastChar.extension,
-                parenthetical = self._lastParen.text if self._lastParen else None,
-                line = elem.text,
-                dual = self._lastChar.is_dual_dialogue
-            )
+            character =  self._lastChar.name
+            extension = self._lastChar.extension
+            parenthetical = self._lastParen.text if self._lastParen else None
+            line = elem.text
+            is_dual_dialogue = self._lastChar.is_dual_dialogue
+
             self._lastParen = None
 
-            if self.ignoreBlanks and not dialogue.line.strip():
+            if self.ignoreBlanks and not line.strip():
                 return
 
             if self.onDialogue:
-                self.onDialogue(dialogue)
+                self.onDialogue(character, extension, parenthetical, line, is_dual_dialogue)
             return
 
         self._lastChar = None
@@ -98,7 +84,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onAction:
-                self.onAction(TextElement(elem.text))
+                self.onAction(elem.text)
             return
 
         if elem.type == Element.HEADING:
@@ -106,7 +92,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onSceneHeading:
-                self.onSceneHeading(SceneHeading(elem.text, elem.scene_num))
+                self.onSceneHeading(elem.text, elem.scene_number)
             return
 
         if elem.type == Element.LYRIC:
@@ -114,7 +100,7 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onLyrics:
-                self.onLyrics(TextElement(elem.text))
+                self.onLyrics(elem.text)
             return
 
         if elem.type == Element.TRANSITION:
@@ -122,17 +108,17 @@ class FountainCallbackParser(FountainParser):
                 return
 
             if self.onTransition:
-                self.onTransition(TextElement(elem.text))
+                self.onTransition(elem.text)
             return
 
         if elem.type == Element.SECTION:
             if self.onSection:
-                self.onSection(Section(elem.text, elem.level))
+                self.onSection(elem.text, elem.level)
             return
 
         if elem.type == Element.SYNOPSIS:
             if self.onSynopsis:
-                self.onSynopsis(TextElement(elem.text))
+                self.onSynopsis(elem.text)
             return
 
         if elem.type == Element.PAGEBREAK:

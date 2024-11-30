@@ -83,17 +83,17 @@ export class FountainAction extends FountainElement {
 
 
 export class FountainHeading extends FountainElement {
-    constructor(text, sceneNum, forced = false) {
+    constructor(text, sceneNumber, forced = false) {
         super(Element.HEADING, text);
-        this.sceneNum = sceneNum;
+        this.sceneNumber = sceneNumber;
         this.forced = forced;
     }
 
     // For debugging
     dump() {
         let out =  `${this.type}:"${this.text}"`;
-        if (this.sceneNum) {
-            out+=` (${this.sceneNum})`;
+        if (this.sceneNumber) {
+            out+=` (${this.sceneNumber})`;
         }
         return out;
     }

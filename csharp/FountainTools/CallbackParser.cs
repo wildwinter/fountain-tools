@@ -24,7 +24,7 @@ public class FountainCallbackParser : FountainParser
     public class SceneHeading
     {
         public required string Text { get; set; }
-        public string? SceneNum { get; set; }
+        public string? SceneNumber { get; set; }
     }
 
     public class Section
@@ -130,7 +130,7 @@ public class FountainCallbackParser : FountainParser
                     return;
 
                 var heading = (FountainHeading)elem;
-                OnSceneHeading?.Invoke(new SceneHeading { Text = heading.TextRaw, SceneNum = heading.SceneNum });
+                OnSceneHeading?.Invoke(new SceneHeading { Text = heading.TextRaw, SceneNumber = heading.SceneNumber });
                 break;
 
             case Element.LYRIC:

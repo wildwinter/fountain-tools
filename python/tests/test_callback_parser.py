@@ -33,24 +33,24 @@ class TestParser(unittest.TestCase):
 
         fp = FountainCallbackParser()
 
-        fp.onDialogue = lambda args: out.append(f"DIALOGUE:"
-            f" character:{args.character}"
-            f" extension:{args.extension}"
-            f" parenthetical:{args.parenthetical}"
-            f" line:{args.line}"
-            f" dual:{args.dual}")
+        fp.onDialogue = lambda character, extension, parenthetical, line, is_dual_dialogue: out.append(f"DIALOGUE:"
+            f" character:{character}"
+            f" extension:{extension}"
+            f" parenthetical:{parenthetical}"
+            f" line:{line}"
+            f" dual:{is_dual_dialogue}")
 
-        fp.onAction = lambda args: out.append(f"ACTION: text:{args.text}")
+        fp.onAction = lambda text: out.append(f"ACTION: text:{text}")
 
-        fp.onSceneHeading = lambda args: out.append(f"HEADING: text:{args.text} sceneNum:{args.sceneNum}")
+        fp.onSceneHeading = lambda text, scene_number: out.append(f"HEADING: text:{text} sceneNum:{scene_number}")
           
-        fp.onLyrics = lambda args: out.append(f"LYRICS: text:{args.text}")
+        fp.onLyrics = lambda text: out.append(f"LYRICS: text:{text}")
         
-        fp.onTransition = lambda args: out.append(f"TRANSITION: text:{args.text}")
+        fp.onTransition = lambda text: out.append(f"TRANSITION: text:{text}")
         
-        fp.onSection = lambda args: out.append(f"SECTION: level:{args.level} text:{args.text}")
+        fp.onSection = lambda text, level: out.append(f"SECTION: level:{level} text:{text}")
 
-        fp.onSynopsis = lambda args: out.append(f"SYNOPSIS: text:{args.text}")
+        fp.onSynopsis = lambda text: out.append(f"SYNOPSIS: text:{text}")
 
         fp.onPageBreak = lambda: out.append("PAGEBREAK")
 

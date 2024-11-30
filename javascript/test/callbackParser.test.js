@@ -10,38 +10,38 @@ describe('Simple Callback Parser', () => {
     let out = [];
 
     let fp = new FountainCallbackParser();
-    fp.onDialogue = (args) => {
+    fp.onDialogue = (character, extension, parenthetical, line, isDualDialogue) => {
         out.push("DIALOGUE:"+
-            ` character:${args.character}`+
-            ` extension:${args.extension}`+
-            ` parenthetical:${args.parenthetical}`+
-            ` line:${args.line}`+
-            ` dual:${args.dual}`);
+            ` character:${character}`+
+            ` extension:${extension}`+
+            ` parenthetical:${parenthetical}`+
+            ` line:${line}`+
+            ` dual:${isDualDialogue}`);
     }
-    fp.onAction = (args) => {
-        out.push(`ACTION: text:${args.text}`);
-    }
-
-    fp.onSceneHeading = (args) => {
-        out.push(`HEADING: text:${args.text} sceneNum:${args.sceneNum}`);
+    fp.onAction = (text) => {
+        out.push(`ACTION: text:${text}`);
     }
 
-    fp.onLyrics = (args) => {
-        out.push(`LYRICS: text:${args.text}`);
+    fp.onSceneHeading = (text, sceneNumber) => {
+        out.push(`HEADING: text:${text} sceneNum:${sceneNumber}`);
     }
 
-    fp.onTransition = (args) => {
-        out.push(`TRANSITION: text:${args.text}`);
+    fp.onLyrics = (text) => {
+        out.push(`LYRICS: text:${text}`);
     }
 
-    fp.onSection = (args) => {
+    fp.onTransition = (text) => {
+        out.push(`TRANSITION: text:${text}`);
+    }
+
+    fp.onSection = (text, level) => {
         out.push("SECTION:"+
-            ` level:${args.level}`+
-            ` text:${args.text}`);
+            ` level:${level}`+
+            ` text:${text}`);
     }
 
-    fp.onSynopsis = (args) => {
-        out.push(`SYNOPSIS: text:${args.text}`);
+    fp.onSynopsis = (text) => {
+        out.push(`SYNOPSIS: text:${text}`);
     }
 
     fp.onPageBreak = () => {

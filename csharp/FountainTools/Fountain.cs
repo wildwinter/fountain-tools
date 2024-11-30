@@ -99,13 +99,13 @@ public class FountainAction : FountainElement
 
 public class FountainHeading : FountainElement
 {
-    public string? SceneNum { get; private set; }
+    public string? SceneNumber { get; private set; }
     public bool Forced { get; private set; }
 
     public FountainHeading(string text, string? sceneNum = null, bool forced = false)
         : base(Element.HEADING, text)
     {
-        SceneNum = sceneNum;
+        SceneNumber = sceneNum;
         Forced = forced;
     }
 
@@ -113,9 +113,9 @@ public class FountainHeading : FountainElement
     public override string Dump()
     {
         var output = $"{Type}:\"{Text}\"";
-        if (!string.IsNullOrEmpty(SceneNum))
+        if (!string.IsNullOrEmpty(SceneNumber))
         {
-            output += $" ({SceneNum})";
+            output += $" ({SceneNumber})";
         }
         return output;
     }

@@ -132,12 +132,12 @@ export class FountainWriter {
         }
 
         if (elem.type == Element.HEADING) {
-            let sceneNum = "";
-            if (elem.sceneNum)
-                sceneNum=` #${elem.sceneNum}#`;
+            let sceneNumber = "";
+            if (elem.sceneNumber)
+                sceneNumber=` #${elem.sceneNumber}#`;
             if (elem.forced)
-                return `\n.${elem._text}${sceneNum}`;
-            return `\n${elem._text}${sceneNum}`;
+                return `\n.${elem._text}${sceneNumber}`;
+            return `\n${elem._text}${sceneNumber}`;
         }
 
         if (elem.type == Element.TRANSITION) {

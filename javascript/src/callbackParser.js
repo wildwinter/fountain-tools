@@ -6,68 +6,33 @@ export class FountainCallbackParser extends FountainParser {
     constructor() {
         super();
         
-        /*  
-            array of {key:"key", value:"value"} 
-        */
+        // array of {key:"key", value:"value"} 
         this.onTitlePage = null;
 
-        /*  
-            {
-                character:"DAVE", // the character name in the script
-                extension:"V.O", // any bracketed exension e.g. DAVE (V.O.)
-                parenthetical:"loudly", // any parenthetical before the dialogue line e.g. (loudly) or (angrily)
-                line:"Hello!", // line of dialogue,
-                dual:false // True if the caret ^ is present indicating dual dialogue in the script
-            }
-        */
+        // character:string, extension:string, parenthetical:string, line:string, isDualDialogue:bool
         this.onDialogue = null; 
 
-        /*  
-            {
-                text: string
-            }
-        */
+        // text:string
         this.onAction = null;
 
-        /*  
-            {
-                text: string,
-                sceneNum: string
-            }
-        */
+        // text:string, sceneNumber:string
         this.onSceneHeading = null;
 
-        /*  
-            {
-                text: string
-            }
-        */
+        // text:string
         this.onLyrics = null;
 
-        /*  
-            {
-                text: string
-            }
-        */
+        // text:string
         this.onTransition = null;
 
-        /*  
-            {
-                level: number,  // 1-3
-                text: string
-            }
-        */
+        // text:string, level:int
         this.onSection = null;
 
-        /*  
-            {
-                text: string
-            }
-        */
+        // text:string
         this.onSynopsis = null;
 
-        /* No params */
+        // No params 
         this.onPageBreak = null;
+
 
 
         this.ignoreBlanks = true; // By default don't callback on blank lines.
@@ -117,20 +82,19 @@ export class FountainCallbackParser extends FountainParser {
         
         if (elem.type == Element.DIALOGUE) {
 
-            let dialogue = {
-                character: this._lastChar.name,
-                extension: this._lastChar.extension,
-                parenthetical: this._lastParen?this._lastParen.text:null,
-                line: elem.text,
-                dual: this._lastChar.isDualDialogue
-            }
+            let character = this._lastChar.name;
+            let extension = this._lastChar.extension;
+            let parenthetical = this._lastParen?this._lastParen.text:null;
+            let line = elem.text;
+            let isDualDialogue = this._lastChar.isDualDialogue;
+
             this._lastParen = null;
 
-            if (this.ignoreBlanks && !dialogue.line.trim())
+            if (this.ignoreBlanks && !line.trim())
                 return;
 
             if (this.onDialogue)
-                this.onDialogue(dialogue);
+                this.onDialogue(character, extension, parenthetical, line, isDualDialogue);
             return;
         }
 
@@ -143,7 +107,7 @@ export class FountainCallbackParser extends FountainParser {
                 return;
 
             if (this.onAction)
-                this.onAction({text: elem.text});
+                this.onAction(elem.text);
             return;
         }
 
@@ -153,7 +117,7 @@ export class FountainCallbackParser extends FountainParser {
                 return;
 
             if (this.onSceneHeading)
-                this.onSceneHeading({text: elem.text, sceneNum: elem.sceneNum});
+                this.onSceneHeading(elem.text, elem.sceneNumber);
             return;
         }
 
@@ -163,7 +127,7 @@ export class FountainCallbackParser extends FountainParser {
                 return;
 
             if (this.onLyrics)
-                this.onLyrics({text: elem.text});
+                this.onLyrics(elem.text);
             return;
         }
 
@@ -173,21 +137,21 @@ export class FountainCallbackParser extends FountainParser {
                 return;
 
             if (this.onTransition)
-                this.onTransition({text: elem.text});
+                this.onTransition(elem.text);
             return;
         }
     
         if (elem.type == Element.SECTION) {
 
             if (this.onSection)
-                this.onSection({text: elem.text, level:elem.level});
+                this.onSection(elem.text, elem.level);
             return;
         }
 
         if (elem.type == Element.SYNOPSIS) {
 
             if (this.onSynopsis)
-                this.onSynopsis({text: elem.text});
+                this.onSynopsis(elem.text);
             return;
         }
 
