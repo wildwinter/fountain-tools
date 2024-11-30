@@ -1,9 +1,13 @@
-import {Element, FountainTitleEntry, 
+import {ElementType, FountainTitleEntry, 
         FountainAction, FountainHeading, FountainCharacter, 
         FountainDialogue, FountainParenthesis, FountainLyric,
         FountainTransition, FountainPageBreak, FountainNote,
         FountainBoneyard, FountainSection, FountainScript,
         FountainSynopsis} from "./fountain.js";
+
+function isWhitespaceOrEmpty(line) {
+    return (!line.trim());
+}
 
 // Incremental parser - use .addText(), .addLines(), .addLine() to parse, use .script to retrieve the parsed script.
 export class FountainParser {
@@ -54,7 +58,7 @@ export class FountainParser {
     addLine(line) {
 
         this._lastLine= this._line;
-        this._lastLineEmpty = (!this._line.trim());
+        this._lastLineEmpty = isWhitespaceOrEmpty(this._line);
 
         this._line = line;
 
@@ -140,12 +144,12 @@ export class FountainParser {
         let lastElem = this._getLastElem();
 
         // Are we trying to add a blank action line?
-        if (elem.type == Element.ACTION && elem.isEmpty() && !elem.centered) {
+        if (elem.type == ElementType.ACTION && elem.isEmpty() && !elem.centered) {
 
             this._inDialogue = false;
 
             // If this follows an existing action line, put it on as possible padding.
-            if (lastElem && lastElem.type == Element.ACTION) {
+            if (lastElem && lastElem.type == ElementType.ACTION) {
                 this._padActions.push(elem);
                 return;
             }
@@ -153,7 +157,7 @@ export class FountainParser {
         }
 
         // Add padding if there's some outstanding and we're just about to add another action.
-        if (elem.type == Element.ACTION && this._padActions.length>0) {
+        if (elem.type == ElementType.ACTION && this._padActions.length>0) {
 
             if (this.mergeActions && !lastElem.centered) {
                 for(const padAction of this._padActions) {
@@ -170,8 +174,8 @@ export class FountainParser {
         this._padActions = [];
 
         // If we're allowing actions to be merged, do it here.
-        if (this.mergeActions && elem.type == Element.ACTION && !elem.centered) {    
-            if (lastElem && lastElem.type == Element.ACTION && !lastElem.centered) {
+        if (this.mergeActions && elem.type == ElementType.ACTION && !elem.centered) {    
+            if (lastElem && lastElem.type == ElementType.ACTION && !lastElem.centered) {
                 lastElem.appendLine(elem.textRaw);
                 return;
             }
@@ -179,22 +183,22 @@ export class FountainParser {
 
         this.script.elements.push(elem);
 
-        this._inDialogue = (elem.type == Element.CHARACTER || elem.type == Element.PARENTHESIS || elem.type == Element.DIALOGUE);
+        this._inDialogue = (elem.type == ElementType.CHARACTER || elem.type == ElementType.PARENTHESIS || elem.type == ElementType.DIALOGUE);
     }
 
     _parsePending() {
 
         for (const pending of this._pending) {
 
-            if (pending.type == Element.TRANSITION) {
+            if (pending.type == ElementType.TRANSITION) {
 
-                if (!this._line.trim()) {  // Blank line, so it's definitely a transition
+                if (isWhitespaceOrEmpty(this._line)) {  // Blank line, so it's definitely a transition
                     this._addElement(pending.element);
                 } else {
                     this._addElement(pending.backup);
                 }
-            } else if (pending.type == Element.CHARACTER) {
-                if (this._line.trim()) {  // Filled line, so it's definitely a piece of dialogue
+            } else if (pending.type == ElementType.CHARACTER) {
+                if (!isWhitespaceOrEmpty(this._line)) {  // Filled line, so it's definitely a piece of dialogue
                     this._addElement(pending.element);
                 } else {
                     this._addElement(pending.backup);
@@ -309,12 +313,12 @@ export class FountainParser {
 
     _parseTransition() {
         const regexTransition = /^\s*(?:[A-Z\s]+TO:)\s*$/;
-        if (regexTransition.test(this._line) && !this._lastLine.trim()) {
+        if (regexTransition.test(this._line) && isWhitespaceOrEmpty(this._lastLine)) {
 
             if (this._lastLineEmpty) {
                 // Can't commit to which this is until we've checked the next line is empty.
                 this._pending.push( {
-                    type: Element.TRANSITION, 
+                    type: ElementType.TRANSITION, 
                     element: new FountainTransition(this._lineTrim),
                     backup: new FountainAction(this._lineTrim)
                 } );
@@ -330,7 +334,7 @@ export class FountainParser {
         const regexParenthesis = /^\s*\((.*)\)\s*$/
         let lastElem = this._getLastElem();
         let match = this._line.match(regexParenthesis);
-        if (match && this._inDialogue && lastElem && (lastElem.type==Element.CHARACTER || lastElem.type==Element.DIALOGUE) ) {
+        if (match && this._inDialogue && lastElem && (lastElem.type==ElementType.CHARACTER || lastElem.type==ElementType.DIALOGUE) ) {
             this._addElement(new FountainParenthesis(match[1]));
             return true;
         }
@@ -388,7 +392,7 @@ export class FountainParser {
 
             // Can't commit to which this is until we've checked the next line isn't empty.
             this._pending.push( {
-                type: Element.CHARACTER, 
+                type: ElementType.CHARACTER, 
                 element: charElem,
                 backup: new FountainAction(this._lineTrim)
             } );
@@ -402,13 +406,13 @@ export class FountainParser {
     _parseDialogue() {
 
         let lastElem = this._getLastElem();
-        if (lastElem && this._line.length>0 && (lastElem.type==Element.CHARACTER || lastElem.type==Element.PARENTHESIS)) {
+        if (lastElem && this._line.length>0 && (lastElem.type==ElementType.CHARACTER || lastElem.type==ElementType.PARENTHESIS)) {
             this._addElement(new FountainDialogue(this._lineTrim));
             return true;
         }
 
         // Was the previous line dialogue? If so, offer possibility of merge
-        if (lastElem && lastElem.type==Element.DIALOGUE) {
+        if (lastElem && lastElem.type==ElementType.DIALOGUE) {
 
             // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
             if ( this._lastLineEmpty && this._lastLine.length>0 ) {

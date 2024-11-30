@@ -1,4 +1,4 @@
-import {Element} from "./fountain.js";
+import {ElementType} from "./fountain.js";
 import {FountainParser} from "./parser.js";
 
 export class FountainCallbackParser extends FountainParser {
@@ -70,17 +70,17 @@ export class FountainCallbackParser extends FountainParser {
 
     _handleNewElement(elem) {
 
-        if (elem.type == Element.CHARACTER) {
+        if (elem.type == ElementType.CHARACTER) {
             this._lastChar = elem;
             return;
         } 
         
-        if (elem.type == Element.PARENTHESIS) {
+        if (elem.type == ElementType.PARENTHESIS) {
             this._lastParen = elem;
             return;
         } 
         
-        if (elem.type == Element.DIALOGUE) {
+        if (elem.type == ElementType.DIALOGUE) {
 
             let character = this._lastChar.name;
             let extension = this._lastChar.extension;
@@ -101,7 +101,7 @@ export class FountainCallbackParser extends FountainParser {
         this._lastChar = null;
         this._lastParen = null;
 
-        if (elem.type == Element.ACTION) {
+        if (elem.type == ElementType.ACTION) {
 
             if (this.ignoreBlanks && !elem.text.trim())
                 return;
@@ -111,7 +111,7 @@ export class FountainCallbackParser extends FountainParser {
             return;
         }
 
-        if (elem.type == Element.HEADING) {
+        if (elem.type == ElementType.HEADING) {
 
             if (this.ignoreBlanks && !elem.text.trim())
                 return;
@@ -121,7 +121,7 @@ export class FountainCallbackParser extends FountainParser {
             return;
         }
 
-        if (elem.type == Element.LYRIC) {
+        if (elem.type == ElementType.LYRIC) {
 
             if (this.ignoreBlanks && !elem.text.trim())
                 return;
@@ -131,7 +131,7 @@ export class FountainCallbackParser extends FountainParser {
             return;
         }
 
-        if (elem.type == Element.TRANSITION) {
+        if (elem.type == ElementType.TRANSITION) {
 
             if (this.ignoreBlanks && !elem.text.trim())
                 return;
@@ -141,21 +141,21 @@ export class FountainCallbackParser extends FountainParser {
             return;
         }
     
-        if (elem.type == Element.SECTION) {
+        if (elem.type == ElementType.SECTION) {
 
             if (this.onSection)
                 this.onSection(elem.text, elem.level);
             return;
         }
 
-        if (elem.type == Element.SYNOPSIS) {
+        if (elem.type == ElementType.SYNOPSIS) {
 
             if (this.onSynopsis)
                 this.onSynopsis(elem.text);
             return;
         }
 
-        if (elem.type == Element.PAGEBREAK) {
+        if (elem.type == ElementType.PAGEBREAK) {
             if (this.onPageBreak)
                 this.onPageBreak();
             return;

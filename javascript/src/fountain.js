@@ -1,4 +1,4 @@
-export const Element = Object.freeze({
+export const ElementType = Object.freeze({
     TITLEENTRY: 'TITLEENTRY',
     HEADING: 'HEADING',
     ACTION: 'ACTION',
@@ -13,7 +13,6 @@ export const Element = Object.freeze({
     SECTION: "SECTION",
     SYNOPSIS: "SYNOPSIS"
 });
-
 
 // Base class for all elements
 export class FountainElement {
@@ -50,7 +49,7 @@ export class FountainElement {
 
 export class FountainTitleEntry extends FountainElement {
     constructor(key, text) {
-        super(Element.TITLEENTRY, text);
+        super(ElementType.TITLEENTRY, text);
         this.key = key;
     }
 
@@ -67,7 +66,7 @@ export class FountainAction extends FountainElement {
         // ACTION is supposed to convert tabs to 4-spaces
         text = text.replace(/\t/g, '    ');
 
-        super(Element.ACTION, text);
+        super(ElementType.ACTION, text);
         this.centered = false;
         this.forced = forced;
     }
@@ -84,7 +83,7 @@ export class FountainAction extends FountainElement {
 
 export class FountainHeading extends FountainElement {
     constructor(text, sceneNumber, forced = false) {
-        super(Element.HEADING, text);
+        super(ElementType.HEADING, text);
         this.sceneNumber = sceneNumber;
         this.forced = forced;
     }
@@ -102,7 +101,7 @@ export class FountainHeading extends FountainElement {
 
 export class FountainCharacter extends FountainElement {
     constructor(text, name, extension, dual, forced = false) {
-        super(Element.CHARACTER, text);
+        super(ElementType.CHARACTER, text);
         this.name = name;
         this.extension = extension;
         this.isDualDialogue = dual;
@@ -124,28 +123,28 @@ export class FountainCharacter extends FountainElement {
 
 export class FountainDialogue extends FountainElement {
     constructor(text) {
-        super(Element.DIALOGUE, text);
+        super(ElementType.DIALOGUE, text);
     }
 }
 
 
 export class FountainParenthesis extends FountainElement {
     constructor(text) {
-        super(Element.PARENTHESIS, text);
+        super(ElementType.PARENTHESIS, text);
     }
 }
 
 
 export class FountainLyric extends FountainElement {
     constructor(text) {
-        super(Element.LYRIC, text);
+        super(ElementType.LYRIC, text);
     }
 }
 
 
 export class FountainTransition extends FountainElement {
     constructor(text, forced = false) {
-        super(Element.TRANSITION, text);
+        super(ElementType.TRANSITION, text);
         this.forced = forced;
     }
 }
@@ -153,28 +152,28 @@ export class FountainTransition extends FountainElement {
 
 export class FountainPageBreak extends FountainElement {
     constructor() {
-        super(Element.PAGEBREAK, "")
+        super(ElementType.PAGEBREAK, "")
     }
 }
 
 
 export class FountainNote extends FountainElement {
     constructor(text) {
-        super(Element.NOTES, text);
+        super(ElementType.NOTE, text);
     }
 }
 
 
 export class FountainBoneyard extends FountainElement {
     constructor(text) {
-        super(Element.BONEYARD, text);
+        super(ElementType.BONEYARD, text);
     }
 }
 
 
 export class FountainSection extends FountainElement {
     constructor(level, text) {
-        super(Element.SECTION, text);
+        super(ElementType.SECTION, text);
         this.level = level;
     }
 
@@ -186,7 +185,7 @@ export class FountainSection extends FountainElement {
 
 export class FountainSynopsis extends FountainElement {
     constructor(text) {
-        super(Element.SYNOPSIS, text);
+        super(ElementType.SYNOPSIS, text);
     }
 }
 

@@ -1,4 +1,4 @@
-import {Element} from "./fountain.js";
+import {ElementType} from "./fountain.js";
 
 export class FountainWriter {
     constructor() {
@@ -28,13 +28,13 @@ export class FountainWriter {
 
             // Padding
             let padBefore = false;
-            if (element.type==Element.CHARACTER
-                || element.type==Element.TRANSITION
-                || element.type==Element.HEADING
+            if (element.type==ElementType.CHARACTER
+                || element.type==ElementType.TRANSITION
+                || element.type==ElementType.HEADING
                 ) {
                 padBefore = true;
-            } else if (element.type==Element.ACTION) {
-                padBefore = !lastElem || lastElem.type != Element.ACTION;
+            } else if (element.type==ElementType.ACTION) {
+                padBefore = !lastElem || lastElem.type != ElementType.ACTION;
             }
 
             if (padBefore)
@@ -66,7 +66,7 @@ export class FountainWriter {
 
     _writeElem(elem) {
 
-        if (elem.type == Element.CHARACTER) {
+        if (elem.type == ElementType.CHARACTER) {
 
             let pad = "";
             if (this.prettyPrint)
@@ -85,7 +85,7 @@ export class FountainWriter {
             return `${pad}${char}`;
         }
 
-        if (elem.type == Element.DIALOGUE) {
+        if (elem.type == ElementType.DIALOGUE) {
             let output = elem._text;
 
             // Make sure blank lines in dialogue have at least a space
@@ -102,14 +102,14 @@ export class FountainWriter {
             return output;
         }
 
-        if (elem.type == Element.PARENTHESIS) {
+        if (elem.type == ElementType.PARENTHESIS) {
             let pad = "";
             if (this.prettyPrint)
                 pad = "\t".repeat(2);
             return `${pad}(${elem._text})`;
         }
 
-        if (elem.type == Element.ACTION) {
+        if (elem.type == ElementType.ACTION) {
             if (elem.forced)
                 return `!${elem._text}`;
             if (elem.centered)
@@ -117,21 +117,21 @@ export class FountainWriter {
             return `${elem._text}`;
         }
 
-        if (elem.type == Element.LYRIC) {
+        if (elem.type == ElementType.LYRIC) {
             return `~ ${elem._text}`; 
         }
 
-        if (elem.type == Element.SYNOPSIS) {
+        if (elem.type == ElementType.SYNOPSIS) {
             return `= ${elem._text}`; 
         }
 
         this._lastChar = null;
 
-        if (elem.type == Element.TITLEENTRY) {
+        if (elem.type == ElementType.TITLEENTRY) {
             return `${elem.key}: ${elem._text}`
         }
 
-        if (elem.type == Element.HEADING) {
+        if (elem.type == ElementType.HEADING) {
             let sceneNumber = "";
             if (elem.sceneNumber)
                 sceneNumber=` #${elem.sceneNumber}#`;
@@ -140,7 +140,7 @@ export class FountainWriter {
             return `\n${elem._text}${sceneNumber}`;
         }
 
-        if (elem.type == Element.TRANSITION) {
+        if (elem.type == ElementType.TRANSITION) {
             let pad = "";
             if (this.prettyPrint)
                 pad = "\t".repeat(4);
@@ -149,11 +149,11 @@ export class FountainWriter {
             return `${pad}${elem._text}`;
         }
 
-        if (elem.type == Element.PAGEBREAK) {
+        if (elem.type == ElementType.PAGEBREAK) {
             return "===";
         }
 
-        if (elem.type == Element.SECTION) {
+        if (elem.type == ElementType.SECTION) {
             return `${"#".repeat(elem.level)} ${elem.text}`;
         }
 
