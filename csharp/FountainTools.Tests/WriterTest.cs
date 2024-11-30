@@ -13,13 +13,13 @@ public class WriterTest
     {
         string match = loadTestFile("Writer-output.fountain");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(loadTestFile("TitlePage.fountain"));
         fp.AddText(loadTestFile("Sections.fountain"));
         fp.AddText(loadTestFile("Character.fountain"));
         fp.AddText(loadTestFile("Dialogue.fountain"));
 
-        FountainWriter fw = new FountainWriter();
+        Writer fw = new Writer();
         string output = fw.Write(fp.Script);
 
         //Console.WriteLine(output);
@@ -31,10 +31,10 @@ public class WriterTest
     {
         string match = loadTestFile("UTF8-output.fountain");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(loadTestFile("UTF8.fountain"));
 
-        FountainWriter fw = new FountainWriter();
+        Writer fw = new Writer();
         string output = fw.Write(fp.Script);
 
         //Console.WriteLine(output);

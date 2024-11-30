@@ -39,8 +39,8 @@ void CallbackParser::_handleNewElement(const std::shared_ptr<Element>& elem) {
             _lastChar = std::dynamic_pointer_cast<Character>(elem);
             break;
 
-        case ElementType::PARENTHESIS:
-            _lastParen = std::dynamic_pointer_cast<Parenthesis>(elem);
+        case ElementType::PARENTHETICAL:
+            _lastParen = std::dynamic_pointer_cast<Parenthetical>(elem);
             break;
 
         case ElementType::DIALOGUE:

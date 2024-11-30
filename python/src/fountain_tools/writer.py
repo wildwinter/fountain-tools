@@ -2,7 +2,7 @@ import re
 from .fountain import ElementType 
 
 
-class FountainWriter:
+class Writer:
     def __init__(self):
         self.pretty_print = True
         self._last_char = None
@@ -85,7 +85,7 @@ class FountainWriter:
 
             return output
 
-        if elem_type == ElementType.PARENTHESIS:
+        if elem_type == ElementType.PARENTHETICAL:
             pad = "\t" * 2 if self.pretty_print else ""
             return f"{pad}({elem._text})"
 

@@ -2,13 +2,13 @@ using System.Text.RegularExpressions;
 
 namespace Fountain;
 
-public class FountainParser
+public class Parser
 {
     public Script Script { get; private set; }
     public bool MergeActions = true;
     public bool MergeDialogue = true;
 
-    public FountainParser()
+    public Parser()
     {
         Script = new Script();
         _pending = new List<PendingElement>();
@@ -60,7 +60,7 @@ public class FountainParser
         if (ParseCenteredAction()) return;
         if (ParseSceneHeading()) return;
         if (ParseTransition()) return;
-        if (ParseParenthesis()) return;
+        if (ParseParenthetical()) return;
         if (ParseCharacter()) return;
         if (ParseDialogue()) return;
 
@@ -144,7 +144,7 @@ public class FountainParser
 
         Script.Elements.Add(element);
 
-        _inDialogue = element.Type == ElementType.CHARACTER || element.Type == ElementType.PARENTHESIS || element.Type == ElementType.DIALOGUE;
+        _inDialogue = element.Type == ElementType.CHARACTER || element.Type == ElementType.PARENTHETICAL || element.Type == ElementType.DIALOGUE;
     }
 
     private void ParsePending()
@@ -318,16 +318,16 @@ public class FountainParser
         return false;
     }
 
-    private bool ParseParenthesis()
+    private bool ParseParenthetical()
     {
-        var regexParenthesis = new Regex(@"^\s*\((.*)\)\s*$");
-        var match = regexParenthesis.Match(_line);
+        var regexParenthetical = new Regex(@"^\s*\((.*)\)\s*$");
+        var match = regexParenthetical.Match(_line);
         var lastElement = GetLastElement();
 
         if (match.Success && _inDialogue && lastElement != null &&
             (lastElement.Type == ElementType.CHARACTER || lastElement.Type == ElementType.DIALOGUE))
         {
-            AddElement(new Parenthesis(match.Groups[1].Value));
+            AddElement(new Parenthetical(match.Groups[1].Value));
             return true;
         }
         return false;
@@ -401,7 +401,7 @@ public class FountainParser
     {
         var lastElement = GetLastElement();
         if (lastElement != null && _line.Length > 0 &&
-            (lastElement.Type == ElementType.CHARACTER || lastElement.Type == ElementType.PARENTHESIS))
+            (lastElement.Type == ElementType.CHARACTER || lastElement.Type == ElementType.PARENTHETICAL))
         {
             AddElement(new Dialogue(_lineTrim));
             return true;

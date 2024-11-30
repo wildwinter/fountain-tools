@@ -14,7 +14,7 @@ public class ParserTest
         string source = loadTestFile("Scratch.fountain");
         string match = loadTestFile("Scratch.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -28,7 +28,7 @@ public class ParserTest
         string source = loadTestFile("SceneHeading.fountain");
         string match = loadTestFile("SceneHeading.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -42,7 +42,7 @@ public class ParserTest
         string source = loadTestFile("Action.fountain");
         string match = loadTestFile("Action-Merged.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -56,7 +56,7 @@ public class ParserTest
         string source = loadTestFile("Action.fountain");
         string match = loadTestFile("Action-Unmerged.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.MergeActions = false;
         fp.AddText(source);
 
@@ -71,7 +71,7 @@ public class ParserTest
         string source = loadTestFile("Character.fountain");
         string match = loadTestFile("Character.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -85,7 +85,7 @@ public class ParserTest
         string source = loadTestFile("Dialogue.fountain");
         string match = loadTestFile("Dialogue-Merged.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -99,7 +99,7 @@ public class ParserTest
         string source = loadTestFile("Dialogue.fountain");
         string match = loadTestFile("Dialogue-Unmerged.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.MergeDialogue = false;
         fp.AddText(source);
 
@@ -114,7 +114,7 @@ public class ParserTest
         string source = loadTestFile("Parenthetical.fountain");
         string match = loadTestFile("Parenthetical.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -128,7 +128,7 @@ public class ParserTest
         string source = loadTestFile("Lyrics.fountain");
         string match = loadTestFile("Lyrics.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -142,7 +142,7 @@ public class ParserTest
         string source = loadTestFile("Transition.fountain");
         string match = loadTestFile("Transition.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -156,7 +156,7 @@ public class ParserTest
         string source = loadTestFile("TitlePage.fountain");
         string match = loadTestFile("TitlePage.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -170,7 +170,7 @@ public class ParserTest
         string source = loadTestFile("PageBreak.fountain");
         string match = loadTestFile("PageBreak.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -184,7 +184,7 @@ public class ParserTest
         string source = loadTestFile("LineBreaks.fountain");
         string match = loadTestFile("LineBreaks.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -198,7 +198,7 @@ public class ParserTest
         string source = loadTestFile("Notes.fountain");
         string match = loadTestFile("Notes.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -212,7 +212,7 @@ public class ParserTest
         string source = loadTestFile("Boneyards.fountain");
         string match = loadTestFile("Boneyards.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -226,7 +226,7 @@ public class ParserTest
         string source = loadTestFile("Sections.fountain");
         string match = loadTestFile("Sections.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();
@@ -240,7 +240,7 @@ public class ParserTest
         string source = loadTestFile("UTF8.fountain");
         string match = loadTestFile("UTF8.txt");
 
-        FountainParser fp = new FountainParser();
+        Parser fp = new Parser();
         fp.AddText(source);
 
         string output = fp.Script.Dump();

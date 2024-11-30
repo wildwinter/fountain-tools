@@ -89,7 +89,7 @@ protected:
     bool _parseForcedTransition();
     bool _parseTransition();
     
-    bool _parseParenthesis();
+    bool _parseParenthetical();
     
     std::optional<CharacterInfo> _decodeCharacter(const std::string& line);
     bool _parseForcedCharacter();

@@ -75,7 +75,7 @@ export class FountainCallbackParser extends FountainParser {
             return;
         } 
         
-        if (elem.type == ElementType.PARENTHESIS) {
+        if (elem.type == ElementType.PARENTHETICAL) {
             this._lastParen = elem;
             return;
         } 

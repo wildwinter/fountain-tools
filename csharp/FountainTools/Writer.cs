@@ -2,11 +2,11 @@ using System.Text.RegularExpressions;
 
 namespace Fountain;
 
-public class FountainWriter
+public class Writer
 {
     public bool PrettyPrint { get; set; }
 
-    public FountainWriter()
+    public Writer()
     {
         PrettyPrint = true;
         _lastChar = null;
@@ -87,8 +87,8 @@ public class FountainWriter
             case ElementType.DIALOGUE:
                 return WriteDialogue((Dialogue)elem);
 
-            case ElementType.PARENTHESIS:
-                return WriteParenthesis((Parenthesis)elem);
+            case ElementType.PARENTHETICAL:
+                return WriteParenthetical((Parenthetical)elem);
 
             case ElementType.ACTION:
                 return WriteAction((Action)elem);
@@ -156,7 +156,7 @@ public class FountainWriter
         return output;
     }
 
-    private string WriteParenthesis(Parenthesis elem)
+    private string WriteParenthetical(Parenthetical elem)
     {
         string pad = PrettyPrint ? new string('\t', 2) : string.Empty;
         return $"{pad}({elem.TextRaw})";

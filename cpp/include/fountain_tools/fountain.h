@@ -20,7 +20,7 @@ enum class ElementType {
     ACTION,
     CHARACTER,
     DIALOGUE,
-    PARENTHESIS,
+    PARENTHETICAL,
     LYRIC,
     TRANSITION,
     PAGEBREAK,
@@ -38,7 +38,7 @@ inline std::string elementTypeToString(ElementType type) {
         {ElementType::ACTION, "ACTION"},
         {ElementType::CHARACTER, "CHARACTER"},
         {ElementType::DIALOGUE, "DIALOGUE"},
-        {ElementType::PARENTHESIS, "PARENTHESIS"},
+        {ElementType::PARENTHETICAL, "PARENTHETICAL"},
         {ElementType::LYRIC, "LYRIC"},
         {ElementType::TRANSITION, "TRANSITION"},
         {ElementType::PAGEBREAK, "PAGEBREAK"},
@@ -200,11 +200,11 @@ public:
         : Element(ElementType::DIALOGUE, text) {}
 };
 
-// Parenthesis before dialogue
-class Parenthesis : public Element {
+// Parenthetical before dialogue
+class Parenthetical : public Element {
 public:
-    Parenthesis(const std::string& text)
-        : Element(ElementType::PARENTHESIS, text) {}
+    Parenthetical(const std::string& text)
+        : Element(ElementType::PARENTHETICAL, text) {}
 };
 
 // Lyric line

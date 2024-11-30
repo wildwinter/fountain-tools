@@ -1,6 +1,6 @@
 import {ElementType, FountainTitleEntry, 
         FountainAction, FountainSceneHeading, FountainCharacter, 
-        FountainDialogue, FountainParenthesis, FountainLyric,
+        FountainDialogue, FountainParenthetical, FountainLyric,
         FountainTransition, FountainPageBreak, FountainNote,
         FountainBoneyard, FountainSection, FountainScript,
         FountainSynopsis} from "./fountain.js";
@@ -110,7 +110,7 @@ export class FountainParser {
         if (this._parseTransition())
             return;
 
-        if (this._parseParenthesis())
+        if (this._parseParenthetical())
             return;
 
         if (this._parseCharacter())
@@ -144,7 +144,7 @@ export class FountainParser {
         let lastElem = this._getLastElem();
 
         // Are we trying to add a blank action line?
-        if (elem.type == ElementType.ACTION && elem.isEmpty() && !elem.centered) {
+        if (elem.type == ElementType.ACTION && isWhitespaceOrEmpty(elem.textRaw) && !elem.centered) {
 
             this._inDialogue = false;
 
@@ -183,7 +183,7 @@ export class FountainParser {
 
         this.script.elements.push(elem);
 
-        this._inDialogue = (elem.type == ElementType.CHARACTER || elem.type == ElementType.PARENTHESIS || elem.type == ElementType.DIALOGUE);
+        this._inDialogue = (elem.type == ElementType.CHARACTER || elem.type == ElementType.PARENTHETICAL || elem.type == ElementType.DIALOGUE);
     }
 
     _parsePending() {
@@ -329,13 +329,13 @@ export class FountainParser {
         return false; 
     }
 
-    _parseParenthesis() {
+    _parseParenthetical() {
        
-        const regexParenthesis = /^\s*\((.*)\)\s*$/
+        const regexParenthetical = /^\s*\((.*)\)\s*$/
         let lastElem = this._getLastElem();
-        let match = this._line.match(regexParenthesis);
+        let match = this._line.match(regexParenthetical);
         if (match && this._inDialogue && lastElem && (lastElem.type==ElementType.CHARACTER || lastElem.type==ElementType.DIALOGUE) ) {
-            this._addElement(new FountainParenthesis(match[1]));
+            this._addElement(new FountainParenthetical(match[1]));
             return true;
         }
         return false;
@@ -406,7 +406,7 @@ export class FountainParser {
     _parseDialogue() {
 
         let lastElem = this._getLastElem();
-        if (lastElem && this._line.length>0 && (lastElem.type==ElementType.CHARACTER || lastElem.type==ElementType.PARENTHESIS)) {
+        if (lastElem && this._line.length>0 && (lastElem.type==ElementType.CHARACTER || lastElem.type==ElementType.PARENTHETICAL)) {
             this._addElement(new FountainDialogue(this._lineTrim));
             return true;
         }

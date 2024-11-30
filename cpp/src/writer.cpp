@@ -112,8 +112,8 @@ std::string Writer::_writeElement(const std::shared_ptr<Element>& elem) {
             return _writeCharacter(std::dynamic_pointer_cast<Character>(elem));
         case ElementType::DIALOGUE:
             return _writeDialogue(std::dynamic_pointer_cast<Dialogue>(elem));
-        case ElementType::PARENTHESIS:
-            return _writeParenthesis(std::dynamic_pointer_cast<Parenthesis>(elem));
+        case ElementType::PARENTHETICAL:
+            return _writeParenthetical(std::dynamic_pointer_cast<Parenthetical>(elem));
         case ElementType::ACTION:
             return _writeAction(std::dynamic_pointer_cast<Action>(elem));
         case ElementType::LYRIC:
@@ -179,7 +179,7 @@ std::string Writer::_writeDialogue(const std::shared_ptr<Dialogue>& elem) {
     return output;
 }
 
-std::string Writer::_writeParenthesis(const std::shared_ptr<Parenthesis>& elem) {
+std::string Writer::_writeParenthetical(const std::shared_ptr<Parenthetical>& elem) {
     std::string pad = prettyPrint ? std::string(2, '\t') : "";
     return pad + "(" + elem->getTextRaw() + ")";
 }

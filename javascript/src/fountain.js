@@ -4,7 +4,7 @@ export const ElementType = Object.freeze({
     ACTION: 'ACTION',
     CHARACTER: 'CHARACTER',
     DIALOGUE: 'DIALOGUE',
-    PARENTHESIS: 'PARENTHESIS',
+    PARENTHETICAL: 'PARENTHETICAL',
     LYRIC: "LYRIC",
     TRANSITION: "TRANSITION",
     PAGEBREAK: "PAGEBREAK",
@@ -34,10 +34,6 @@ export class FountainElement {
 
     appendLine(line) {
         this._text+="\n"+line;
-    }
-
-    isEmpty() {
-        return this._text.trim()=="";
     }
 
     // For debugging
@@ -128,9 +124,9 @@ export class FountainDialogue extends FountainElement {
 }
 
 
-export class FountainParenthesis extends FountainElement {
+export class FountainParenthetical extends FountainElement {
     constructor(text) {
-        super(ElementType.PARENTHESIS, text);
+        super(ElementType.PARENTHETICAL, text);
     }
 }
 

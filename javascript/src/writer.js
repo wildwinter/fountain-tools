@@ -102,7 +102,7 @@ export class FountainWriter {
             return output;
         }
 
-        if (elem.type == ElementType.PARENTHESIS) {
+        if (elem.type == ElementType.PARENTHETICAL) {
             let pad = "";
             if (this.prettyPrint)
                 pad = "\t".repeat(2);

@@ -1,6 +1,6 @@
 namespace Fountain;
 
-public class CallbackParser : FountainParser
+public class CallbackParser : Parser
 {
     public class TitleEntry {
         public required string Key;
@@ -75,7 +75,7 @@ public class CallbackParser : FountainParser
     }
 
     private Character? _lastChar;
-    private Parenthesis? _lastParen;
+    private Parenthetical? _lastParen;
 
     private void HandleNewElement(Element elem)
     {
@@ -85,8 +85,8 @@ public class CallbackParser : FountainParser
                 _lastChar = (Character)elem;
                 break;
 
-            case ElementType.PARENTHESIS:
-                _lastParen = (Parenthesis)elem;
+            case ElementType.PARENTHETICAL:
+                _lastParen = (Parenthetical)elem;
                 break;
 
             case ElementType.DIALOGUE:

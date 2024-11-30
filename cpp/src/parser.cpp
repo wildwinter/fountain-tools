@@ -43,7 +43,7 @@ void Parser::addLine(const std::string& inputLine) {
 
     if (_parseSection() || _parseForcedAction() || _parseForcedSceneHeading() || _parseForcedCharacter() ||
         _parseForcedTransition() || _parsePageBreak() || _parseLyrics() || _parseSynopsis() ||
-        _parseCenteredAction() || _parseSceneHeading() || _parseTransition() || _parseParenthesis() ||
+        _parseCenteredAction() || _parseSceneHeading() || _parseTransition() || _parseParenthetical() ||
         _parseCharacter() || _parseDialogue()) {
         return;
     }
@@ -115,7 +115,7 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
 
     _script->addElement(element);
 
-    _inDialogue = element->getType() == ElementType::CHARACTER || element->getType() == ElementType::PARENTHESIS ||
+    _inDialogue = element->getType() == ElementType::CHARACTER || element->getType() == ElementType::PARENTHETICAL ||
                  element->getType() == ElementType::DIALOGUE;
 }
 
@@ -283,19 +283,19 @@ bool Parser::_parseTransition() {
     return false;
 }
 
-bool Parser::_parseParenthesis() {
+bool Parser::_parseParenthetical() {
 
-    static const std::regex regexParenthesis(R"(^\s*\((.*)\)\s*$)");
+    static const std::regex regexParenthetical(R"(^\s*\((.*)\)\s*$)");
 
     std::smatch match;
-    if (std::regex_match(_line, match, regexParenthesis)) {
+    if (std::regex_match(_line, match, regexParenthetical)) {
         auto lastElement = _getLastElement();
 
         // Check if the match was successful, we're in dialogue, and the last element is valid
         if (_inDialogue && lastElement != nullptr &&
             (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::DIALOGUE)) {
 
-            _addElement(std::make_shared<Parenthesis>(match[1].str()));
+            _addElement(std::make_shared<Parenthetical>(match[1].str()));
             return true;
         }
     }
@@ -375,9 +375,9 @@ bool Parser::_parseCharacter() {
 bool Parser::_parseDialogue() {
     auto lastElement = _getLastElement();
 
-    // If last element is CHARACTER or PARENTHESIS and line is not empty
+    // If last element is CHARACTER or PARENTHETICAL and line is not empty
     if (lastElement != nullptr && !_line.empty() &&
-        (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::PARENTHESIS)) {
+        (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::PARENTHETICAL)) {
         _addElement(std::make_shared<Dialogue>(_lineTrim));
         return true;
     }

@@ -5,7 +5,7 @@ import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from fountain_tools.callback_parser import FountainCallbackParser
+from fountain_tools.callback_parser import CallbackParser
 
 class TestParser(unittest.TestCase):
 
@@ -31,7 +31,7 @@ class TestParser(unittest.TestCase):
 
         match = self._load_file("SimpleCallbackParser.txt")
 
-        fp = FountainCallbackParser()
+        fp = CallbackParser()
 
         fp.onDialogue = lambda character, extension, parenthetical, line, is_dual_dialogue: out.append(f"DIALOGUE:"
             f" character:{character}"

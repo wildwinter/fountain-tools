@@ -3,7 +3,7 @@ ACTION:"This is the home of THE BOY BAND, AKA DAN and JACK[[0]]. They too are dr
 
 [[1]]"
 CHARACTER:"JACK"
-PARENTHESIS:"in Vietnamese, subtitled"
+PARENTHETICAL:"in Vietnamese, subtitled"
 DIALOGUE:"*Did you know Brick and Steel are retired?*
 
 His hand is an inch from the receiver when the phone RINGS. Scott pauses for a moment, suspicious for some reason.[[2]] He looks around. Phone ringing.

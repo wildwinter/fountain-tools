@@ -4,8 +4,8 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from fountain_tools.parser import FountainParser
-from fountain_tools.writer import FountainWriter
+from fountain_tools.parser import Parser
+from fountain_tools.writer import Writer
 
 class TestWriter(unittest.TestCase):
 
@@ -23,14 +23,14 @@ class TestWriter(unittest.TestCase):
 
         match = self._load_file("Writer-output.fountain")
 
-        fp = FountainParser()
+        fp = Parser()
 
         fp.add_text(self._load_file("TitlePage.fountain"))
         fp.add_text(self._load_file("Sections.fountain"))
         fp.add_text(self._load_file("Character.fountain"))
         fp.add_text(self._load_file("Dialogue.fountain"))
 
-        fw = FountainWriter()
+        fw = Writer()
         output = fw.write(fp.script)
 
         #print(output)
@@ -40,11 +40,11 @@ class TestWriter(unittest.TestCase):
 
         match = self._load_file("UTF8-output.fountain")
 
-        fp = FountainParser()
+        fp = Parser()
 
         fp.add_text(self._load_file("UTF8.fountain"))
 
-        fw = FountainWriter()
+        fw = Writer()
         output = fw.write(fp.script)
 
         #print(output)

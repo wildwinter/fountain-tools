@@ -22,7 +22,7 @@ private:
     std::string _writeElement(const std::shared_ptr<Element>& elem);
     std::string _writeCharacter(const std::shared_ptr<Character>& elem);
     std::string _writeDialogue(const std::shared_ptr<Dialogue>& elem);
-    std::string _writeParenthesis(const std::shared_ptr<Parenthesis>& elem);
+    std::string _writeParenthetical(const std::shared_ptr<Parenthetical>& elem);
     std::string _writeAction(const std::shared_ptr<Action>& elem);
     std::string _writeHeading(const std::shared_ptr<SceneHeading>& elem);
     std::string _writeTransition(const std::shared_ptr<Transition>& elem);

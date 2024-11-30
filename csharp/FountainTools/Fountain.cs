@@ -11,7 +11,7 @@ public enum ElementType
     ACTION,
     CHARACTER,
     DIALOGUE,
-    PARENTHESIS,
+    PARENTHETICAL,
     LYRIC,
     TRANSITION,
     PAGEBREAK,
@@ -166,10 +166,10 @@ public class Character : Element
     }
 }
 
-public class Parenthesis : Element
+public class Parenthetical : Element
 {
-    public Parenthesis(string text)
-        : base(ElementType.PARENTHESIS, text) { }
+    public Parenthetical(string text)
+        : base(ElementType.PARENTHETICAL, text) { }
 
     public override string Dump()
     {

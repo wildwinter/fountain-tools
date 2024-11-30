@@ -2,20 +2,20 @@ import re
 
 from .fountain import (
     ElementType,
-    FountainTitleEntry,
-    FountainAction,
-    FountainHeading,
-    FountainCharacter,
-    FountainDialogue,
-    FountainParenthesis,
-    FountainLyric,
-    FountainTransition,
-    FountainPageBreak,
-    FountainNote,
-    FountainBoneyard,
-    FountainSection,
-    FountainSynopsis,
-    FountainScript,
+    TitleEntry,
+    Action,
+    SceneHeading,
+    Character,
+    Dialogue,
+    Parenthetical,
+    Lyric,
+    Transition,
+    PageBreak,
+    Note,
+    Boneyard,
+    Section,
+    Synopsis,
+    Script,
 )
 
 
@@ -23,14 +23,13 @@ def is_whitespace_or_empty(line):
     return not bool(line.strip())
 
 
-class FountainParser:
+class Parser:
     def __init__(self):
-        self.script = FountainScript()
+        self.script = Script()
 
         self.mergeActions = True
         self.mergeDialogue = True
 
-        # State management variables
         self._inTitlePage = True
         self._multiLineTitleEntry = False
 
@@ -106,7 +105,7 @@ class FountainParser:
             return
         if self._parse_transition():
             return
-        if self._parse_parenthesis():
+        if self._parse_parenthetical():
             return
         if self._parse_character():
             return
@@ -167,7 +166,7 @@ class FountainParser:
         self.script.elements.append(elem)
 
         # Update dialogue state
-        self._inDialogue = elem.type in {ElementType.CHARACTER, ElementType.PARENTHESIS, ElementType.DIALOGUE}
+        self._inDialogue = elem.type in {ElementType.CHARACTER, ElementType.PARENTHETICAL, ElementType.DIALOGUE}
 
     def _parse_pending(self):
         """Resolve pending elements."""
@@ -192,7 +191,7 @@ class FountainParser:
         if match:
             # It's of form key:text
             text = match.group(2)
-            self.script.titleEntries.append(FountainTitleEntry(match.group(1), text))
+            self.script.titleEntries.append(TitleEntry(match.group(1), text))
             self._multiLineTitleEntry = len(text) == 0
             return True
 
@@ -210,14 +209,14 @@ class FountainParser:
         """Parses a page break if the current line matches the pattern."""
         regex_page_break = re.compile(r"^\s*={3,}\s*$")
         if regex_page_break.match(self._line):
-            self._add_element(FountainPageBreak())
+            self._add_element(PageBreak())
             return True
         return False
 
     def _parse_lyrics(self):
         """Parses lyrics if the current line starts with '~'."""
         if self._lineTrim.startswith("~"):
-            self._add_element(FountainLyric(self._lineTrim[1:].strip()))
+            self._add_element(Lyric(self._lineTrim[1:].strip()))
             return True
         return False
     
@@ -226,7 +225,7 @@ class FountainParser:
         regex_synopsis = re.compile(r"^=(?!\=)")
         if regex_synopsis.match(self._lineTrim):
             synopsis_text = self._lineTrim[1:].strip()
-            self._add_element(FountainSynopsis(synopsis_text))
+            self._add_element(Synopsis(synopsis_text))
             return True
         return False
 
@@ -234,7 +233,7 @@ class FountainParser:
         """Parses centered text if the line starts and ends with angle brackets '>' and '<'."""
         if self._lineTrim.startswith(">") and self._lineTrim.endswith("<"):
             centered_text = self._lineTrim[1:-1]
-            centered_action = FountainAction(centered_text)
+            centered_action = Action(centered_text)
             centered_action.centered = True
             self._add_element(centered_action)
             return True
@@ -263,7 +262,7 @@ class FountainParser:
         if regex.match(self._lineTrim):
             heading_data = self._decode_heading(self._lineTrim[1:])
             if heading_data:
-                self._add_element(FountainHeading(
+                self._add_element(SceneHeading(
                     text=heading_data["text"],
                     scene_number=heading_data["scene_number"],
                     forced=True
@@ -280,7 +279,7 @@ class FountainParser:
         if regex_heading.match(self._lineTrim):
             heading_data = self._decode_heading(self._lineTrim)
             if heading_data:
-                self._add_element(FountainHeading(
+                self._add_element(SceneHeading(
                     text=heading_data["text"],
                     scene_number=heading_data["scene_number"],
                     forced=False
@@ -294,7 +293,7 @@ class FountainParser:
         A forced transition starts with '>' but does not end with '<'.
         """
         if self._lineTrim.startswith(">") and not self._lineTrim.endswith("<"):
-            self._add_element(FountainTransition(self._lineTrim[1:].strip(), forced=True))
+            self._add_element(Transition(self._lineTrim[1:].strip(), forced=True))
             return True
         return False
 
@@ -308,24 +307,24 @@ class FountainParser:
             # Add as pending to determine if it's a transition or action based on the next line
             self._pending.append({
                 "type": ElementType.TRANSITION,
-                "element": FountainTransition(self._lineTrim),
-                "backup": FountainAction(self._lineTrim)
+                "element": Transition(self._lineTrim),
+                "backup": Action(self._lineTrim)
             })
             return True
         return False
     
-    def _parse_parenthesis(self):
+    def _parse_parenthetical(self):
         """
         Parses a parenthetical. 
         Parentheticals are lines enclosed in parentheses.
         """
-        regex_parenthesis = re.compile(r"^\(.*\)$")
+        regex_parenthetical = re.compile(r"^\(.*\)$")
         lastElem = self._get_last_elem()
-        if regex_parenthesis.match(self._lineTrim) \
+        if regex_parenthetical.match(self._lineTrim) \
             and self._inDialogue \
             and lastElem and (lastElem.type == ElementType.CHARACTER or lastElem.type == ElementType.DIALOGUE):
-            parenthesis_text = self._lineTrim.strip("()").strip()
-            self._add_element(FountainParenthesis(parenthesis_text))
+            parenthetical_text = self._lineTrim.strip("()").strip()
+            self._add_element(Parenthetical(parenthetical_text))
             return True
         return False
     
@@ -356,7 +355,7 @@ class FountainParser:
             line_trimmed = self._lineTrim[1:]
             character = self._decode_character(line_trimmed)
             if character:
-                self._add_element(FountainCharacter(
+                self._add_element(Character(
                     text=line_trimmed,
                     name=character["name"],
                     extension=character["extension"],
@@ -380,7 +379,7 @@ class FountainParser:
         if self._lastLineEmpty and regex_character.match(line_trimmed):
             character = self._decode_character(line_trimmed)
             if character:
-                char_element = FountainCharacter(
+                char_element = Character(
                     text=line_trimmed,
                     name=character["name"],
                     extension=character["extension"],
@@ -391,7 +390,7 @@ class FountainParser:
                 self._pending.append({
                     "type":  ElementType.CHARACTER,
                     "element": char_element,
-                    "backup": FountainAction(self._lineTrim)
+                    "backup": Action(self._lineTrim)
                 })
                 return True
         return False
@@ -399,12 +398,12 @@ class FountainParser:
     def _parse_dialogue(self):
         """
         Parses a dialogue line. 
-        Dialogue follows a character or parenthesis element.
+        Dialogue follows a character or parenthetical element.
         """
         lastElem = self._get_last_elem()
 
-        if lastElem and self._line and lastElem.type in [ElementType.CHARACTER, ElementType.PARENTHESIS]:
-            self._add_element(FountainDialogue(self._lineTrim))
+        if lastElem and self._line and lastElem.type in [ElementType.CHARACTER, ElementType.PARENTHETICAL]:
+            self._add_element(Dialogue(self._lineTrim))
             return True
 
         # Dialogue continuation (merging lines)
@@ -416,8 +415,8 @@ class FountainParser:
                     lastElem.append_line("")
                     lastElem.append_line(self._lineTrim)
                 else:
-                    self._add_element(FountainDialogue(""))
-                    self._add_element(FountainDialogue(self._lineTrim))
+                    self._add_element(Dialogue(""))
+                    self._add_element(Dialogue(self._lineTrim))
 
                 return True
             
@@ -425,7 +424,7 @@ class FountainParser:
                 if self.mergeDialogue:
                     lastElem.append_line(self._lineTrim)
                 else:
-                    self._add_element(FountainDialogue(self._lineTrim))
+                    self._add_element(Dialogue(self._lineTrim))
                 return True
 
         return False
@@ -437,7 +436,7 @@ class FountainParser:
         """
         if self._lineTrim.startswith("!"):
             action_text = self._lineTrim[1:].strip()  # Remove the leading `!`
-            self._add_element(FountainAction(action_text, forced=True))
+            self._add_element(Action(action_text, forced=True))
             return True
         return False
 
@@ -446,7 +445,7 @@ class FountainParser:
         Parses a regular action line.
         Regular action lines are added as `FountainAction` with `forced=False`.
         """
-        self._add_element(FountainAction(self._line))
+        self._add_element(Action(self._line))
 
     def _parse_boneyard(self):
         """
@@ -461,7 +460,7 @@ class FountainParser:
         while open_idx > -1 and close_idx > open_idx:
             # Extract boneyard content and replace it with a tag
             boneyard_text = self._line[open_idx + 2:close_idx]
-            self.script.boneyards.append(FountainBoneyard(boneyard_text))
+            self.script.boneyards.append(Boneyard(boneyard_text))
             tag = f"/*{len(self.script.boneyards) - 1}*/"
             self._line = self._line[:open_idx] + tag + self._line[close_idx + 2:]
             last_tag_idx = open_idx + len(tag)
@@ -473,7 +472,7 @@ class FountainParser:
             idx = self._line.find("/*", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Entering a boneyard block
                 self._lineBeforeBoneyard = self._line[:idx]
-                self._boneyard = FountainBoneyard(self._line[idx + 2:])
+                self._boneyard = Boneyard(self._line[idx + 2:])
                 return True
         else:
             # Check for the end of the current boneyard block
@@ -505,7 +504,7 @@ class FountainParser:
         while open_idx > -1 and close_idx > open_idx:
             # Extract note content and replace it with a tag
             note_text = self._line[open_idx + 2:close_idx]
-            self.script.notes.append(FountainNote(note_text))
+            self.script.notes.append(Note(note_text))
             tag = f"[[{len(self.script.notes) - 1}]]"
             self._line = self._line[:open_idx] + tag + self._line[close_idx + 2:]
             last_tag_idx = open_idx + len(tag)
@@ -517,7 +516,7 @@ class FountainParser:
             idx = self._line.find("[[", last_tag_idx if last_tag_idx>-1 else 0)
             if idx > -1:  # Entering a note block
                 self._lineBeforeNote = self._line[:idx]
-                self._note = FountainNote(self._line[idx + 2:])
+                self._note = Note(self._line[idx + 2:])
                 return True
         else:
             # Check for the end of the current note block
@@ -548,15 +547,15 @@ class FountainParser:
         Section headings are lines starting with one or more '#' characters.
         """
         if self._lineTrim.startswith("###"):
-            self._add_element(FountainSection(3, self._lineTrim[3:].strip()))
+            self._add_element(Section(3, self._lineTrim[3:].strip()))
             return True
         
         if self._lineTrim.startswith("##"):
-            self._add_element(FountainSection(2, self._lineTrim[2:].strip()))
+            self._add_element(Section(2, self._lineTrim[2:].strip()))
             return True
         
         if self._lineTrim.startswith("#"):
-            self._add_element(FountainSection(1, self._lineTrim[1:].strip()))
+            self._add_element(Section(1, self._lineTrim[1:].strip()))
             return True
         
         return False

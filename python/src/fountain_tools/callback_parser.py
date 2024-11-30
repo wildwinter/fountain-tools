@@ -1,12 +1,12 @@
 from .fountain import ElementType
-from .parser import FountainParser
+from .parser import Parser
 
 class TitleEntry:
     def __init__(self, key, value):
         self.key = key
         self.value = value
 
-class FountainCallbackParser(FountainParser):
+class CallbackParser(Parser):
     def __init__(self):
         super().__init__()
         # Array of TitleEntry
@@ -56,7 +56,7 @@ class FountainCallbackParser(FountainParser):
             self._lastChar = elem
             return
 
-        if elem.type == ElementType.PARENTHESIS:
+        if elem.type == ElementType.PARENTHETICAL:
             self._lastParen = elem
             return
 

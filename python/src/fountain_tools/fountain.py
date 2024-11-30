@@ -6,7 +6,7 @@ class ElementType(Enum):
     ACTION = "ACTION"
     CHARACTER = "CHARACTER"
     DIALOGUE = "DIALOGUE"
-    PARENTHESIS = "PARENTHESIS"
+    PARENTHETICAL = "PARENTHETICAL"
     LYRIC = "LYRIC"
     TRANSITION = "TRANSITION"
     PAGEBREAK = "PAGEBREAK"
@@ -16,7 +16,7 @@ class ElementType(Enum):
     SYNOPSIS = "SYNOPSIS"
 
 
-class FountainElement:
+class Element:
     def __init__(self, element_type, text):
         self.type = element_type
         self._text = text
@@ -42,7 +42,7 @@ class FountainElement:
 
 
 # Subclasses for specific element types
-class FountainTitleEntry(FountainElement):
+class TitleEntry(Element):
     def __init__(self, key, text):
         super().__init__(ElementType.TITLEENTRY, text)
         self.key = key
@@ -52,7 +52,7 @@ class FountainTitleEntry(FountainElement):
         return f'{self.type.value}:"{self.key}":"{self._text}"'
 
 
-class FountainAction(FountainElement):
+class Action(Element):
     def __init__(self, text, forced=False):
         # ACTION converts tabs to 4 spaces
         text = text.replace("\t", "    ")
@@ -67,7 +67,7 @@ class FountainAction(FountainElement):
         return out
 
 
-class FountainHeading(FountainElement):
+class SceneHeading(Element):
     def __init__(self, text, scene_number=None, forced=False):
         super().__init__(ElementType.HEADING, text)
         self.scene_number = scene_number
@@ -80,7 +80,7 @@ class FountainHeading(FountainElement):
         return out
 
 
-class FountainCharacter(FountainElement):
+class Character(Element):
     def __init__(self, text, name, extension=None, dual=False, forced=False):
         super().__init__(ElementType.CHARACTER, text)
         self.name = name
@@ -97,43 +97,43 @@ class FountainCharacter(FountainElement):
         return out
 
 
-class FountainDialogue(FountainElement):
+class Dialogue(Element):
     def __init__(self, text):
         super().__init__(ElementType.DIALOGUE, text)
 
 
-class FountainParenthesis(FountainElement):
+class Parenthetical(Element):
     def __init__(self, text):
-        super().__init__(ElementType.PARENTHESIS, text)
+        super().__init__(ElementType.PARENTHETICAL, text)
 
 
-class FountainLyric(FountainElement):
+class Lyric(Element):
     def __init__(self, text):
         super().__init__(ElementType.LYRIC, text)
 
 
-class FountainTransition(FountainElement):
+class Transition(Element):
     def __init__(self, text, forced=False):
         super().__init__(ElementType.TRANSITION, text)
         self.forced = forced
 
 
-class FountainPageBreak(FountainElement):
+class PageBreak(Element):
     def __init__(self):
         super().__init__(ElementType.PAGEBREAK, "")
 
 
-class FountainNote(FountainElement):
+class Note(Element):
     def __init__(self, text):
         super().__init__(ElementType.NOTE, text)
 
 
-class FountainBoneyard(FountainElement):
+class Boneyard(Element):
     def __init__(self, text):
         super().__init__(ElementType.BONEYARD, text)
 
 
-class FountainSection(FountainElement):
+class Section(Element):
     def __init__(self, level, text):
         super().__init__(ElementType.SECTION, text)
         self.level = level
@@ -141,14 +141,12 @@ class FountainSection(FountainElement):
     def dump(self):
         return f'{self.type.value}:"{self._text}" ({self.level})'
 
-
-class FountainSynopsis(FountainElement):
+class Synopsis(Element):
     def __init__(self, text):
         super().__init__(ElementType.SYNOPSIS, text)
 
-
 # Parsed script
-class FountainScript:
+class Script:
     def __init__(self):
         self.titleEntries = []
         self.elements = []

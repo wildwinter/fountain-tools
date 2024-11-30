@@ -38,7 +38,7 @@ public:
 
 private:
     std::shared_ptr<Character> _lastChar;
-    std::shared_ptr<Parenthesis> _lastParen;
+    std::shared_ptr<Parenthetical> _lastParen;
 
     void _handleNewElement(const std::shared_ptr<Element>& elem);
 };
