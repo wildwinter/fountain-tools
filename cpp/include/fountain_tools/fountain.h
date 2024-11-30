@@ -72,17 +72,13 @@ public:
         _updateText();
     }
 
-    bool isEmpty() const {
-        return _isEmpty;
-    }
-
     virtual std::string dump() const {
         return elementTypeToString(_type) + ":\"" + _textRaw + "\"";
     }
 
 protected:
     Element(ElementType type, const std::string& text)
-        : _type(type), _textRaw(text), _isEmpty(false) {
+        : _type(type), _textRaw(text) {
             _updateText();
     }
 
@@ -91,14 +87,12 @@ protected:
     void _updateText() {
         const std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
         _textClean = std::regex_replace(_textRaw, regex, "");
-        _isEmpty = isWhitespaceOrEmpty(_textRaw);
     }
 
 private: 
     std::string _textRaw;
      // Clean version doesn't have Note/Boneyard references
     std::string _textClean;
-    bool _isEmpty;
 
 };
 

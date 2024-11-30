@@ -65,7 +65,7 @@ protected:
 
     std::string _line = "";
     std::string _lineTrim = "";
-    bool _lastLineEmpty = false;
+    bool _lastLineWhitespaceOrEmpty = false;
     std::string _lastLine = "";
 
     bool _inDialogue = false;
@@ -73,7 +73,7 @@ protected:
     std::shared_ptr<Element> _getLastElement();
     void _addElement(std::shared_ptr<Element> element);
     void _parsePending();
-    
+
     bool _parseTitlePage();
 
     bool _parseSection();

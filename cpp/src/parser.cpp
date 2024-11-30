@@ -29,7 +29,7 @@ void Parser::addLines(const std::vector<std::string>& lines) {
 
 void Parser::addLine(const std::string& inputLine) {
     _lastLine = _line;
-    _lastLineEmpty = isWhitespaceOrEmpty(_line);
+    _lastLineWhitespaceOrEmpty = isWhitespaceOrEmpty(_line);
 
     _line = inputLine;
 
@@ -66,11 +66,13 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
 
     auto lastElement = _getLastElement();
 
-    if (element->getType() == ElementType::ACTION && element->isEmpty() &&
+    // Are we trying to add a blank action line?
+    if (element->getType() == ElementType::ACTION && isWhitespaceOrEmpty(element->getTextRaw()) &&
         !std::dynamic_pointer_cast<Action>(element)->isCentered()) {
 
         _inDialogue = false;
 
+        // If this follows an existing action line, put it on as possible padding.
         if (lastElement && lastElement->getType() == ElementType::ACTION) {
             _padActions.push_back(std::dynamic_pointer_cast<Action>(element));
             return;
@@ -78,6 +80,7 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
         return;
     }
 
+    // Add padding if there's some outstanding and we're just about to add another action.
     if (element->getType() == ElementType::ACTION && !_padActions.empty()) {
 
         if (mergeActions && lastElement && lastElement->getType() == ElementType::ACTION && 
@@ -97,6 +100,7 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
     
     _padActions.clear();
 
+    // If we're allowing actions to be merged, do it here.
     if (mergeActions && element->getType() == ElementType::ACTION &&
         !std::dynamic_pointer_cast<Action>(element)->isCentered()) {
 
@@ -116,15 +120,16 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
 }
 
 void Parser::_parsePending() {
+
     for (const auto& pendingItem : _pending) {
-        if (pendingItem->type == ElementType::TRANSITION) {
-            if (_lineTrim.empty() || _lineTrim.find_first_not_of(" \t") == std::string::npos) {
+        if (pendingItem->type == ElementType::TRANSITION) { 
+            if (isWhitespaceOrEmpty(_lineTrim)) { // Blank line, so it's definitely a transition
                 _addElement(pendingItem->element);
             } else {
                 _addElement(pendingItem->backup);
             }
         } else if (pendingItem->type == ElementType::CHARACTER) {
-            if (!_lineTrim.empty() && _lineTrim.find_first_not_of(" \t") != std::string::npos) {
+            if (!isWhitespaceOrEmpty(_lineTrim)) { // Filled line, so it's definitely a piece of dialogue
                 _addElement(pendingItem->element);
             } else {
                 _addElement(pendingItem->backup);
@@ -139,7 +144,7 @@ bool Parser::_parseTitlePage() {
     static const std::regex regexTitleMultilineEntry(R"(^( {3,}|\t))");
 
     std::smatch match;
-    if (std::regex_match(_line, match, regexTitleEntry)) {
+    if (std::regex_match(_line, match, regexTitleEntry)) { // It's of form key:text
         std::string key = match[1].str();
         std::string value = match[2].str();
 
@@ -148,11 +153,13 @@ bool Parser::_parseTitlePage() {
         return true;
     }
 
-    if (_multiLineTitleEntry && std::regex_search(_line, match, regexTitleMultilineEntry)) {
-        if (!_script->getTitleEntries().empty()) {
-            _script->getTitleEntries().back()->appendLine(_line);
+    if (_multiLineTitleEntry) {
+        if (std::regex_search(_line, match, regexTitleMultilineEntry)) { // If we're expecting text on this line
+            if (!_script->getTitleEntries().empty()) {
+                _script->getTitleEntries().back()->appendLine(_line);
+            }
+            return true;
         }
-        return true;
     }
 
     _inTitlePage = false;
@@ -160,6 +167,7 @@ bool Parser::_parseTitlePage() {
 }
 
 bool Parser::_parseSection() {
+
     if (_lineTrim.rfind("###", 0) == 0) {
         _addElement(std::make_shared<Section>(trim(_lineTrim.substr(3)), 3));
         return true;
@@ -179,6 +187,7 @@ bool Parser::_parseSection() {
 }
 
 bool Parser::_parseLyrics() {
+
     if (_lineTrim.starts_with("~")) {
         // Create and add a FountainLyric element
         _addElement(std::make_shared<Lyric>(trim(_lineTrim.substr(1))));
@@ -192,7 +201,7 @@ bool Parser::_parseSynopsis() {
     
      std::smatch match;
     if (std::regex_search(_lineTrim, match, synopsisRegex)) {
-        // Create and add a FountainSynopsis element
+
         _addElement(std::make_shared<Synopsis>(trim(_lineTrim.substr(1))));
         return true;
     }
@@ -200,6 +209,7 @@ bool Parser::_parseSynopsis() {
 }
 
 std::optional<Parser::SceneHeadingInfo> Parser::_decodeSceneHeading(const std::string& line) {
+    // Matching heading followed by an optional sceneNumber (which is numbers/letters/dash surrounded by #)
     std::regex regex(R"((.*?)(?:\s*#([a-zA-Z0-9\-.]+?)#)?)");
     std::smatch match;
 
@@ -212,12 +222,9 @@ std::optional<Parser::SceneHeadingInfo> Parser::_decodeSceneHeading(const std::s
 }
 
 bool Parser::_parseForcedSceneHeading() {
-
-        // Regex to match scene headings
     static const std::regex regexHeading(R"(^\.[a-zA-Z0-9])");
 
-    // Check if the trimmed line matches the regex
-    std::smatch match; // Holds the match result
+    std::smatch match; 
     if (std::regex_search(_lineTrim, match, regexHeading)) {
         auto heading = _decodeSceneHeading(_lineTrim.substr(1));
         if (heading) {
@@ -229,14 +236,12 @@ bool Parser::_parseForcedSceneHeading() {
 }
 
 bool Parser::_parseSceneHeading() {
-    // Regex to match scene headings
     static const std::regex regexHeading(
         R"(^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*))",
         std::regex::icase
     );
 
-    // Check if the trimmed line matches the regex
-     std::smatch match; // Holds the match result
+    std::smatch match; 
     if (std::regex_search(_lineTrim, match, regexHeading)) {
         auto headingOpt = _decodeSceneHeading(_lineTrim); // Decode the heading text and optional scene number
         if (headingOpt) {
@@ -250,8 +255,8 @@ bool Parser::_parseSceneHeading() {
 }
 
 bool Parser::_parseForcedTransition() {
+
     if (_lineTrim.starts_with(">") && !_lineTrim.ends_with("<")) {
-        // Add a forced FountainTransition element with trimmed content
         _addElement(std::make_shared<Transition>(trim(_lineTrim.substr(1)), true));
         return true;
     }
@@ -264,8 +269,9 @@ bool Parser::_parseTransition() {
     static const std::regex regexTransition(R"(^\s*(?:[A-Z\s]+TO:)\s*$)");
 
     // Check if the line matches the regex and if the last line was empty
-    if (std::regex_match(_lineTrim, regexTransition) && _lastLineEmpty) {
-        // Add a new PendingElement to the pending vector
+    if (std::regex_match(_lineTrim, regexTransition) && _lastLineWhitespaceOrEmpty) {
+
+        // Pending - only counts as an actual transition if the next line is empty
         _pending.push_back(std::make_shared<PendingElement>(PendingElement{
             ElementType::TRANSITION,
             std::make_shared<Transition>(_lineTrim),
@@ -278,10 +284,9 @@ bool Parser::_parseTransition() {
 }
 
 bool Parser::_parseParenthesis() {
-    // Regex to match parenthesis lines
+
     static const std::regex regexParenthesis(R"(^\s*\((.*)\)\s*$)");
 
-    // Match the current line against the regex
     std::smatch match;
     if (std::regex_match(_line, match, regexParenthesis)) {
         auto lastElement = _getLastElement();
@@ -289,7 +294,7 @@ bool Parser::_parseParenthesis() {
         // Check if the match was successful, we're in dialogue, and the last element is valid
         if (_inDialogue && lastElement != nullptr &&
             (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::DIALOGUE)) {
-            // Add a new FountainParenthesis element
+
             _addElement(std::make_shared<Parenthesis>(match[1].str()));
             return true;
         }
@@ -299,29 +304,30 @@ bool Parser::_parseParenthesis() {
 }
 
 std::optional<Parser::CharacterInfo> Parser::_decodeCharacter(const std::string& line) {
-    // Regex to match "(CONT'D)"
+    // Get rid of any variants of "(CONT'D)"
     std::string noContLine = replaceAll(line, "(CONT'D)", "");
     noContLine = replaceAll(noContLine, "(CONT’D)", "");
     noContLine = trim(noContLine);
 
-    // Regex to match a character line
     static const std::regex regexCharacter(R"(^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$)");
     std::smatch match;
 
     if (std::regex_match(noContLine, match, regexCharacter)) {
         std::string name = match[1].str();
         std::optional<std::string> extension = match[2].matched ? std::optional(match[2].str()) : std::nullopt;
-        bool dual = noContLine.back() == '^';
+        bool isDualDialogue = noContLine.back() == '^';
 
         // Return a populated CharacterInfo struct
-        return CharacterInfo{name, extension, dual};
+        return CharacterInfo{name, extension, isDualDialogue};
     }
     return std::nullopt; // No match found
 }
 
 bool Parser::_parseForcedCharacter() {
+
     // Check if the line starts with "@"
     if (_lineTrim.starts_with("@")) {
+
         // Remove the "@" prefix and trim the remaining string
         std::string trimmedLine = _lineTrim.substr(1);
         trimmedLine = trim(trimmedLine);
@@ -341,18 +347,18 @@ bool Parser::_parseForcedCharacter() {
 }
 
 bool Parser::_parseCharacter() {
+    // Get rid of any variants of "(CONT'D)"
     std::string noContLineTrim = replaceAll(_lineTrim, "(CONT'D)", "");
     noContLineTrim = replaceAll(noContLineTrim, "(CONT’D)", "");
     noContLineTrim = trim(noContLineTrim);
 
-    // Regex to identify character lines
     static const std::regex regexCharacter(R"(^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$)");
-    if (_lastLineEmpty && std::regex_match(noContLineTrim, regexCharacter)) {
+    if (_lastLineWhitespaceOrEmpty && std::regex_match(noContLineTrim, regexCharacter)) {
         auto characterOpt = _decodeCharacter(noContLineTrim); // Decode the character line
         if (characterOpt) {
             auto character = *characterOpt;
 
-            // Add a new PendingElement to the pending vector
+            // Can't 100% guarantee this is a character until next line
             _pending.push_back(std::make_shared<PendingElement>(PendingElement{
                 ElementType::CHARACTER,
                 std::make_shared<Character>(noContLineTrim, character.name, character.extension, character.dual),
@@ -376,10 +382,11 @@ bool Parser::_parseDialogue() {
         return true;
     }
 
-    // If last element is DIALOGUE
+    // Was the previous line dialogue? If so, offer possibility of merge
     if (lastElement != nullptr && lastElement->getType() == ElementType::DIALOGUE) {
-        // Handle continuation after an empty line
-        if (_lastLineEmpty && !_lastLine.empty()) {
+
+        // Special case - line-break in Dialogue. Only valid with more than one white-space character in the line.
+        if (_lastLineWhitespaceOrEmpty && !_lastLine.empty()) {
             if (mergeDialogue) {
                 lastElement->appendLine("");
                 lastElement->appendLine(_lineTrim);
@@ -390,8 +397,8 @@ bool Parser::_parseDialogue() {
             return true;
         }
 
-        // Handle continuation on the same line
-        if (!_lastLineEmpty && !_lineTrim.empty()) {
+        // Merge if the last line wasn't empty
+        if (!_lastLineWhitespaceOrEmpty && !_lineTrim.empty()) {
             if (mergeDialogue) {
                 lastElement->appendLine(_lineTrim);
             } else {
@@ -414,15 +421,14 @@ bool Parser::_parseForcedAction() {
 
 bool Parser::_parseCenteredAction() {
     // Check if lineTrim starts with ">" and ends with "<"
+    
     if (_lineTrim.starts_with(">") && _lineTrim.ends_with("<")) {
         // Extract the content between ">" and "<"
         std::string content = _lineTrim.substr(1, _lineTrim.length() - 2);
 
-        // Create a new FountainAction element and mark it as centered
         auto centeredElement = std::make_shared<Action>(content);
         centeredElement->setCentered(true);
 
-        // Add the centered element to the script
         _addElement(centeredElement);
         return true;
     }

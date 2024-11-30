@@ -423,6 +423,7 @@ export class FountainParser {
                 return true;
             }
 
+            // Merge if the last line wasn't empty
             if (!this._lastLineEmpty && this._lineTrim.length>0) {
                 if (this.mergeDialogue)
                     lastElem.appendLine(this._lineTrim);
