@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "test": "mocha",
-    "dist": "rm -rf ./dist && npx rollup -c",
+    "dist": "rm -rf ./dist && npx rollup -c && cp ../README.md ./dist",
     "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist"
   },
   "keywords": [],

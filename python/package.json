@@ -2,7 +2,7 @@
     "name": "fountain-tools-py",
     "scripts": {
         "test": "python3 -m unittest discover -s tests",
-        "dist": "rm -rf ./dist && python3 create_dist.py",
+        "dist": "rm -rf ./dist && python3 create_dist.py && cp ../README.md ./dist",
         "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist"
     }
   }

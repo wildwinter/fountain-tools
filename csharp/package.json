@@ -5,7 +5,7 @@
         "build": "cd FountainTools && dotnet build",
         "build-release": "npm run clean && cd FountainTools && dotnet build -c Release",
         "test": "npm run build && cd FountainTools.Tests && dotnet test",
-        "dist": "rm -rf ./dist && npm run build-release && mkdir -p ./dist && cp ./FountainTools/bin/Release/net8.0/FountainTools.dll ./dist",
+        "dist": "rm -rf ./dist && npm run build-release && mkdir -p ./dist && cp ./FountainTools/bin/Release/net8.0/FountainTools.dll ./dist && cp ../README.md ./dist",
         "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist"
     }
   }
