@@ -9,7 +9,7 @@ public class FountainParser
     public bool MergeDialogue = true;
     protected bool inTitlePage = true;
 
-    private bool multiLineHeader = false;
+    private bool multiLineTitleEntry = false;
     private string lineBeforeBoneyard="";
     private FountainBoneyard? boneyard;
     private string lineBeforeNote="";
@@ -294,15 +294,15 @@ public class FountainParser
         if (match.Success)
         {
             var text = match.Groups[2].Value;
-            Script.Headers.Add(new FountainTitleEntry(match.Groups[1].Value, text));
-            multiLineHeader = string.IsNullOrEmpty(text);
+            Script.TitleEntries.Add(new FountainTitleEntry(match.Groups[1].Value, text));
+            multiLineTitleEntry = string.IsNullOrEmpty(text);
             return true;
         }
 
-        if (multiLineHeader && regexTitleMultilineEntry.IsMatch(line))
+        if (multiLineTitleEntry && regexTitleMultilineEntry.IsMatch(line))
         {
-            var header = Script.Headers[^1];
-            header.AppendLine(line);
+            var entry = Script.TitleEntries[^1];
+            entry.AppendLine(line);
             return true;
         }
 

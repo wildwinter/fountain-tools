@@ -29,7 +29,7 @@ class FountainParser:
 
         # State management variables
         self._inTitlePage = True
-        self._multiLineHeader = False
+        self._multiLineTitleEntry = False
 
         self._lineBeforeBoneyard = ""
         self._boneyard = None
@@ -189,15 +189,15 @@ class FountainParser:
         if match:
             # It's of form key:text
             text = match.group(2)
-            self.script.headers.append(FountainTitleEntry(match.group(1), text))
-            self._multiLineHeader = len(text) == 0
+            self.script.titleEntries.append(FountainTitleEntry(match.group(1), text))
+            self._multiLineTitleEntry = len(text) == 0
             return True
 
-        if self._multiLineHeader:
+        if self._multiLineTitleEntry:
             # If we're expecting text on this line
             if regex_title_multiline_entry.match(self._line):
-                header = self.script.headers[-1]
-                header.append_line(self._line)
+                entry = self.script.titleEntries[-1]
+                entry.append_line(self._line)
                 return True
 
         self._inTitlePage = False

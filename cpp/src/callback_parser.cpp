@@ -20,8 +20,8 @@ void FountainCallbackParser::addLine(const std::string& inputLine) {
         // Finished reading title page
         if (onTitlePage) {
             std::vector<TitleEntry> entries;
-            for (const auto& header : script->headers) {
-                entries.emplace_back(TitleEntry(header->key, header->getTextRaw()));
+            for (const auto& entry : script->titleEntries) {
+                entries.emplace_back(TitleEntry(entry->key, entry->getTextRaw()));
             }
             onTitlePage(entries);
         }

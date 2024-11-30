@@ -64,12 +64,12 @@ std::string replaceBoneyards(const std::string& text, const FountainScript& scri
 std::string FountainWriter::write(const FountainScript& script) {
     std::vector<std::string> lines;
 
-    // Write headers
-    if (!script.headers.empty()) {
-        for (const auto& header : script.headers) {
-            lines.push_back(writeElement(header));
+    // Write title entries
+    if (!script.titleEntries.empty()) {
+        for (const auto& entry : script.titleEntries) {
+            lines.push_back(writeElement(entry));
         }
-        lines.push_back(""); // Add a blank line after headers
+        lines.push_back(""); // Add a blank line after titles
     }
 
     // Write elements

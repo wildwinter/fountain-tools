@@ -195,7 +195,7 @@ export class FountainSynopsis extends FountainElement {
 export class FountainScript {
     
     constructor() {
-        this.headers = [];
+        this.titleEntries = [];
         this.elements = []; 
         this.notes = [];
         this.boneyards = [];
@@ -203,8 +203,8 @@ export class FountainScript {
 
     dump() {
         let lines = [];
-        for (const header of this.headers) {
-            lines.push(`${header.dump()}`);
+        for (const entry of this.titleEntries) {
+            lines.push(`${entry.dump()}`);
         }
         for (const element of this.elements) {
             lines.push(`${element.dump()}`);

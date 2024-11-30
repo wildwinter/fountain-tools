@@ -12,10 +12,10 @@ class FountainWriter:
     def write(self, script):
         lines = []
 
-        # Process headers
-        if len(script.headers) > 0:
-            for header in script.headers:
-                lines.append(self._write_elem(header))
+        # Process title entries
+        if len(script.titleEntries) > 0:
+            for entry in script.titleEntries:
+                lines.append(self._write_elem(entry))
             lines.append("")
 
         last_elem = None

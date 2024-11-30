@@ -15,7 +15,7 @@ export class FountainParser {
         this.mergeDialogue = true;
 
         this._inTitlePage = true;
-        this._multiLineHeader = false;
+        this._multiLineTitleEntry = false;
         
         this._lineBeforeBoneyard = "";
         this._boneyard = null;
@@ -213,16 +213,16 @@ export class FountainParser {
         let match = this._line.match(regexTitleEntry);
         if (match) {    // It's of form key:text
             let text = match[2];
-            this.script.headers.push(new FountainTitleEntry( match[1], text) ); 
-            this._multiLineHeader = (text.length==0);
+            this.script.titleEntries.push(new FountainTitleEntry( match[1], text) ); 
+            this._multiLineTitleEntry = (text.length==0);
             return true
 
         } 
         
-        if (this._multiLineHeader) { // If we're expecting text on this line
+        if (this._multiLineTitleEntry) { // If we're expecting text on this line
             if (regexTitleMultilineEntry.test(this._line)) {
-                let header = this.script.headers[this.script.headers.length-1];
-                header.appendLine(this._line);
+                let entry = this.script.titleEntries[this.script.titleEntries.length-1];
+                entry.appendLine(this._line);
                 return true;
             }
 

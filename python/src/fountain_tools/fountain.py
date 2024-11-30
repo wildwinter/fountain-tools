@@ -156,15 +156,15 @@ class FountainSynopsis(FountainElement):
 # Parsed script
 class FountainScript:
     def __init__(self):
-        self.headers = []
+        self.titleEntries = []
         self.elements = []
         self.notes = []
         self.boneyards = []
 
     def dump(self):
         lines = []
-        for header in self.headers:
-            lines.append(header.dump())
+        for entry in self.titleEntries:
+            lines.append(entry.dump())
         for element in self.elements:
             lines.append(element.dump())
         for i, note in enumerate(self.notes):

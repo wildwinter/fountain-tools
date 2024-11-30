@@ -266,13 +266,13 @@ public:
 // Composite class for parsed script
 class FountainScript {
 public:
-    std::vector<std::shared_ptr<FountainTitleEntry>> headers;
+    std::vector<std::shared_ptr<FountainTitleEntry>> titleEntries;
     std::vector<std::shared_ptr<FountainElement>> elements;
     std::vector<std::shared_ptr<FountainNote>> notes; 
     std::vector<std::shared_ptr<FountainBoneyard>> boneyards;
 
-    void addHeader(const std::shared_ptr<FountainTitleEntry>& header) {
-        headers.push_back(header);
+    void addTitleEntry(const std::shared_ptr<FountainTitleEntry>& titleEntry) {
+        titleEntries.push_back(titleEntry);
     }
 
     void addElement(const std::shared_ptr<FountainElement>& element) {
@@ -283,8 +283,8 @@ public:
 
         std::vector<std::string> lines;
 
-        for (const auto& header : headers) {
-            lines.push_back(header->dump());
+        for (const auto& titleEntry : titleEntries) {
+            lines.push_back(titleEntry->dump());
         }
         for (const auto& element : elements) {
             lines.push_back(element->dump());

@@ -18,15 +18,15 @@ public class FountainWriter
     {
         var lines = new List<string>();
 
-        // Write headers
-        if (script.Headers.Count > 0)
+        // Write title entries
+        if (script.TitleEntries.Count > 0)
         {
-            foreach (var header in script.Headers)
+            foreach (var entry in script.TitleEntries)
             {
-                lines.Add(WriteElement(header));
+                lines.Add(WriteElement(entry));
             }
 
-            lines.Add(""); // Add a blank line after headers
+            lines.Add(""); // Add a blank line after titles
         }
 
         // Write elements

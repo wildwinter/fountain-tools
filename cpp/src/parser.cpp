@@ -264,14 +264,14 @@ bool FountainParser::parseTitlePage() {
         std::string key = match[1].str();
         std::string value = match[2].str();
 
-        script->addHeader(std::make_shared<FountainTitleEntry>(key, value));
-        multiLineHeader = value.empty();
+        script->addTitleEntry(std::make_shared<FountainTitleEntry>(key, value));
+        multiLineTitleEntry = value.empty();
         return true;
     }
 
-    if (multiLineHeader && std::regex_search(line, match, regexTitleMultilineEntry)) {
-        if (!script->headers.empty()) {
-            script->headers.back()->appendLine(line);
+    if (multiLineTitleEntry && std::regex_search(line, match, regexTitleMultilineEntry)) {
+        if (!script->titleEntries.empty()) {
+            script->titleEntries.back()->appendLine(line);
         }
         return true;
     }

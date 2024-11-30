@@ -55,8 +55,8 @@ export class FountainCallbackParser extends FountainParser {
             // Finished reading title page
             if (this.onTitlePage) {
                 let entries = [];
-                for (const header of this.script.headers) {
-                    entries.push({"key":header.key, "value":header.text});
+                for (const entry of this.script.titleEntries) {
+                    entries.push({"key":entry.key, "value":entry.text});
                 }
                 this.onTitlePage(entries);
             }

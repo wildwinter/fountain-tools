@@ -13,10 +13,10 @@ export class FountainWriter {
 
         let lines = [];
 
-        if (script.headers.length>0) {
+        if (script.titleEntries.length>0) {
 
-            for (const header of script.headers) {
-                lines.push(this._writeElem(header));
+            for (const entry of script.titleEntries) {
+                lines.push(this._writeElem(entry));
             }
 
             lines.push("");

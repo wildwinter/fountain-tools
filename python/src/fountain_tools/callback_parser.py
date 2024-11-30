@@ -44,7 +44,7 @@ class FountainCallbackParser(FountainParser):
         if in_title_page and not self._inTitlePage:
             # Finished reading title page
             if self.onTitlePage:
-                entries = [TitleEntry(header.key, header.text) for header in self.script.headers]
+                entries = [TitleEntry(entry.key, entry.text) for entry in self.script.titleEntries]
                 self.onTitlePage(entries)
 
         while element_count < len(self.script.elements):

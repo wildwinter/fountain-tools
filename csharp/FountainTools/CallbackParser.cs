@@ -62,9 +62,9 @@ public class FountainCallbackParser : FountainParser
             if (OnTitlePage != null)
             {
                 var entries = new List<TitleEntry>();
-                foreach (var header in Script.Headers)
+                foreach (var entry in Script.TitleEntries)
                 {
-                    entries.Add(new TitleEntry{Key = header.Key, Value = header.TextRaw})
+                    entries.Add(new TitleEntry{Key = entry.Key, Value = entry.TextRaw})
 ;               }
                 OnTitlePage(entries);
             }

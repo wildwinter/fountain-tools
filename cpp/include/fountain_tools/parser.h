@@ -39,7 +39,7 @@ protected:
     };
 
     bool inTitlePage = true;
-    bool multiLineHeader = false;
+    bool multiLineTitleEntry = false;
 
     std::string lineBeforeBoneyard = "";
     std::shared_ptr<FountainBoneyard> boneyard = nullptr;

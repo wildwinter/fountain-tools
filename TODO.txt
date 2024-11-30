@@ -3,5 +3,3 @@ Sort out dists for all platforms
 Look at localisation / tags?
 
 Reorganise files
-
-Rename headers
