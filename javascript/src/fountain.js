@@ -8,7 +8,7 @@ export const Element = Object.freeze({
     LYRIC: "LYRIC",
     TRANSITION: "TRANSITION",
     PAGEBREAK: "PAGEBREAK",
-    NOTES: "NOTES",
+    NOTE: "NOTE",
     BONEYARD: "BONEYARD",
     SECTION: "SECTION",
     SYNOPSIS: "SYNOPSIS"

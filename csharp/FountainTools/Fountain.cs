@@ -15,7 +15,7 @@ public enum Element
     LYRIC,
     TRANSITION,
     PAGEBREAK,
-    NOTES,
+    NOTE,
     BONEYARD,
     SECTION,
     SYNOPSIS
@@ -217,7 +217,7 @@ public class FountainPageBreak : FountainElement
 public class FountainNote : FountainElement
 {
     public FountainNote(string text)
-        : base(Element.NOTES, text) { }
+        : base(Element.NOTE, text) { }
 
     public override string Dump()
     {
