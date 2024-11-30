@@ -24,37 +24,37 @@ public class CallbackParserTest
 
         FountainCallbackParser fp = new FountainCallbackParser();
 
-        fp.OnDialogue = args => {
+        fp.OnDialogue = (Character, Extension, Parenthetical, Line, IsDualDialogue) => {
             outLines.Add("DIALOGUE:"+
-                " character:"+args.Character+
-                " extension:"+asNull(args.Extension)+
-                " parenthetical:"+asNull(args.Parenthetical)+
-                " line:"+args.Line+
-                " dual:"+args.Dual);
+                " character:"+Character+
+                " extension:"+asNull(Extension)+
+                " parenthetical:"+asNull(Parenthetical)+
+                " line:"+Line+
+                " dual:"+IsDualDialogue);
         };
 
-        fp.OnAction = args => {
-            outLines.Add("ACTION: text:"+args.Text);
+        fp.OnAction = (Text) => {
+            outLines.Add("ACTION: text:"+Text);
         };
 
-        fp.OnSceneHeading = args => {
-            outLines.Add("HEADING: text:"+args.Text+" sceneNum:"+asNull(args.SceneNumber));
+        fp.OnSceneHeading = (Text, SceneNumber) => {
+            outLines.Add("HEADING: text:"+Text+" sceneNum:"+asNull(SceneNumber));
         };
 
-        fp.OnLyrics = args => {
-            outLines.Add("LYRICS: text:"+args.Text);
+        fp.OnLyrics = (Text) => {
+            outLines.Add("LYRICS: text:"+Text);
         };
 
-        fp.OnTransition = args => {
-            outLines.Add("TRANSITION: text:"+args.Text);
+        fp.OnTransition = (Text) => {
+            outLines.Add("TRANSITION: text:"+Text);
         };
 
-        fp.OnSection = args => {
-            outLines.Add("SECTION: level:"+args.Level+" text:"+args.Text);
+        fp.OnSection = (Text, Level) => {
+            outLines.Add("SECTION: level:"+Level+" text:"+Text);
         };
 
-        fp.OnSynopsis = args => {
-            outLines.Add("SYNOPSIS: text:"+args.Text);
+        fp.OnSynopsis = (Text) => {
+            outLines.Add("SYNOPSIS: text:"+Text);
         };
 
         fp.OnPageBreak = () => {

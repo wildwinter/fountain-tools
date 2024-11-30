@@ -1,7 +1,7 @@
 # fountain-tools
  Multi-language utils for the Fountain scriptwriting format.
 
-
+https://fountain.io/syntax/
 # Parsing a file
 ```
 import {FountainParser} from "fountainTools.js";

@@ -7,42 +7,33 @@ public class FountainCallbackParser : FountainParser
         public required string Value;
     };
 
-    public class Dialogue
-    {
-        public required string Character { get; set; }
-        public string? Extension { get; set; }
-        public string? Parenthetical { get; set; }
-        public required string Line { get; set; }
-        public bool Dual { get; set; }
-    }
-
-    public class TextElement
-    {
-        public required string Text { get; set; }
-    }
-
-    public class SceneHeading
-    {
-        public required string Text { get; set; }
-        public string? SceneNumber { get; set; }
-    }
-
-    public class Section
-    {
-        public required string Text { get; set; }
-        public int Level { get; set; }
-    }
-
-    // Callback properties
+    // List of TitleEntry
     public Action<List<TitleEntry>>? OnTitlePage { get; set; }
-    public Action<Dialogue>? OnDialogue { get; set; }
-    public Action<TextElement>? OnAction { get; set; }
-    public Action<SceneHeading>? OnSceneHeading { get; set; }
-    public Action<TextElement>? OnLyrics { get; set; }
-    public Action<TextElement>? OnTransition { get; set; }
-    public Action<Section>? OnSection { get; set; }
-    public Action<TextElement>? OnSynopsis { get; set; }
+
+     // character:string, extension:string, parenthetical:string, line:string, isDualDialogue:bool
+    public Action<string, string?, string?, string, bool>? OnDialogue { get; set; }
+    
+    // text:string
+    public Action<string>? OnAction { get; set; }
+
+    // text:string, sceneNumber:string
+    public Action<string, string?>? OnSceneHeading { get; set; }
+
+    // text:string
+    public Action<string>? OnLyrics { get; set; }
+    
+    // text:string
+    public Action<string>? OnTransition { get; set; }
+    
+    // text:string, level:int
+    public Action<string, int>? OnSection { get; set; }
+    
+    // text:string
+    public Action<string>? OnSynopsis { get; set; }
+    
+     // No params 
     public Action? OnPageBreak { get; set; }
+
 
     public bool IgnoreBlanks { get; set; } = true;
 
@@ -101,20 +92,18 @@ public class FountainCallbackParser : FountainParser
             case Element.DIALOGUE:
                 if (_lastChar != null)
                 {
-                    var dialogue = new Dialogue
-                    {
-                        Character = _lastChar.Name,
-                        Extension = _lastChar.Extension,
-                        Parenthetical = _lastParen?.TextRaw,
-                        Line = elem.TextRaw,
-                        Dual = _lastChar.IsDualDialogue
-                    };
+                    var character = _lastChar.Name;
+                    var extension = _lastChar.Extension;
+                    var parenthetical = _lastParen?.TextRaw;
+                    var line = elem.TextRaw;
+                    var isDualDialogue = _lastChar.IsDualDialogue;
+                    
                     _lastParen = null;
 
-                    if (IgnoreBlanks && string.IsNullOrWhiteSpace(dialogue.Line))
+                    if (IgnoreBlanks && string.IsNullOrWhiteSpace(line))
                         return;
 
-                    OnDialogue?.Invoke(dialogue);
+                    OnDialogue?.Invoke(character, extension, parenthetical, line, isDualDialogue);
                 }
                 break;
 
@@ -122,7 +111,7 @@ public class FountainCallbackParser : FountainParser
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
-                OnAction?.Invoke(new TextElement { Text = elem.TextRaw });
+                OnAction?.Invoke(elem.TextRaw);
                 break;
 
             case Element.HEADING:
@@ -130,30 +119,30 @@ public class FountainCallbackParser : FountainParser
                     return;
 
                 var heading = (FountainHeading)elem;
-                OnSceneHeading?.Invoke(new SceneHeading { Text = heading.TextRaw, SceneNumber = heading.SceneNumber });
+                OnSceneHeading?.Invoke(heading.TextRaw, heading.SceneNumber);
                 break;
 
             case Element.LYRIC:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
-                OnLyrics?.Invoke(new TextElement { Text = elem.TextRaw });
+                OnLyrics?.Invoke(elem.TextRaw);
                 break;
 
             case Element.TRANSITION:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
-                OnTransition?.Invoke(new TextElement { Text = elem.TextRaw });
+                OnTransition?.Invoke(elem.TextRaw);
                 break;
 
             case Element.SECTION:
                 var section = (FountainSection)elem;
-                OnSection?.Invoke(new Section { Text = section.TextRaw, Level = section.Level });
+                OnSection?.Invoke(section.TextRaw, section.Level);
                 break;
 
             case Element.SYNOPSIS:
-                OnSynopsis?.Invoke(new TextElement { Text = elem.TextRaw });
+                OnSynopsis?.Invoke(elem.TextRaw);
                 break;
 
             case Element.PAGEBREAK:
