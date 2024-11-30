@@ -73,17 +73,17 @@ std::string FountainWriter::write(const FountainScript& script) {
     }
 
     // Write elements
-    std::shared_ptr<FountainElement> lastElem = nullptr;
+    std::shared_ptr<Element> lastElem = nullptr;
 
     for (const auto& element : script.elements) {
         // Determine padding
         bool padBefore = false;
-        if (element->getType() == Element::CHARACTER || 
-            element->getType() == Element::TRANSITION || 
-            element->getType() == Element::HEADING) {
+        if (element->getType() == ElementType::CHARACTER || 
+            element->getType() == ElementType::TRANSITION || 
+            element->getType() == ElementType::HEADING) {
             padBefore = true;
-        } else if (element->getType() == Element::ACTION) {
-            padBefore = !lastElem || lastElem->getType() != Element::ACTION;
+        } else if (element->getType() == ElementType::ACTION) {
+            padBefore = !lastElem || lastElem->getType() != ElementType::ACTION;
         }
 
         if (padBefore) {
@@ -106,58 +106,58 @@ std::string FountainWriter::write(const FountainScript& script) {
     return trim(text);
 }
 
-std::string FountainWriter::writeElement(const std::shared_ptr<FountainElement>& elem) {
+std::string FountainWriter::writeElement(const std::shared_ptr<Element>& elem) {
     switch (elem->getType()) {
-        case Element::CHARACTER:
-            return writeCharacter(std::dynamic_pointer_cast<FountainCharacter>(elem));
-        case Element::DIALOGUE:
-            return writeDialogue(std::dynamic_pointer_cast<FountainDialogue>(elem));
-        case Element::PARENTHESIS:
-            return writeParenthesis(std::dynamic_pointer_cast<FountainParenthesis>(elem));
-        case Element::ACTION:
-            return writeAction(std::dynamic_pointer_cast<FountainAction>(elem));
-        case Element::LYRIC:
+        case ElementType::CHARACTER:
+            return writeCharacter(std::dynamic_pointer_cast<Character>(elem));
+        case ElementType::DIALOGUE:
+            return writeDialogue(std::dynamic_pointer_cast<Dialogue>(elem));
+        case ElementType::PARENTHESIS:
+            return writeParenthesis(std::dynamic_pointer_cast<Parenthesis>(elem));
+        case ElementType::ACTION:
+            return writeAction(std::dynamic_pointer_cast<Action>(elem));
+        case ElementType::LYRIC:
             return "~ " + elem->getTextRaw();
-        case Element::SYNOPSIS:
+        case ElementType::SYNOPSIS:
             return "= " + elem->getTextRaw();
-        case Element::TITLEENTRY:
-            return std::dynamic_pointer_cast<FountainTitleEntry>(elem)->key + ": " + elem->getTextRaw();
-        case Element::HEADING:
-            return writeHeading(std::dynamic_pointer_cast<FountainHeading>(elem));
-        case Element::TRANSITION:
-            return writeTransition(std::dynamic_pointer_cast<FountainTransition>(elem));
-        case Element::PAGEBREAK:
+        case ElementType::TITLEENTRY:
+            return std::dynamic_pointer_cast<TitleEntry>(elem)->getKey() + ": " + elem->getTextRaw();
+        case ElementType::HEADING:
+            return writeHeading(std::dynamic_pointer_cast<SceneHeading>(elem));
+        case ElementType::TRANSITION:
+            return writeTransition(std::dynamic_pointer_cast<Transition>(elem));
+        case ElementType::PAGEBREAK:
             return "===";
-        case Element::SECTION:
-            return std::string(std::dynamic_pointer_cast<FountainSection>(elem)->level, '#') + " " + elem->getTextRaw();
+        case ElementType::SECTION:
+            return std::string(std::dynamic_pointer_cast<Section>(elem)->getLevel(), '#') + " " + elem->getTextRaw();
         default:
             lastChar.clear();
             return "";
     }
 }
 
-std::string FountainWriter::writeCharacter(const std::shared_ptr<FountainCharacter>& elem) {
+std::string FountainWriter::writeCharacter(const std::shared_ptr<Character>& elem) {
     std::string pad = prettyPrint ? std::string(3, '\t') : "";
-    std::string charText = elem->name;
+    std::string charText = elem->getName();
 
-    if (elem->isDualDialogue) {
+    if (elem->isDualDialogue()) {
         charText += " ^";
     }
-    if (elem->extension.has_value()) {
-        charText += " (" + elem->extension.value() + ")";
+    if (elem->getExtension().has_value()) {
+        charText += " (" + elem->getExtension().value() + ")";
     }
-    if (elem->forced) {
+    if (elem->isForced()) {
         charText = "@" + charText;
     }
-    if (lastChar == elem->name) {
+    if (lastChar == elem->getName()) {
         charText += " (CONT'D)";
     }
 
-    lastChar = elem->name;
+    lastChar = elem->getName();
     return pad + charText;
 }
 
-std::string FountainWriter::writeDialogue(const std::shared_ptr<FountainDialogue>& elem) {
+std::string FountainWriter::writeDialogue(const std::shared_ptr<Dialogue>& elem) {
     std::istringstream iss(elem->getTextRaw());
     std::ostringstream oss;
     std::string line;
@@ -179,32 +179,32 @@ std::string FountainWriter::writeDialogue(const std::shared_ptr<FountainDialogue
     return output;
 }
 
-std::string FountainWriter::writeParenthesis(const std::shared_ptr<FountainParenthesis>& elem) {
+std::string FountainWriter::writeParenthesis(const std::shared_ptr<Parenthesis>& elem) {
     std::string pad = prettyPrint ? std::string(2, '\t') : "";
     return pad + "(" + elem->getTextRaw() + ")";
 }
 
-std::string FountainWriter::writeAction(const std::shared_ptr<FountainAction>& elem) {
-    if (elem->forced) {
+std::string FountainWriter::writeAction(const std::shared_ptr<Action>& elem) {
+    if (elem->isForced()) {
         return "!" + elem->getTextRaw();
     }
-    if (elem->centered) {
+    if (elem->isCentered()) {
         return ">" + elem->getTextRaw() + "<";
     }
     return elem->getTextRaw();
 }
 
-std::string FountainWriter::writeHeading(const std::shared_ptr<FountainHeading>& elem) {
-    std::string sceneNum = elem->sceneNumber.has_value() ? " #" + elem->sceneNumber.value() + "#" : "";
-    if (elem->forced) {
+std::string FountainWriter::writeHeading(const std::shared_ptr<SceneHeading>& elem) {
+    std::string sceneNum = elem->getSceneNumber().has_value() ? " #" + elem->getSceneNumber().value() + "#" : "";
+    if (elem->isForced()) {
         return "\n." + elem->getTextRaw() + sceneNum;
     }
     return "\n" + elem->getTextRaw() + sceneNum;
 }
 
-std::string FountainWriter::writeTransition(const std::shared_ptr<FountainTransition>& elem) {
+std::string FountainWriter::writeTransition(const std::shared_ptr<Transition>& elem) {
     std::string pad = prettyPrint ? std::string(4, '\t') : "";
-    if (elem->forced) {
+    if (elem->isForced()) {
         return ">" + elem->getTextRaw();
     }
     return pad + elem->getTextRaw();

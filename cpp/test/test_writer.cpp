@@ -8,7 +8,7 @@ TEST_CASE( "Writer") {
     
     const std::string match = loadTestFile("Writer-output.fountain");
 
-    Fountain::FountainParser fp;
+    Fountain::Parser fp;
 
     fp.addText(loadTestFile("TitlePage.fountain"));
     fp.addText(loadTestFile("Sections.fountain"));
@@ -26,7 +26,7 @@ TEST_CASE( "UTF8Writer") {
     
     const std::string match = loadTestFile("UTF8-output.fountain");
 
-    Fountain::FountainParser fp;
+    Fountain::Parser fp;
 
     fp.addText(loadTestFile("UTF8.fountain"));
 

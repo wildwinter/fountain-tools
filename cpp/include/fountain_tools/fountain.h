@@ -1,6 +1,7 @@
 #ifndef FOUNTAIN_H
 #define FOUNTAIN_H
 
+#include "utils.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -12,7 +13,7 @@
 namespace Fountain {
 
 // Enum for element types
-enum class Element {
+enum class ElementType {
     TITLEENTRY,
     HEADING,
     ACTION,
@@ -29,21 +30,21 @@ enum class Element {
 };
 
 // Utility function to convert enums to strings
-inline std::string elementToString(Element type) {
-    static const std::unordered_map<Element, std::string> elementStrings = {
-        {Element::TITLEENTRY, "TITLEENTRY"},
-        {Element::HEADING, "HEADING"},
-        {Element::ACTION, "ACTION"},
-        {Element::CHARACTER, "CHARACTER"},
-        {Element::DIALOGUE, "DIALOGUE"},
-        {Element::PARENTHESIS, "PARENTHESIS"},
-        {Element::LYRIC, "LYRIC"},
-        {Element::TRANSITION, "TRANSITION"},
-        {Element::PAGEBREAK, "PAGEBREAK"},
-        {Element::NOTES, "NOTES"},
-        {Element::BONEYARD, "BONEYARD"},
-        {Element::SECTION, "SECTION"},
-        {Element::SYNOPSIS, "SYNOPSIS"}
+inline std::string elementTypeToString(ElementType type) {
+    static const std::unordered_map<ElementType, std::string> elementStrings = {
+        {ElementType::TITLEENTRY, "TITLEENTRY"},
+        {ElementType::HEADING, "HEADING"},
+        {ElementType::ACTION, "ACTION"},
+        {ElementType::CHARACTER, "CHARACTER"},
+        {ElementType::DIALOGUE, "DIALOGUE"},
+        {ElementType::PARENTHESIS, "PARENTHESIS"},
+        {ElementType::LYRIC, "LYRIC"},
+        {ElementType::TRANSITION, "TRANSITION"},
+        {ElementType::PAGEBREAK, "PAGEBREAK"},
+        {ElementType::NOTES, "NOTES"},
+        {ElementType::BONEYARD, "BONEYARD"},
+        {ElementType::SECTION, "SECTION"},
+        {ElementType::SYNOPSIS, "SYNOPSIS"}
     };
 
     auto it = elementStrings.find(type);
@@ -62,220 +63,238 @@ inline std::string join(const std::vector<std::string>& strings, const std::stri
 }
 
 // Base class for all elements
-class FountainElement {
+class Element {
+private: 
+    std::string _textRaw;
+     // Clean version doesn't have Note/Boneyard references
+    std::string _textClean;
+    bool _isEmpty;
+    ElementType _type;
 
 protected:
-    std::string text;
+    Element(ElementType type, const std::string& text)
+        : _type(type), _textRaw(text), _isEmpty(false) {
+            _updateText();
+        }
 
-public:
-    Element type;
-
-    FountainElement(Element type, const std::string& text)
-        : type(type), text(text) {}
-
-    virtual ~FountainElement() = default;
-
-    Element getType() const { return type; }
-
-    virtual std::string getText() const {
-        std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
-        return std::regex_replace(text, regex, "");
+    void _updateText() {
+        const std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
+        _textClean = std::regex_replace(_textRaw, regex, "");
+        _isEmpty = isWhitespaceOrEmpty(_textRaw);
     }
 
-    std::string getTextRaw() const { return text; }
+public:
+    virtual ~Element() = default;
+
+    std::string getTypeAsString() const {return elementTypeToString(_type);}
+
+    ElementType getType() const { return _type; }
+
+    // Returns text without any Boneyard or Note references.
+    std::string getText() const {return _textClean;}
+
+    // Returns text including Boneyard or Note references.
+    std::string getTextRaw() const { return _textRaw; }
 
     void appendLine(const std::string& line) {
-        text += "\n" + line;
+        _textRaw += "\n" + line;
+        _updateText();
     }
 
     bool isEmpty() const {
-        return text.empty() || text.find_first_not_of(" \t\n") == std::string::npos;
+        return _isEmpty;
     }
 
     virtual std::string dump() const {
-        return elementToString(type) + ":\"" + text + "\"";
+        return elementTypeToString(_type) + ":\"" + _textRaw + "\"";
     }
 };
 
-// Derived classes
-class FountainTitleEntry : public FountainElement {
-public:
-    std::string key;
+// Entry on the Title Page
+// key: text
+class TitleEntry : public Element {
+private:
+    std::string _key;
 
-    FountainTitleEntry(const std::string& key, const std::string& text)
-        : FountainElement(Element::TITLEENTRY, text), key(key) {}
+public:
+    TitleEntry(const std::string& key, const std::string& text)
+        : Element(ElementType::TITLEENTRY, text), _key(key) {}
+
+    std::string getKey() const {return _key;}
 
     std::string dump() const override {
-        return elementToString(type) + ":\"" + key + "\":\"" + text + "\"";
+        return getTypeAsString() + ":\"" + _key + "\":\"" + getTextRaw() + "\"";
     }
 };
 
-class FountainAction : public FountainElement {
+// Action text element
+class Action : public Element {
+private:
+    bool _centered;
+    bool _forced;
+
 public:
-    bool centered;
-    bool forced;
+    Action(const std::string& text, bool forced = false)
+        : Element(ElementType::ACTION, text), _centered(false), _forced(forced) {}
 
-    FountainAction(const std::string& text, bool forced = false)
-        : FountainElement(Element::ACTION, text), centered(false), forced(forced) {}
-
-    void setCentered(bool value) { centered = value; }
-    bool isCentered() {return centered;}
+    void setCentered(bool value) { _centered = value; }
+    bool isCentered() const {return _centered;}
+    bool isForced() const {return _forced;}
 
     std::string dump() const override {
-        std::string output = elementToString(type) + ":\"" + text + "\"";
-        if (centered) output += " (centered)";
+        std::string output = getTypeAsString() + ":\"" + getTextRaw() + "\"";
+        if (_centered) output += " (centered)";
         return output;
     }
 };
 
-// FountainHeading: Represents a scene heading
-class FountainHeading : public FountainElement {
+// Scene Heading
+class SceneHeading : public Element {
+private:
+    std::optional<std::string> _sceneNumber;
+    bool _forced;
+
 public:
-    std::optional<std::string> sceneNumber; // Optional scene number
-    bool forced;          // Indicates if the heading is forced
+    SceneHeading(const std::string& text, const std::optional<std::string>& sceneNumber = std::nullopt, bool forced = false)
+        : Element(ElementType::HEADING, text), _sceneNumber(sceneNumber), _forced(forced) {}
 
-    // Constructor
-    FountainHeading(const std::string& text, const std::optional<std::string>& sceneNumber = std::nullopt, bool forced = false)
-        : FountainElement(Element::HEADING, text), sceneNumber(sceneNumber), forced(forced) {}
+    std::optional<std::string> getSceneNumber() const {return _sceneNumber;}
+    bool isForced() const {return _forced;}
 
-    // Override Dump for debugging
     std::string dump() const override {
-        std::string output = elementToString(type) + ":\"" + getText() + "\"";
-        if (sceneNumber.has_value()) {
-            output += " (" + sceneNumber.value() + ")";
+        std::string output = getTypeAsString() + ":\"" + getText() + "\"";
+        if (_sceneNumber.has_value()) {
+            output += " (" + _sceneNumber.value() + ")";
         }
         return output;
     }
 };
 
-// FountainCharacter: Represents character elements
-class FountainCharacter : public FountainElement {
+// Character heading
+class Character : public Element {
+private:
+    std::string _name;                 // Character's name
+    std::optional<std::string> _extension; // Optional extension (e.g., "V.O.", "O.S.")
+    bool _isDualDialogue;              // Indicates if this is dual dialogue e.g.s ^
+    bool _forced;                      // Indicates if the character was forced
 
 public:
-    std::string name;                 // Character's name
-    std::optional<std::string> extension; // Optional extension (e.g., "V.O.", "O.S.")
-    bool isDualDialogue;              // Indicates if this is dual dialogue
-    bool forced;                      // Indicates if the character was forced
-
-    // Constructor
-    FountainCharacter(const std::string& text, const std::string& name, 
+    Character(const std::string& text, const std::string& name, 
                       const std::optional<std::string>& extension = std::nullopt, 
                       bool dual = false, bool forced = false)
-        : FountainElement(Element::CHARACTER, text), 
-          name(name), 
-          extension(extension), 
-          isDualDialogue(dual), 
-          forced(forced) {}
+        : Element(ElementType::CHARACTER, text), 
+          _name(name), 
+          _extension(extension), 
+          _isDualDialogue(dual), 
+          _forced(forced) {}
 
-    // Accessors
-    const std::string& getName() const { return name; }
-    const std::optional<std::string>& getExtension() const { return extension; }
-    bool getIsDualDialogue() const { return isDualDialogue; }
-    bool isForced() const { return forced; }
+    const std::string& getName() const { return _name; }
+    const std::optional<std::string>& getExtension() const { return _extension; }
+    bool isDualDialogue() const { return _isDualDialogue; }
+    bool isForced() const { return _forced; }
 
-    // Override dump for debugging
     std::string dump() const override {
-        std::string output = elementToString(type) + ":\"" + name + "\"";
-        if (extension.has_value() && !extension->empty()) {
-            output += " \"(" + *extension + ")\"";
+        std::string output = getTypeAsString() + ":\"" + _name + "\"";
+        if (_extension.has_value() && !_extension->empty()) {
+            output += " \"(" + *_extension + ")\"";
         }
-        if (isDualDialogue) {
+        if (_isDualDialogue) {
             output += " (Dual)";
         }
         return output;
     }
 };
 
-// Derived class for Dialogue
-class FountainDialogue : public FountainElement {
+// Dialogue line
+class Dialogue : public Element {
 public:
-    FountainDialogue(const std::string& text)
-        : FountainElement(Element::DIALOGUE, text) {}
+    Dialogue(const std::string& text)
+        : Element(ElementType::DIALOGUE, text) {}
 };
 
-// Derived class for Parenthesis
-class FountainParenthesis : public FountainElement {
+// Parenthesis before dialogue
+class Parenthesis : public Element {
 public:
-    FountainParenthesis(const std::string& text)
-        : FountainElement(Element::PARENTHESIS, text) {}
+    Parenthesis(const std::string& text)
+        : Element(ElementType::PARENTHESIS, text) {}
 };
 
-// Derived class for Lyric
-class FountainLyric : public FountainElement {
+// Lyric line
+class Lyric : public Element {
 public:
-    FountainLyric(const std::string& text)
-        : FountainElement(Element::LYRIC, text) {}
+    Lyric(const std::string& text)
+        : Element(ElementType::LYRIC, text) {}
 };
 
-// FountainTransition: Represents transition elements
-class FountainTransition : public FountainElement {
+// Transition e.g. CUT TO:
+class Transition : public Element {
+private:
+    bool _forced; 
+
 public:
-    bool forced; // Indicates if the transition is forced
+    Transition(const std::string& text, bool forced = false)
+        : Element(ElementType::TRANSITION, text), _forced(forced) {}
 
-    // Constructor
-    FountainTransition(const std::string& text, bool forced = false)
-        : FountainElement(Element::TRANSITION, text), forced(forced) {}
-
-    // Accessor for forced property
-    bool isForced() const { return forced; }
+    bool isForced() const { return _forced; }
 };
 
 // Derived class for Page Break
-class FountainPageBreak : public FountainElement {
+class FountainPageBreak : public Element {
 public:
     FountainPageBreak()
-        : FountainElement(Element::PAGEBREAK, "") {}
-};
-
-// Derived class for Notes
-class FountainNote : public FountainElement {
-public:
-    FountainNote(const std::string& text)
-        : FountainElement(Element::NOTES, text) {}
-};
-
-// Derived class for Boneyard
-class FountainBoneyard : public FountainElement {
-public:
-    FountainBoneyard(const std::string& text)
-        : FountainElement(Element::BONEYARD, text) {}
+        : Element(ElementType::PAGEBREAK, "") {}
 };
 
 // Derived class for Section
-class FountainSection : public FountainElement {
+class Section : public Element {
+private:
+    int _level;
+
 public:
-    int level;
+    Section(const std::string& text, int level)
+        : Element(ElementType::SECTION, text), _level(level) {}
 
-    FountainSection(const std::string& text, int level)
-        : FountainElement(Element::SECTION, text), level(level) {}
-
-    int getLevel() const { return level; }
+    int getLevel() const { return _level; }
 
     std::string dump() const override {
-        return elementToString(type) + ":\"" + text + "\" (" + std::to_string(level) + ")";
+        return getTypeAsString() + ":\"" + getTextRaw() + "\" (" + std::to_string(_level) + ")";
     }
 };
 
-// Derived class for Synopsis
-class FountainSynopsis : public FountainElement {
+// Synopsis
+class Synopsis : public Element {
 public:
-    FountainSynopsis(const std::string& text)
-        : FountainElement(Element::SYNOPSIS, text) {}
+    Synopsis(const std::string& text)
+        : Element(ElementType::SYNOPSIS, text) {}
 };
 
-// Composite class for parsed script
+// Derived class for Notes
+class FountainNote : public Element {
+public:
+    FountainNote(const std::string& text)
+        : Element(ElementType::NOTES, text) {}
+};
+
+// Derived class for Boneyard
+class FountainBoneyard : public Element {
+public:
+    FountainBoneyard(const std::string& text)
+        : Element(ElementType::BONEYARD, text) {}
+};
+
+// Parsed Script
 class FountainScript {
 public:
-    std::vector<std::shared_ptr<FountainTitleEntry>> titleEntries;
-    std::vector<std::shared_ptr<FountainElement>> elements;
+    std::vector<std::shared_ptr<TitleEntry>> titleEntries;
+    std::vector<std::shared_ptr<Element>> elements;
     std::vector<std::shared_ptr<FountainNote>> notes; 
     std::vector<std::shared_ptr<FountainBoneyard>> boneyards;
 
-    void addTitleEntry(const std::shared_ptr<FountainTitleEntry>& titleEntry) {
+    void addTitleEntry(const std::shared_ptr<TitleEntry>& titleEntry) {
         titleEntries.push_back(titleEntry);
     }
 
-    void addElement(const std::shared_ptr<FountainElement>& element) {
+    void addElement(const std::shared_ptr<Element>& element) {
         elements.push_back(element);
     }
 
@@ -298,7 +317,7 @@ public:
         return join(lines, "\n");
     }
 
-    std::shared_ptr<FountainElement> getLastElement() const {
+    std::shared_ptr<Element> getLastElement() const {
         if (elements.empty()) return nullptr;
         return elements.back();
     }

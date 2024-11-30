@@ -9,7 +9,7 @@
 
 namespace Fountain {
 
-class FountainCallbackParser : public FountainParser {
+class CallbackParser : public Parser {
 public:
 
     struct TitleEntry {
@@ -17,7 +17,7 @@ public:
         std::string value;
     };
 
-    FountainCallbackParser();
+    CallbackParser();
 
     // Callbacks!
     std::function<void(const std::vector<TitleEntry>&)> onTitlePage;
@@ -37,10 +37,10 @@ public:
     void addLine(const std::string& inputLine) override;
 
 private:
-    std::shared_ptr<FountainCharacter> _lastChar;
-    std::shared_ptr<FountainParenthesis> _lastParen;
+    std::shared_ptr<Character> _lastChar;
+    std::shared_ptr<Parenthesis> _lastParen;
 
-    void _handleNewElement(const std::shared_ptr<FountainElement>& elem);
+    void _handleNewElement(const std::shared_ptr<Element>& elem);
 };
 
 }

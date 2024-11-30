@@ -5,10 +5,10 @@
 
 namespace Fountain {
 
-FountainParser::FountainParser()
+Parser::Parser()
     : script(std::make_shared<FountainScript>()) {}
 
-void FountainParser::addText(const std::string& inputText) {
+void Parser::addText(const std::string& inputText) {
     std::istringstream stream(inputText);
     std::string line;
     std::vector<std::string> lines;
@@ -20,16 +20,16 @@ void FountainParser::addText(const std::string& inputText) {
     addLines(lines);
 }
 
-void FountainParser::addLines(const std::vector<std::string>& lines) {
+void Parser::addLines(const std::vector<std::string>& lines) {
     for (const auto& line : lines) {
         addLine(line);
     }
     finalizeParsing();
 }
 
-void FountainParser::addLine(const std::string& inputLine) {
+void Parser::addLine(const std::string& inputLine) {
     lastLine = line;
-    lastLineEmpty = isEmptyOrWhitespace(line);
+    lastLineEmpty = isWhitespaceOrEmpty(line);
 
     line = inputLine;
 
@@ -51,32 +51,32 @@ void FountainParser::addLine(const std::string& inputLine) {
     parseAction();
 }
 
-void FountainParser::finalizeParsing() {
+void Parser::finalizeParsing() {
     line = "";
     lineTrim = "";
     parsePending();
 }
 
-void FountainParser::addElement(std::shared_ptr<FountainElement> element) {
+void Parser::addElement(std::shared_ptr<Element> element) {
 
     auto lastElement = getLastElement();
 
-    if (element->getType() == Element::ACTION && element->isEmpty() &&
-        !std::dynamic_pointer_cast<FountainAction>(element)->isCentered()) {
+    if (element->getType() == ElementType::ACTION && element->isEmpty() &&
+        !std::dynamic_pointer_cast<Action>(element)->isCentered()) {
 
         inDialogue = false;
 
-        if (lastElement && lastElement->getType() == Element::ACTION) {
-            padActions.push_back(std::dynamic_pointer_cast<FountainAction>(element));
+        if (lastElement && lastElement->getType() == ElementType::ACTION) {
+            padActions.push_back(std::dynamic_pointer_cast<Action>(element));
             return;
         }
         return;
     }
 
-    if (element->getType() == Element::ACTION && !padActions.empty()) {
+    if (element->getType() == ElementType::ACTION && !padActions.empty()) {
 
-        if (mergeActions && lastElement && lastElement->getType() == Element::ACTION && 
-            !std::dynamic_pointer_cast<FountainAction>(lastElement)->isCentered()) {
+        if (mergeActions && lastElement && lastElement->getType() == ElementType::ACTION && 
+            !std::dynamic_pointer_cast<Action>(lastElement)->isCentered()) {
  
             for (const auto& padAction : padActions) {
                 lastElement->appendLine(padAction->getTextRaw());
@@ -92,11 +92,11 @@ void FountainParser::addElement(std::shared_ptr<FountainElement> element) {
     
     padActions.clear();
 
-    if (mergeActions && element->getType() == Element::ACTION &&
-        !std::dynamic_pointer_cast<FountainAction>(element)->isCentered()) {
+    if (mergeActions && element->getType() == ElementType::ACTION &&
+        !std::dynamic_pointer_cast<Action>(element)->isCentered()) {
 
-        if (lastElement && lastElement->getType() == Element::ACTION &&
-            !std::dynamic_pointer_cast<FountainAction>(lastElement)->isCentered()) {
+        if (lastElement && lastElement->getType() == ElementType::ACTION &&
+            !std::dynamic_pointer_cast<Action>(lastElement)->isCentered()) {
 
             lastElement->appendLine(element->getTextRaw());
             return;
@@ -106,24 +106,24 @@ void FountainParser::addElement(std::shared_ptr<FountainElement> element) {
 
     script->addElement(element);
 
-    inDialogue = element->getType() == Element::CHARACTER || element->getType() == Element::PARENTHESIS ||
-                 element->getType() == Element::DIALOGUE;
+    inDialogue = element->getType() == ElementType::CHARACTER || element->getType() == ElementType::PARENTHESIS ||
+                 element->getType() == ElementType::DIALOGUE;
 }
 
-std::shared_ptr<FountainElement> FountainParser::getLastElement() {
+std::shared_ptr<Element> Parser::getLastElement() {
     if (script->elements.empty()) return nullptr;
     return script->elements.back();
 }
 
-void FountainParser::parsePending() {
+void Parser::parsePending() {
     for (const auto& pendingItem : pending) {
-        if (pendingItem->type == Element::TRANSITION) {
+        if (pendingItem->type == ElementType::TRANSITION) {
             if (lineTrim.empty() || lineTrim.find_first_not_of(" \t") == std::string::npos) {
                 addElement(pendingItem->element);
             } else {
                 addElement(pendingItem->backup);
             }
-        } else if (pendingItem->type == Element::CHARACTER) {
+        } else if (pendingItem->type == ElementType::CHARACTER) {
             if (!lineTrim.empty() && lineTrim.find_first_not_of(" \t") != std::string::npos) {
                 addElement(pendingItem->element);
             } else {
@@ -134,7 +134,7 @@ void FountainParser::parsePending() {
     pending.clear();
 }
 
-bool FountainParser::parseBoneyard() {
+bool Parser::parseBoneyard() {
 
     size_t open = line.find("/*");
     size_t close = line.find("*/", (open != std::string::npos) ? open : 0);
@@ -191,7 +191,7 @@ bool FountainParser::parseBoneyard() {
     return false;
 }
 
-bool FountainParser::parseNotes() {
+bool Parser::parseNotes() {
 
     size_t open = line.find("[[");
     size_t close = line.find("]]", (open != std::string::npos) ? open : 0);
@@ -255,7 +255,7 @@ bool FountainParser::parseNotes() {
     return false;
 }
 
-bool FountainParser::parseTitlePage() {
+bool Parser::parseTitlePage() {
     static const std::regex regexTitleEntry(R"(^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$)");
     static const std::regex regexTitleMultilineEntry(R"(^( {3,}|\t))");
 
@@ -264,7 +264,7 @@ bool FountainParser::parseTitlePage() {
         std::string key = match[1].str();
         std::string value = match[2].str();
 
-        script->addTitleEntry(std::make_shared<FountainTitleEntry>(key, value));
+        script->addTitleEntry(std::make_shared<TitleEntry>(key, value));
         multiLineTitleEntry = value.empty();
         return true;
     }
@@ -280,34 +280,34 @@ bool FountainParser::parseTitlePage() {
     return false;
 }
 
-bool FountainParser::parseSection() {
+bool Parser::parseSection() {
     if (lineTrim.rfind("###", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(3)), 3));
+        addElement(std::make_shared<Section>(trim(lineTrim.substr(3)), 3));
         return true;
     }
 
     if (lineTrim.rfind("##", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(2)), 2));
+        addElement(std::make_shared<Section>(trim(lineTrim.substr(2)), 2));
         return true;
     }
 
     if (lineTrim.rfind("#", 0) == 0) {
-        addElement(std::make_shared<FountainSection>(trim(lineTrim.substr(1)), 1));
+        addElement(std::make_shared<Section>(trim(lineTrim.substr(1)), 1));
         return true;
     }
 
     return false;
 }
 
-bool FountainParser::parseForcedAction() {
+bool Parser::parseForcedAction() {
     if (lineTrim.rfind("!", 0) == 0) {
-        addElement(std::make_shared<FountainAction>(lineTrim.substr(1), true));
+        addElement(std::make_shared<Action>(lineTrim.substr(1), true));
         return true;
     }
     return false;
 }
 
-bool FountainParser::parseForcedSceneHeading() {
+bool Parser::parseForcedSceneHeading() {
 
         // Regex to match scene headings
     static const std::regex regexHeading(R"(^\.[a-zA-Z0-9])");
@@ -317,14 +317,14 @@ bool FountainParser::parseForcedSceneHeading() {
     if (std::regex_search(lineTrim, match, regexHeading)) {
         auto heading = decodeHeading(lineTrim.substr(1));
         if (heading) {
-            addElement(std::make_shared<FountainHeading>(heading->first, heading->second, true));
+            addElement(std::make_shared<SceneHeading>(heading->first, heading->second, true));
             return true;
         }
     }
     return false;
 }
 
-bool FountainParser::parsePageBreak() {
+bool Parser::parsePageBreak() {
     if (lineTrim.find("===") != std::string::npos) {
         addElement(std::make_shared<FountainPageBreak>());
         return true;
@@ -332,57 +332,57 @@ bool FountainParser::parsePageBreak() {
     return false;
 }
 
-bool FountainParser::parseForcedTransition() {
+bool Parser::parseForcedTransition() {
     if (lineTrim.starts_with(">") && !lineTrim.ends_with("<")) {
         // Add a forced FountainTransition element with trimmed content
-        addElement(std::make_shared<FountainTransition>(trim(lineTrim.substr(1)), true));
+        addElement(std::make_shared<Transition>(trim(lineTrim.substr(1)), true));
         return true;
     }
 
     return false;
 }
 
-bool FountainParser::parseLyrics() {
+bool Parser::parseLyrics() {
     if (lineTrim.starts_with("~")) {
         // Create and add a FountainLyric element
-        addElement(std::make_shared<FountainLyric>(trim(lineTrim.substr(1))));
+        addElement(std::make_shared<Lyric>(trim(lineTrim.substr(1))));
         return true;
     }
     return false;
 }
 
-bool FountainParser::parseSynopsis() {
+bool Parser::parseSynopsis() {
     static const std::regex synopsisRegex(R"(^=(?!\=))"); // Matches a single '=' not followed by another '='
     
      std::smatch match;
     if (std::regex_search(lineTrim, match, synopsisRegex)) {
         // Create and add a FountainSynopsis element
-        addElement(std::make_shared<FountainSynopsis>(trim(lineTrim.substr(1))));
+        addElement(std::make_shared<Synopsis>(trim(lineTrim.substr(1))));
         return true;
     }
     return false;
 }
 
-bool FountainParser::parseDialogue() {
+bool Parser::parseDialogue() {
     auto lastElement = getLastElement();
 
     // If last element is CHARACTER or PARENTHESIS and line is not empty
     if (lastElement != nullptr && !line.empty() &&
-        (lastElement->getType() == Element::CHARACTER || lastElement->getType() == Element::PARENTHESIS)) {
-        addElement(std::make_shared<FountainDialogue>(lineTrim));
+        (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::PARENTHESIS)) {
+        addElement(std::make_shared<Dialogue>(lineTrim));
         return true;
     }
 
     // If last element is DIALOGUE
-    if (lastElement != nullptr && lastElement->getType() == Element::DIALOGUE) {
+    if (lastElement != nullptr && lastElement->getType() == ElementType::DIALOGUE) {
         // Handle continuation after an empty line
         if (lastLineEmpty && !lastLine.empty()) {
             if (mergeDialogue) {
                 lastElement->appendLine("");
                 lastElement->appendLine(lineTrim);
             } else {
-                addElement(std::make_shared<FountainDialogue>(""));
-                addElement(std::make_shared<FountainDialogue>(lineTrim));
+                addElement(std::make_shared<Dialogue>(""));
+                addElement(std::make_shared<Dialogue>(lineTrim));
             }
             return true;
         }
@@ -392,7 +392,7 @@ bool FountainParser::parseDialogue() {
             if (mergeDialogue) {
                 lastElement->appendLine(lineTrim);
             } else {
-                addElement(std::make_shared<FountainDialogue>(lineTrim));
+                addElement(std::make_shared<Dialogue>(lineTrim));
             }
             return true;
         }
@@ -401,7 +401,7 @@ bool FountainParser::parseDialogue() {
     return false;
 }
 
-std::optional<FountainParser::CharacterInfo> FountainParser::decodeCharacter(const std::string& line) {
+std::optional<Parser::CharacterInfo> Parser::decodeCharacter(const std::string& line) {
     // Regex to match "(CONT'D)"
     std::string noContLine = replaceAll(line, "(CONT'D)", "");
     noContLine = replaceAll(noContLine, "(CONT’D)", "");
@@ -422,7 +422,7 @@ std::optional<FountainParser::CharacterInfo> FountainParser::decodeCharacter(con
     return std::nullopt; // No match found
 }
 
-bool FountainParser::parseCharacter() {
+bool Parser::parseCharacter() {
     std::string noContLineTrim = replaceAll(lineTrim, "(CONT'D)", "");
     noContLineTrim = replaceAll(noContLineTrim, "(CONT’D)", "");
     noContLineTrim = trim(noContLineTrim);
@@ -436,9 +436,9 @@ bool FountainParser::parseCharacter() {
 
             // Add a new PendingElement to the pending vector
             pending.push_back(std::make_shared<PendingElement>(PendingElement{
-                Element::CHARACTER,
-                std::make_shared<FountainCharacter>(noContLineTrim, character.name, character.extension, character.dual),
-                std::make_shared<FountainAction>(lineTrim)
+                ElementType::CHARACTER,
+                std::make_shared<Character>(noContLineTrim, character.name, character.extension, character.dual),
+                std::make_shared<Action>(lineTrim)
             }));
 
             return true;
@@ -448,7 +448,7 @@ bool FountainParser::parseCharacter() {
     return false;
 }
 
-bool FountainParser::parseTransition() {
+bool Parser::parseTransition() {
     // Regex to match transition lines (e.g., "FADE TO:" or similar)
     static const std::regex regexTransition(R"(^\s*(?:[A-Z\s]+TO:)\s*$)");
 
@@ -456,9 +456,9 @@ bool FountainParser::parseTransition() {
     if (std::regex_match(lineTrim, regexTransition) && lastLineEmpty) {
         // Add a new PendingElement to the pending vector
         pending.push_back(std::make_shared<PendingElement>(PendingElement{
-            Element::TRANSITION,
-            std::make_shared<FountainTransition>(lineTrim),
-            std::make_shared<FountainAction>(lineTrim)
+            ElementType::TRANSITION,
+            std::make_shared<Transition>(lineTrim),
+            std::make_shared<Action>(lineTrim)
         }));
         return true;
     }
@@ -466,7 +466,7 @@ bool FountainParser::parseTransition() {
     return false;
 }
 
-bool FountainParser::parseParenthesis() {
+bool Parser::parseParenthesis() {
     // Regex to match parenthesis lines
     static const std::regex regexParenthesis(R"(^\s*\((.*)\)\s*$)");
 
@@ -477,9 +477,9 @@ bool FountainParser::parseParenthesis() {
 
         // Check if the match was successful, we're in dialogue, and the last element is valid
         if (inDialogue && lastElement != nullptr &&
-            (lastElement->getType() == Element::CHARACTER || lastElement->getType() == Element::DIALOGUE)) {
+            (lastElement->getType() == ElementType::CHARACTER || lastElement->getType() == ElementType::DIALOGUE)) {
             // Add a new FountainParenthesis element
-            addElement(std::make_shared<FountainParenthesis>(match[1].str()));
+            addElement(std::make_shared<Parenthesis>(match[1].str()));
             return true;
         }
     }
@@ -487,14 +487,14 @@ bool FountainParser::parseParenthesis() {
     return false;
 }
 
-bool FountainParser::parseCenteredText() {
+bool Parser::parseCenteredText() {
     // Check if lineTrim starts with ">" and ends with "<"
     if (lineTrim.starts_with(">") && lineTrim.ends_with("<")) {
         // Extract the content between ">" and "<"
         std::string content = lineTrim.substr(1, lineTrim.length() - 2);
 
         // Create a new FountainAction element and mark it as centered
-        auto centeredElement = std::make_shared<FountainAction>(content);
+        auto centeredElement = std::make_shared<Action>(content);
         centeredElement->setCentered(true);
 
         // Add the centered element to the script
@@ -505,7 +505,7 @@ bool FountainParser::parseCenteredText() {
     return false;
 }
 
-bool FountainParser::parseSceneHeading() {
+bool Parser::parseSceneHeading() {
     // Regex to match scene headings
     static const std::regex regexHeading(
         R"(^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*))",
@@ -518,7 +518,7 @@ bool FountainParser::parseSceneHeading() {
         auto headingOpt = decodeHeading(lineTrim); // Decode the heading text and optional scene number
         if (headingOpt) {
             const auto& [text, sceneNum] = *headingOpt; // Extract text and scene number
-            addElement(std::make_shared<FountainHeading>(text, sceneNum));
+            addElement(std::make_shared<SceneHeading>(text, sceneNum));
         }
         return true;
     }
@@ -526,7 +526,7 @@ bool FountainParser::parseSceneHeading() {
     return false;
 }
 
-bool FountainParser::parseForcedCharacter() {
+bool Parser::parseForcedCharacter() {
     // Check if the line starts with "@"
     if (lineTrim.starts_with("@")) {
         // Remove the "@" prefix and trim the remaining string
@@ -539,7 +539,7 @@ bool FountainParser::parseForcedCharacter() {
             auto character = *characterOpt;
 
             // Create and add a FountainCharacter element
-            addElement(std::make_shared<FountainCharacter>(trimmedLine, character.name, character.extension, character.dual));
+            addElement(std::make_shared<Character>(trimmedLine, character.name, character.extension, character.dual));
             return true;
         }
     }
@@ -547,11 +547,11 @@ bool FountainParser::parseForcedCharacter() {
     return false;
 }
 
-void FountainParser::parseAction() {
-    addElement(std::make_shared<FountainAction>(line));
+void Parser::parseAction() {
+    addElement(std::make_shared<Action>(line));
 }
 
-std::optional<std::pair<std::string, std::optional<std::string>>> FountainParser::decodeHeading(const std::string& line) {
+std::optional<std::pair<std::string, std::optional<std::string>>> Parser::decodeHeading(const std::string& line) {
     std::regex regex(R"((.*?)(?:\s*#([a-zA-Z0-9\-.]+?)#)?)");
     std::smatch match;
 

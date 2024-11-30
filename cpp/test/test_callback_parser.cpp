@@ -20,7 +20,7 @@ TEST_CASE( "CallbackParser") {
 
     std::ostringstream oss;
 
-    Fountain::FountainCallbackParser fp;
+    Fountain::CallbackParser fp;
 
     fp.onDialogue = [&oss](const std::string& character, const std::optional<std::string> extension, 
         const std::optional<std::string> parenthetical, const std::string&line, const bool isDualDialogue) {
@@ -60,7 +60,7 @@ TEST_CASE( "CallbackParser") {
         oss << "PAGEBREAK" << std::endl;
     };
 
-    fp.onTitlePage = [&oss](const std::vector<Fountain::FountainCallbackParser::TitleEntry>& entries) {
+    fp.onTitlePage = [&oss](const std::vector<Fountain::CallbackParser::TitleEntry>& entries) {
         oss << "TITLEPAGE:";
         for (const auto& entry : entries) {
             oss << " " << entry.key << ":" << entry.value;

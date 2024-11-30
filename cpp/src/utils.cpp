@@ -16,7 +16,7 @@ std::string replaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
-bool isEmptyOrWhitespace(const std::string& str) {
+bool isWhitespaceOrEmpty(const std::string& str) {
     return std::all_of(str.begin(), str.end(), [](unsigned char c) {
         return std::isspace(c);
     });

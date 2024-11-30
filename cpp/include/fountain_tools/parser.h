@@ -10,11 +10,11 @@
 
 namespace Fountain {
 
-class FountainParser {
+class Parser {
 public:
-    FountainParser();
+    Parser();
 
-    virtual ~FountainParser() = default;
+    virtual ~Parser() = default;
 
     virtual void addText(const std::string& inputText);
     virtual void addLines(const std::vector<std::string>& lines);
@@ -33,9 +33,9 @@ protected:
     };
 
     struct PendingElement {
-        Element type;                                   // The type of element 
-        std::shared_ptr<FountainElement> element;      // Primary FountainElement
-        std::shared_ptr<FountainElement> backup;       // Backup FountainElement
+        ElementType type;                                   // The type of element 
+        std::shared_ptr<Element> element;      // Primary FountainElement
+        std::shared_ptr<Element> backup;       // Backup FountainElement
     };
 
     bool inTitlePage = true;
@@ -47,7 +47,7 @@ protected:
     std::string lineBeforeNote = "";
     std::shared_ptr<FountainNote> note = nullptr;
 
-    std::vector<std::shared_ptr<FountainAction>> padActions;
+    std::vector<std::shared_ptr<Action>> padActions;
     std::vector<std::shared_ptr<PendingElement>> pending;
 
     std::string line = "";
@@ -58,8 +58,8 @@ protected:
     bool inDialogue = false;
 
     void parsePending();
-    std::shared_ptr<FountainElement> getLastElement();
-    void addElement(std::shared_ptr<FountainElement> element);
+    std::shared_ptr<Element> getLastElement();
+    void addElement(std::shared_ptr<Element> element);
 
     // Parsing methods
     bool parseBoneyard();
