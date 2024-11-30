@@ -1,7 +1,9 @@
+# This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
+# Copyright (c) 2024 Ian Thomas
+
 import unittest
 import sys
 import os
-import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 

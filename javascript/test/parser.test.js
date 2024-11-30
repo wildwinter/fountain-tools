@@ -1,3 +1,6 @@
+// This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
+// Copyright (c) 2024 Ian Thomas
+
 import {loadTestFile} from '../test/testUtils.js';
 import {strict as assert} from 'assert';
 import {FountainParser} from "../src/parser.js";
