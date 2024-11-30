@@ -1,5 +1,5 @@
 import {ElementType, FountainTitleEntry, 
-        FountainAction, FountainHeading, FountainCharacter, 
+        FountainAction, FountainSceneHeading, FountainCharacter, 
         FountainDialogue, FountainParenthesis, FountainLyric,
         FountainTransition, FountainPageBreak, FountainNote,
         FountainBoneyard, FountainSection, FountainScript,
@@ -276,7 +276,7 @@ export class FountainParser {
         return false;
     }
 
-    _decodeHeading(line) {
+    _decodeSceneHeading(line) {
         const regex = /^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$/;
         const match = line.match(regex);
         return match ? { text: match[1].trim(), sceneNum: match[2] || null } : null;
@@ -285,8 +285,8 @@ export class FountainParser {
     _parseForcedSceneHeading() {
         const regex = /^\.[a-zA-Z0-9]/;
         if (regex.test(this._lineTrim)) {
-            let heading = this._decodeHeading(this._lineTrim.slice(1));
-            this._addElement(new FountainHeading(heading.text, heading.sceneNum, true));
+            let heading = this._decodeSceneHeading(this._lineTrim.slice(1));
+            this._addElement(new FountainSceneHeading(heading.text, heading.sceneNum, true));
             return true;
         }
         return false;
@@ -296,8 +296,8 @@ export class FountainParser {
 
         const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/i;
         if (regexHeading.test(this._line)) {
-            let heading = this._decodeHeading(this._lineTrim);
-            this._addElement(new FountainHeading(heading.text, heading.sceneNum));
+            let heading = this._decodeSceneHeading(this._lineTrim);
+            this._addElement(new FountainSceneHeading(heading.text, heading.sceneNum));
             return true;
         }
         return false;

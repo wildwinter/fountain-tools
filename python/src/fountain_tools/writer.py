@@ -1,5 +1,5 @@
 import re
-from .fountain import Element 
+from .fountain import ElementType 
 
 
 class FountainWriter:
@@ -24,10 +24,10 @@ class FountainWriter:
         for element in script.elements:
             pad_before = False
 
-            if element.type in [Element.CHARACTER, Element.TRANSITION, Element.HEADING]:
+            if element.type in [ElementType.CHARACTER, ElementType.TRANSITION, ElementType.HEADING]:
                 pad_before = True
-            elif element.type == Element.ACTION:
-                pad_before = not last_elem or last_elem.type != Element.ACTION
+            elif element.type == ElementType.ACTION:
+                pad_before = not last_elem or last_elem.type != ElementType.ACTION
 
             if pad_before:
                 lines.append("")
@@ -59,7 +59,7 @@ class FountainWriter:
     def _write_elem(self, elem):
         elem_type = elem.type
 
-        if elem_type == Element.CHARACTER:
+        if elem_type == ElementType.CHARACTER:
             pad = "\t" * 3 if self.pretty_print else ""
             char = elem.name
 
@@ -74,7 +74,7 @@ class FountainWriter:
             self._last_char = elem.name
             return f"{pad}{char}"
 
-        if elem_type == Element.DIALOGUE:
+        if elem_type == ElementType.DIALOGUE:
             output = elem._text
 
             # Ensure blank lines in dialogue have at least a space
@@ -85,44 +85,44 @@ class FountainWriter:
 
             return output
 
-        if elem_type == Element.PARENTHESIS:
+        if elem_type == ElementType.PARENTHESIS:
             pad = "\t" * 2 if self.pretty_print else ""
             return f"{pad}({elem._text})"
 
-        if elem_type == Element.ACTION:
+        if elem_type == ElementType.ACTION:
             if elem.forced:
                 return f"!{elem._text}"
             if elem.centered:
                 return f">{elem._text}<"
             return elem._text
 
-        if elem_type == Element.LYRIC:
+        if elem_type == ElementType.LYRIC:
             return f"~ {elem._text}"
         
-        if elem_type == Element.SYNOPSIS:
+        if elem_type == ElementType.SYNOPSIS:
             return f"= {elem._text}"
 
         self._last_char = None
 
-        if elem_type == Element.TITLEENTRY:
+        if elem_type == ElementType.TITLEENTRY:
             return f"{elem.key}: {elem._text}"
 
-        if elem_type == Element.HEADING:
+        if elem_type == ElementType.HEADING:
             scene_number = f" #{elem.scene_number}#" if elem.scene_number else ""
             if elem.forced:
                 return f"\n.{elem._text}{scene_number}"
             return f"\n{elem._text}{scene_number}"
 
-        if elem_type == Element.TRANSITION:
+        if elem_type == ElementType.TRANSITION:
             pad = "\t" * 4 if self.pretty_print else ""
             if elem.forced:
                 return f">{elem._text}"
             return f"{pad}{elem._text}"
 
-        if elem_type == Element.PAGEBREAK:
+        if elem_type == ElementType.PAGEBREAK:
             return "==="
 
-        if elem_type == Element.SECTION:
+        if elem_type == ElementType.SECTION:
             return f"{'#' * elem.level} {elem.text}"
 
         return ""

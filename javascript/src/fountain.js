@@ -81,7 +81,7 @@ export class FountainAction extends FountainElement {
 }
 
 
-export class FountainHeading extends FountainElement {
+export class FountainSceneHeading extends FountainElement {
     constructor(text, sceneNumber, forced = false) {
         super(ElementType.HEADING, text);
         this.sceneNumber = sceneNumber;

@@ -1,7 +1,7 @@
 import re
 
 from .fountain import (
-    Element,
+    ElementType,
     FountainTitleEntry,
     FountainAction,
     FountainHeading,
@@ -19,11 +19,14 @@ from .fountain import (
 )
 
 
+def is_whitespace_or_empty(line):
+    return not bool(line.strip())
+
+
 class FountainParser:
     def __init__(self):
         self.script = FountainScript()
 
-        # Configuration flags
         self.mergeActions = True
         self.mergeDialogue = True
 
@@ -61,7 +64,7 @@ class FountainParser:
     def add_line(self, line):
         """Parse a single line of text."""
         self._lastLine = self._line
-        self._lastLineEmpty = not bool(self._line.strip())
+        self._lastLineEmpty = is_whitespace_or_empty(self._line)
 
         self._line = line
 
@@ -130,16 +133,16 @@ class FountainParser:
         last_elem = self._get_last_elem()
 
         # Handle blank action lines
-        if elem.type == Element.ACTION and elem.is_empty() and not elem.centered:
+        if elem.type == ElementType.ACTION and is_whitespace_or_empty(elem.text_raw) and not elem.centered:
             self._inDialogue = False
 
-            if last_elem and last_elem.type == Element.ACTION:
+            if last_elem and last_elem.type == ElementType.ACTION:
                 self._padActions.append(elem)
                 return
             return
 
         # Add padding actions if any
-        if elem.type == Element.ACTION and self._padActions:
+        if elem.type == ElementType.ACTION and self._padActions:
             if self.mergeActions and last_elem and not last_elem.centered:
                 for pad_action in self._padActions:
                     last_elem.append_line(pad_action.text_raw)
@@ -151,10 +154,10 @@ class FountainParser:
         # Merge consecutive actions
         if (
             self.mergeActions
-            and elem.type == Element.ACTION
+            and elem.type == ElementType.ACTION
             and not elem.centered
             and last_elem
-            and last_elem.type == Element.ACTION
+            and last_elem.type == ElementType.ACTION
             and not last_elem.centered
         ):
             last_elem.append_line(elem.text_raw)
@@ -164,18 +167,18 @@ class FountainParser:
         self.script.elements.append(elem)
 
         # Update dialogue state
-        self._inDialogue = elem.type in {Element.CHARACTER, Element.PARENTHESIS, Element.DIALOGUE}
+        self._inDialogue = elem.type in {ElementType.CHARACTER, ElementType.PARENTHESIS, ElementType.DIALOGUE}
 
     def _parse_pending(self):
         """Resolve pending elements."""
         for pending in self._pending:
-            if pending["type"] == Element.TRANSITION:
-                if not self._line.strip():
+            if pending["type"] == ElementType.TRANSITION:
+                if is_whitespace_or_empty(self._line):
                     self._add_element(pending["element"])
                 else:
                     self._add_element(pending["backup"])
-            elif pending["type"] == Element.CHARACTER:
-                if self._line.strip():
+            elif pending["type"] == ElementType.CHARACTER:
+                if not is_whitespace_or_empty(self._line):
                     self._add_element(pending["element"])
                 else:
                     self._add_element(pending["backup"])
@@ -203,7 +206,6 @@ class FountainParser:
         self._inTitlePage = False
         return False
     
-
     def _parse_page_break(self):
         """Parses a page break if the current line matches the pattern."""
         regex_page_break = re.compile(r"^\s*={3,}\s*$")
@@ -302,10 +304,10 @@ class FountainParser:
         Transitions usually end with 'TO:' and are surrounded by empty lines.
         """
         regex_transition = re.compile(r"^\s*(?:[A-Z\s]+TO:)\s*$")
-        if regex_transition.match(self._line) and self._lastLineEmpty:
+        if regex_transition.match(self._line) and is_whitespace_or_empty(self._lastLine):
             # Add as pending to determine if it's a transition or action based on the next line
             self._pending.append({
-                "type": Element.TRANSITION,
+                "type": ElementType.TRANSITION,
                 "element": FountainTransition(self._lineTrim),
                 "backup": FountainAction(self._lineTrim)
             })
@@ -321,7 +323,7 @@ class FountainParser:
         lastElem = self._get_last_elem()
         if regex_parenthesis.match(self._lineTrim) \
             and self._inDialogue \
-            and lastElem and (lastElem.type == Element.CHARACTER or lastElem.type == Element.DIALOGUE):
+            and lastElem and (lastElem.type == ElementType.CHARACTER or lastElem.type == ElementType.DIALOGUE):
             parenthesis_text = self._lineTrim.strip("()").strip()
             self._add_element(FountainParenthesis(parenthesis_text))
             return True
@@ -387,7 +389,7 @@ class FountainParser:
 
                 # Can't commit until the next line isn't empty
                 self._pending.append({
-                    "type":  Element.CHARACTER,
+                    "type":  ElementType.CHARACTER,
                     "element": char_element,
                     "backup": FountainAction(self._lineTrim)
                 })
@@ -401,12 +403,12 @@ class FountainParser:
         """
         lastElem = self._get_last_elem()
 
-        if lastElem and self._line and lastElem.type in [Element.CHARACTER, Element.PARENTHESIS]:
+        if lastElem and self._line and lastElem.type in [ElementType.CHARACTER, ElementType.PARENTHESIS]:
             self._add_element(FountainDialogue(self._lineTrim))
             return True
 
         # Dialogue continuation (merging lines)
-        if lastElem and lastElem.type == Element.DIALOGUE:
+        if lastElem and lastElem.type == ElementType.DIALOGUE:
             # Special case: Line-break in dialogue
             if self._lastLineEmpty and len(self._lastLine)>0:
 

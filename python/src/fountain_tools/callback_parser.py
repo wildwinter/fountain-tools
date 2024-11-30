@@ -1,4 +1,4 @@
-from .fountain import Element
+from .fountain import ElementType
 from .parser import FountainParser
 
 class TitleEntry:
@@ -52,15 +52,15 @@ class FountainCallbackParser(FountainParser):
             element_count += 1
 
     def _handle_new_element(self, elem):
-        if elem.type == Element.CHARACTER:
+        if elem.type == ElementType.CHARACTER:
             self._lastChar = elem
             return
 
-        if elem.type == Element.PARENTHESIS:
+        if elem.type == ElementType.PARENTHESIS:
             self._lastParen = elem
             return
 
-        if elem.type == Element.DIALOGUE:
+        if elem.type == ElementType.DIALOGUE:
             character =  self._lastChar.name
             extension = self._lastChar.extension
             parenthetical = self._lastParen.text if self._lastParen else None
@@ -79,7 +79,7 @@ class FountainCallbackParser(FountainParser):
         self._lastChar = None
         self._lastParen = None
 
-        if elem.type == Element.ACTION:
+        if elem.type == ElementType.ACTION:
             if self.ignoreBlanks and not elem.text.strip():
                 return
 
@@ -87,7 +87,7 @@ class FountainCallbackParser(FountainParser):
                 self.onAction(elem.text)
             return
 
-        if elem.type == Element.HEADING:
+        if elem.type == ElementType.HEADING:
             if self.ignoreBlanks and not elem.text.strip():
                 return
 
@@ -95,7 +95,7 @@ class FountainCallbackParser(FountainParser):
                 self.onSceneHeading(elem.text, elem.scene_number)
             return
 
-        if elem.type == Element.LYRIC:
+        if elem.type == ElementType.LYRIC:
             if self.ignoreBlanks and not elem.text.strip():
                 return
 
@@ -103,7 +103,7 @@ class FountainCallbackParser(FountainParser):
                 self.onLyrics(elem.text)
             return
 
-        if elem.type == Element.TRANSITION:
+        if elem.type == ElementType.TRANSITION:
             if self.ignoreBlanks and not elem.text.strip():
                 return
 
@@ -111,17 +111,17 @@ class FountainCallbackParser(FountainParser):
                 self.onTransition(elem.text)
             return
 
-        if elem.type == Element.SECTION:
+        if elem.type == ElementType.SECTION:
             if self.onSection:
                 self.onSection(elem.text, elem.level)
             return
 
-        if elem.type == Element.SYNOPSIS:
+        if elem.type == ElementType.SYNOPSIS:
             if self.onSynopsis:
                 self.onSynopsis(elem.text)
             return
 
-        if elem.type == Element.PAGEBREAK:
+        if elem.type == ElementType.PAGEBREAK:
             if self.onPageBreak:
                 self.onPageBreak()
             return

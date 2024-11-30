@@ -1,8 +1,6 @@
 from enum import Enum
 
-
-# Define the Element enumeration
-class Element(Enum):
+class ElementType(Enum):
     TITLEENTRY = "TITLEENTRY"
     HEADING = "HEADING"
     ACTION = "ACTION"
@@ -18,7 +16,6 @@ class Element(Enum):
     SYNOPSIS = "SYNOPSIS"
 
 
-# Base class for all elements
 class FountainElement:
     def __init__(self, element_type, text):
         self.type = element_type
@@ -39,9 +36,6 @@ class FountainElement:
     def append_line(self, line):
         self._text+="\n"+line
 
-    def is_empty(self):
-        return not self._text.strip()
-
     def dump(self):
         # For debugging
         return f'{self.type.value}:"{self._text}"'
@@ -50,7 +44,7 @@ class FountainElement:
 # Subclasses for specific element types
 class FountainTitleEntry(FountainElement):
     def __init__(self, key, text):
-        super().__init__(Element.TITLEENTRY, text)
+        super().__init__(ElementType.TITLEENTRY, text)
         self.key = key
 
     def dump(self):
@@ -62,7 +56,7 @@ class FountainAction(FountainElement):
     def __init__(self, text, forced=False):
         # ACTION converts tabs to 4 spaces
         text = text.replace("\t", "    ")
-        super().__init__(Element.ACTION, text)
+        super().__init__(ElementType.ACTION, text)
         self.centered = False
         self.forced = forced
 
@@ -75,7 +69,7 @@ class FountainAction(FountainElement):
 
 class FountainHeading(FountainElement):
     def __init__(self, text, scene_number=None, forced=False):
-        super().__init__(Element.HEADING, text)
+        super().__init__(ElementType.HEADING, text)
         self.scene_number = scene_number
         self.forced = forced
 
@@ -88,7 +82,7 @@ class FountainHeading(FountainElement):
 
 class FountainCharacter(FountainElement):
     def __init__(self, text, name, extension=None, dual=False, forced=False):
-        super().__init__(Element.CHARACTER, text)
+        super().__init__(ElementType.CHARACTER, text)
         self.name = name
         self.extension = extension
         self.is_dual_dialogue = dual
@@ -105,43 +99,43 @@ class FountainCharacter(FountainElement):
 
 class FountainDialogue(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.DIALOGUE, text)
+        super().__init__(ElementType.DIALOGUE, text)
 
 
 class FountainParenthesis(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.PARENTHESIS, text)
+        super().__init__(ElementType.PARENTHESIS, text)
 
 
 class FountainLyric(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.LYRIC, text)
+        super().__init__(ElementType.LYRIC, text)
 
 
 class FountainTransition(FountainElement):
     def __init__(self, text, forced=False):
-        super().__init__(Element.TRANSITION, text)
+        super().__init__(ElementType.TRANSITION, text)
         self.forced = forced
 
 
 class FountainPageBreak(FountainElement):
     def __init__(self):
-        super().__init__(Element.PAGEBREAK, "")
+        super().__init__(ElementType.PAGEBREAK, "")
 
 
 class FountainNote(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.NOTES, text)
+        super().__init__(ElementType.NOTE, text)
 
 
 class FountainBoneyard(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.BONEYARD, text)
+        super().__init__(ElementType.BONEYARD, text)
 
 
 class FountainSection(FountainElement):
     def __init__(self, level, text):
-        super().__init__(Element.SECTION, text)
+        super().__init__(ElementType.SECTION, text)
         self.level = level
 
     def dump(self):
@@ -150,7 +144,7 @@ class FountainSection(FountainElement):
 
 class FountainSynopsis(FountainElement):
     def __init__(self, text):
-        super().__init__(Element.SYNOPSIS, text)
+        super().__init__(ElementType.SYNOPSIS, text)
 
 
 # Parsed script
