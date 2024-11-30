@@ -8,6 +8,7 @@
 #include <regex>
 #include <sstream>
 #include <unordered_map>
+#include <iostream>
 
 // Namespace Fountain
 namespace Fountain {
@@ -23,7 +24,7 @@ enum class ElementType {
     LYRIC,
     TRANSITION,
     PAGEBREAK,
-    NOTES,
+    NOTE,
     BONEYARD,
     SECTION,
     SYNOPSIS
@@ -41,7 +42,7 @@ inline std::string elementTypeToString(ElementType type) {
         {ElementType::LYRIC, "LYRIC"},
         {ElementType::TRANSITION, "TRANSITION"},
         {ElementType::PAGEBREAK, "PAGEBREAK"},
-        {ElementType::NOTES, "NOTES"},
+        {ElementType::NOTE, "NOTE"},
         {ElementType::BONEYARD, "BONEYARD"},
         {ElementType::SECTION, "SECTION"},
         {ElementType::SYNOPSIS, "SYNOPSIS"}
@@ -51,17 +52,6 @@ inline std::string elementTypeToString(ElementType type) {
     return it != elementStrings.end() ? it->second : "UNKNOWN";
 }
 
-// Utility function to join
-inline std::string join(const std::vector<std::string>& strings, const std::string& delimiter) {
-    if (strings.empty()) return "";
-
-    std::string result = strings[0];
-    for (size_t i = 1; i < strings.size(); ++i) {
-        result += delimiter + strings[i];
-    }
-    return result;
-}
-
 // Base class for all elements
 class Element {
 private: 
@@ -69,13 +59,14 @@ private:
      // Clean version doesn't have Note/Boneyard references
     std::string _textClean;
     bool _isEmpty;
-    ElementType _type;
 
 protected:
     Element(ElementType type, const std::string& text)
         : _type(type), _textRaw(text), _isEmpty(false) {
             _updateText();
-        }
+    }
+
+    ElementType _type;
 
     void _updateText() {
         const std::regex regex(R"(\[\[\d+\]\]|\/*\d+\*\/)");
@@ -91,10 +82,10 @@ public:
     ElementType getType() const { return _type; }
 
     // Returns text without any Boneyard or Note references.
-    std::string getText() const {return _textClean;}
+    const std::string& getText() const {return _textClean;}
 
     // Returns text including Boneyard or Note references.
-    std::string getTextRaw() const { return _textRaw; }
+    const std::string& getTextRaw() const { return _textRaw; }
 
     void appendLine(const std::string& line) {
         _textRaw += "\n" + line;
@@ -113,14 +104,14 @@ public:
 // Entry on the Title Page
 // key: text
 class TitleEntry : public Element {
-private:
+protected:
     std::string _key;
 
 public:
     TitleEntry(const std::string& key, const std::string& text)
         : Element(ElementType::TITLEENTRY, text), _key(key) {}
 
-    std::string getKey() const {return _key;}
+    const std::string& getKey() const {return _key;}
 
     std::string dump() const override {
         return getTypeAsString() + ":\"" + _key + "\":\"" + getTextRaw() + "\"";
@@ -129,7 +120,7 @@ public:
 
 // Action text element
 class Action : public Element {
-private:
+protected:
     bool _centered;
     bool _forced;
 
@@ -150,7 +141,7 @@ public:
 
 // Scene Heading
 class SceneHeading : public Element {
-private:
+protected:
     std::optional<std::string> _sceneNumber;
     bool _forced;
 
@@ -158,7 +149,7 @@ public:
     SceneHeading(const std::string& text, const std::optional<std::string>& sceneNumber = std::nullopt, bool forced = false)
         : Element(ElementType::HEADING, text), _sceneNumber(sceneNumber), _forced(forced) {}
 
-    std::optional<std::string> getSceneNumber() const {return _sceneNumber;}
+    const std::optional<std::string>& getSceneNumber() const {return _sceneNumber;}
     bool isForced() const {return _forced;}
 
     std::string dump() const override {
@@ -172,7 +163,7 @@ public:
 
 // Character heading
 class Character : public Element {
-private:
+protected:
     std::string _name;                 // Character's name
     std::optional<std::string> _extension; // Optional extension (e.g., "V.O.", "O.S.")
     bool _isDualDialogue;              // Indicates if this is dual dialogue e.g.s ^
@@ -228,7 +219,7 @@ public:
 
 // Transition e.g. CUT TO:
 class Transition : public Element {
-private:
+protected:
     bool _forced; 
 
 public:
@@ -247,7 +238,7 @@ public:
 
 // Derived class for Section
 class Section : public Element {
-private:
+protected:
     int _level;
 
 public:
@@ -269,57 +260,70 @@ public:
 };
 
 // Derived class for Notes
-class FountainNote : public Element {
+class Note : public Element {
 public:
-    FountainNote(const std::string& text)
-        : Element(ElementType::NOTES, text) {}
+    Note(const std::string& text)
+        : Element(ElementType::NOTE, text) {}
 };
 
 // Derived class for Boneyard
-class FountainBoneyard : public Element {
+class Boneyard : public Element {
 public:
-    FountainBoneyard(const std::string& text)
+    Boneyard(const std::string& text)
         : Element(ElementType::BONEYARD, text) {}
 };
 
 // Parsed Script
-class FountainScript {
+class Script {
+protected:
+    std::vector<std::shared_ptr<TitleEntry>> _titleEntries;
+    std::vector<std::shared_ptr<Element>> _elements;
+    std::vector<std::shared_ptr<Note>> _notes; 
+    std::vector<std::shared_ptr<Boneyard>> _boneyards;
+
 public:
-    std::vector<std::shared_ptr<TitleEntry>> titleEntries;
-    std::vector<std::shared_ptr<Element>> elements;
-    std::vector<std::shared_ptr<FountainNote>> notes; 
-    std::vector<std::shared_ptr<FountainBoneyard>> boneyards;
+    Script() {}
+
+    const std::vector<std::shared_ptr<TitleEntry>>& getTitleEntries() const {return _titleEntries;}
 
     void addTitleEntry(const std::shared_ptr<TitleEntry>& titleEntry) {
-        titleEntries.push_back(titleEntry);
+        _titleEntries.push_back(titleEntry);
     }
 
-    void addElement(const std::shared_ptr<Element>& element) {
-        elements.push_back(element);
+    const std::vector<std::shared_ptr<Element>>& getElements() const {return _elements;}
+
+    void addElement(const std::shared_ptr<Element>& element) { _elements.push_back(element); }
+    
+    std::shared_ptr<Element> getLastElement() const {
+        if (_elements.empty()) return nullptr;
+        return _elements.back();
     }
+
+    const std::vector<std::shared_ptr<Note>>& getNotes() const {return _notes;}
+
+    void addNote(const std::shared_ptr<Note>& note) { _notes.push_back(note);}
+
+    const std::vector<std::shared_ptr<Boneyard>>& getBoneyards() const {return _boneyards;}
+
+    void addBoneyard(const std::shared_ptr<Boneyard>& boneyard) { _boneyards.push_back(boneyard);}
 
     std::string dump() const {
 
         std::vector<std::string> lines;
 
-        for (const auto& titleEntry : titleEntries) {
+        for (const auto& titleEntry : _titleEntries) {
             lines.push_back(titleEntry->dump());
         }
-        for (const auto& element : elements) {
+        for (const auto& element : _elements) {
             lines.push_back(element->dump());
         }
-        for (int i=0;i<notes.size();i++) {
-            lines.push_back("[["+std::to_string(i)+"]]"+notes[i]->dump());
+        for (int i=0;i<_notes.size();i++) {
+            lines.push_back("[["+std::to_string(i)+"]]"+_notes[i]->dump());
         }
-        for (int i=0;i<boneyards.size();i++) {
-            lines.push_back("/*"+std::to_string(i)+"*/"+boneyards[i]->dump());
+        for (int i=0;i<_boneyards.size();i++) {
+            lines.push_back("/*"+std::to_string(i)+"*/"+_boneyards[i]->dump());
         }
         return join(lines, "\n");
-    }
-
-    std::shared_ptr<Element> getLastElement() const {
-        if (elements.empty()) return nullptr;
-        return elements.back();
     }
 };
 

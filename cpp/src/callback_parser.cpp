@@ -11,7 +11,7 @@ CallbackParser::CallbackParser() : _lastChar(nullptr), _lastParen(nullptr) {
 }
 
 void CallbackParser::addLine(const std::string& inputLine) {
-    int elementCount = script->elements.size();
+    int elementCount = script->getElements().size();
     bool wasInTitlePage = inTitlePage;
 
     Parser::addLine(inputLine);
@@ -20,15 +20,15 @@ void CallbackParser::addLine(const std::string& inputLine) {
         // Finished reading title page
         if (onTitlePage) {
             std::vector<TitleEntry> entries;
-            for (const auto& entry : script->titleEntries) {
+            for (const auto& entry : script->getTitleEntries()) {
                 entries.emplace_back(TitleEntry(entry->getKey(), entry->getTextRaw()));
             }
             onTitlePage(entries);
         }
     }
 
-    while (elementCount < script->elements.size()) {
-        _handleNewElement(script->elements[elementCount]);
+    while (elementCount < script->getElements().size()) {
+        _handleNewElement(script->getElements()[elementCount]);
         elementCount++;
     }
 }

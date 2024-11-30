@@ -21,7 +21,7 @@ public:
     virtual void addLine(const std::string& inputLine);
     virtual void finalizeParsing();
 
-    std::shared_ptr<FountainScript> script;
+    std::shared_ptr<Script> script;
     bool mergeActions = true;
     bool mergeDialogue = true;
     
@@ -42,10 +42,10 @@ protected:
     bool multiLineTitleEntry = false;
 
     std::string lineBeforeBoneyard = "";
-    std::shared_ptr<FountainBoneyard> boneyard = nullptr;
+    std::shared_ptr<Boneyard> boneyard = nullptr;
 
     std::string lineBeforeNote = "";
-    std::shared_ptr<FountainNote> note = nullptr;
+    std::shared_ptr<Note> note = nullptr;
 
     std::vector<std::shared_ptr<Action>> padActions;
     std::vector<std::shared_ptr<PendingElement>> pending;

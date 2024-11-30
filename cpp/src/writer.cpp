@@ -5,7 +5,7 @@ namespace Fountain {
 
 FountainWriter::FountainWriter() : lastChar("") {}
 
-std::string replaceNotes(const std::string& text, const FountainScript& script) {
+std::string replaceNotes(const std::string& text, const Script& script) {
     std::regex regexNotes(R"(\[\[(\d+)\]\])");
     std::sregex_iterator begin(text.begin(), text.end(), regexNotes);
     std::sregex_iterator end;
@@ -21,7 +21,7 @@ std::string replaceNotes(const std::string& text, const FountainScript& script) 
 
         // Custom replacement
         int num = std::stoi(match[1].str());
-        result << "[[" << script.notes[num]->getTextRaw() << "]]";
+        result << "[[" << script.getNotes()[num]->getTextRaw() << "]]";
 
         // Update the last position
         lastPos = match.position() + match.length();
@@ -33,7 +33,7 @@ std::string replaceNotes(const std::string& text, const FountainScript& script) 
     return result.str();
 }
 
-std::string replaceBoneyards(const std::string& text, const FountainScript& script) {
+std::string replaceBoneyards(const std::string& text, const Script& script) {
     std::regex regexBoneyards(R"(/\*(\d+)\*/)");
     std::sregex_iterator begin(text.begin(), text.end(), regexBoneyards);
     std::sregex_iterator end;
@@ -49,7 +49,7 @@ std::string replaceBoneyards(const std::string& text, const FountainScript& scri
 
         // Custom replacement
         int num = std::stoi(match[1].str());
-        result << "/*" << script.boneyards[num]->getTextRaw() << "*/";
+        result << "/*" << script.getBoneyards()[num]->getTextRaw() << "*/";
 
         // Update the last position
         lastPos = match.position() + match.length();
@@ -61,12 +61,12 @@ std::string replaceBoneyards(const std::string& text, const FountainScript& scri
     return result.str();
 }
 
-std::string FountainWriter::write(const FountainScript& script) {
+std::string FountainWriter::write(const Script& script) {
     std::vector<std::string> lines;
 
     // Write title entries
-    if (!script.titleEntries.empty()) {
-        for (const auto& entry : script.titleEntries) {
+    if (!script.getTitleEntries().empty()) {
+        for (const auto& entry : script.getTitleEntries()) {
             lines.push_back(writeElement(entry));
         }
         lines.push_back(""); // Add a blank line after titles
@@ -75,7 +75,7 @@ std::string FountainWriter::write(const FountainScript& script) {
     // Write elements
     std::shared_ptr<Element> lastElem = nullptr;
 
-    for (const auto& element : script.elements) {
+    for (const auto& element : script.getElements()) {
         // Determine padding
         bool padBefore = false;
         if (element->getType() == ElementType::CHARACTER || 

@@ -13,7 +13,7 @@ namespace Fountain {
 class FountainWriter {
 public:
     FountainWriter();
-    std::string write(const FountainScript& script);
+    std::string write(const Script& script);
     bool prettyPrint = true;
 
 private:

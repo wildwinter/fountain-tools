@@ -22,4 +22,14 @@ bool isWhitespaceOrEmpty(const std::string& str) {
     });
 }
 
+std::string join(const std::vector<std::string>& strings, const std::string& delimiter) {
+    if (strings.empty()) return "";
+
+    std::string result = strings[0];
+    for (size_t i = 1; i < strings.size(); ++i) {
+        result += delimiter + strings[i];
+    }
+    return result;
+}
+
 }
