@@ -4,7 +4,7 @@ using System.Threading.Tasks.Dataflow;
 namespace Fountain;
 
 // Enum for element types
-public enum Element
+public enum ElementType
 {
     TITLEENTRY,
     HEADING,
@@ -21,69 +21,70 @@ public enum Element
     SYNOPSIS
 }
 
-// Base class for all elements
-public class FountainElement
+public abstract class Element
 {
-    public Element Type { get; private set; }
-    protected string _text;
+    public ElementType Type { get; private set; }
 
-    public FountainElement(Element type, string text)
+    public Element(ElementType type, string text)
     {
         Type = type;
-        _text = text;
+        _textRaw = text;
+        _updateText();
     }
 
-    public virtual string Text
-    {
-        get
-        {
-            var regex = new Regex(@"\[\[\d+\]\]|\/*\d+\*\/");
-            return regex.Replace(_text, "");
-        }
+    public string Text {
+        get {return _textClean;}
     }
 
-    public string TextRaw => _text;
+    public string TextRaw {
+        get {return _textRaw;}
+    }
 
     public void AppendLine(string line)
     {
-        _text += "\n" + line;
-    }
-
-    public bool IsEmpty()
-    {
-        return string.IsNullOrWhiteSpace(_text);
+        _textRaw += "\n" + line;
+         _updateText();
     }
 
     public virtual string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{_textRaw}\"";
     }
+
+    private static readonly Regex _regexCleanText = new Regex(@"\[\[\d+\]\]|\/*\d+\*\/", RegexOptions.Compiled);
+
+    private void _updateText() {
+        _textClean = _regexCleanText.Replace(_textRaw, "");
+    }
+
+    private string _textRaw = "";
+    private string _textClean = "";
 }
 
-// Derived classes (examples shown for a few)
-public class FountainTitleEntry : FountainElement
+
+public class TitleEntry : Element
 {
     public string Key { get; private set; }
 
-    public FountainTitleEntry(string key, string text)
-        : base(Element.TITLEENTRY, text)
+    public TitleEntry(string key, string text)
+        : base(ElementType.TITLEENTRY, text)
     {
         Key = key;
     }
 
     public override string Dump()
     {
-        return $"{Type}:\"{Key}\":\"{_text}\"";
+        return $"{Type}:\"{Key}\":\"{TextRaw}\"";
     }
 }
 
-public class FountainAction : FountainElement
+public class Action : Element
 {
     public bool Centered { get; set; }
     public bool Forced { get; private set; }
 
-    public FountainAction(string text, bool forced = false)
-        : base(Element.ACTION, text.Replace("\t", "    "))
+    public Action(string text, bool forced = false)
+        : base(ElementType.ACTION, text.Replace("\t", "    "))  // Tabs are supposed to be converted to 4-spaces in Fountain
     {
         Centered = false;
         Forced = forced;
@@ -91,19 +92,19 @@ public class FountainAction : FountainElement
 
     public override string Dump()
     {
-        var output = $"{Type}:\"{_text}\"";
+        var output = $"{Type}:\"{TextRaw}\"";
         if (Centered) output += " (centered)";
         return output;
     }
 }
 
-public class FountainHeading : FountainElement
+public class SceneHeading : Element
 {
     public string? SceneNumber { get; private set; }
     public bool Forced { get; private set; }
 
-    public FountainHeading(string text, string? sceneNum = null, bool forced = false)
-        : base(Element.HEADING, text)
+    public SceneHeading(string text, string? sceneNum = null, bool forced = false)
+        : base(ElementType.HEADING, text)
     {
         SceneNumber = sceneNum;
         Forced = forced;
@@ -122,26 +123,26 @@ public class FountainHeading : FountainElement
 }
 
 // FountainDialogue: Represents dialogue elements
-public class FountainDialogue : FountainElement
+public class Dialogue : Element
 {
-    public FountainDialogue(string text)
-        : base(Element.DIALOGUE, text) { }
+    public Dialogue(string text)
+        : base(ElementType.DIALOGUE, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-public class FountainCharacter : FountainElement
+public class Character : Element
 {
     public string Name { get; private set; }
     public string? Extension { get; private set; }
     public bool IsDualDialogue { get; private set; }
     public bool Forced { get; private set; }
 
-    public FountainCharacter(string text, string name, string? extension = null, bool dual = false, bool forced = false)
-        : base(Element.CHARACTER, text)
+    public Character(string text, string name, string? extension = null, bool dual = false, bool forced = false)
+        : base(ElementType.CHARACTER, text)
     {
         Name = name;
         Extension = extension;
@@ -165,121 +166,112 @@ public class FountainCharacter : FountainElement
     }
 }
 
-// FountainParenthesis: Represents parenthetical elements
-public class FountainParenthesis : FountainElement
+public class Parenthesis : Element
 {
-    public FountainParenthesis(string text)
-        : base(Element.PARENTHESIS, text) { }
+    public Parenthesis(string text)
+        : base(ElementType.PARENTHESIS, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// FountainLyric: Represents lyric elements
-public class FountainLyric : FountainElement
+public class Lyric : Element
 {
-    public FountainLyric(string text)
-        : base(Element.LYRIC, text) { }
+    public Lyric(string text)
+        : base(ElementType.LYRIC, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// FountainTransition: Represents transition elements
-public class FountainTransition : FountainElement
+public class Transition : Element
 {
     public bool Forced { get; private set; }
 
-    public FountainTransition(string text, bool forced = false)
-        : base(Element.TRANSITION, text)
+    public Transition(string text, bool forced = false)
+        : base(ElementType.TRANSITION, text)
     {
         Forced = forced;
     }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// FountainPageBreak: Represents a page break element
-public class FountainPageBreak : FountainElement
+public class PageBreak : Element
 {
-    public FountainPageBreak()
-        : base(Element.PAGEBREAK, "") { }
+    public PageBreak()
+        : base(ElementType.PAGEBREAK, "") { }
 }
 
-// FountainNote: Represents note elements
-public class FountainNote : FountainElement
+public class Note : Element
 {
-    public FountainNote(string text)
-        : base(Element.NOTE, text) { }
+    public Note(string text)
+        : base(ElementType.NOTE, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// FountainBoneyard: Represents boneyard elements (comments)
-public class FountainBoneyard : FountainElement
+public class Boneyard : Element
 {
-    public FountainBoneyard(string text)
-        : base(Element.BONEYARD, text) { }
+    public Boneyard(string text)
+        : base(ElementType.BONEYARD, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// FountainSection: Represents section elements
-public class FountainSection : FountainElement
+public class Section : Element
 {
     public int Level { get; private set; }
 
-    public FountainSection(int level, string text)
-        : base(Element.SECTION, text)
+    public Section(int level, string text)
+        : base(ElementType.SECTION, text)
     {
         Level = level;
     }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\" ({Level})";
+        return $"{Type}:\"{TextRaw}\" ({Level})";
     }
 }
 
-// FountainSynopsis: Represents synopsis elements
-public class FountainSynopsis : FountainElement
+public class Synopsis : Element
 {
-    public FountainSynopsis(string text)
-        : base(Element.SYNOPSIS, text) { }
+    public Synopsis(string text)
+        : base(ElementType.SYNOPSIS, text) { }
 
     public override string Dump()
     {
-        return $"{Type}:\"{_text}\"";
+        return $"{Type}:\"{TextRaw}\"";
     }
 }
 
-// Composite class for parsed script
-public class FountainScript
+public class Script
 {
-    public List<FountainTitleEntry> TitleEntries { get; private set; }
-    public List<FountainElement> Elements { get; private set; }
-    public List<FountainNote> Notes { get; private set; }
-    public List<FountainBoneyard> Boneyards { get; private set; }
+    public List<TitleEntry> TitleEntries { get; private set; }
+    public List<Element> Elements { get; private set; }
+    public List<Note> Notes { get; private set; }
+    public List<Boneyard> Boneyards { get; private set; }
 
-    public FountainScript()
+    public Script()
     {
-        TitleEntries = new List<FountainTitleEntry>();
-        Elements = new List<FountainElement>();
-        Notes = new List<FountainNote>();
-        Boneyards = new List<FountainBoneyard>();
+        TitleEntries = new List<TitleEntry>();
+        Elements = new List<Element>();
+        Notes = new List<Note>();
+        Boneyards = new List<Boneyard>();
     }
 
     public string Dump()
@@ -305,7 +297,7 @@ public class FountainScript
         return string.Join("\n", lines);
     }
 
-    public FountainElement? GetLastElement()
+    public Element? GetLastElement()
     {
         if (Elements.Count == 0) return null;
         return Elements[^1];

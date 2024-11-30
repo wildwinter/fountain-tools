@@ -4,37 +4,25 @@ namespace Fountain;
 
 public class FountainParser
 {
-    public FountainScript Script { get; private set; }
+    public Script Script { get; private set; }
     public bool MergeActions = true;
     public bool MergeDialogue = true;
-    protected bool inTitlePage = true;
-
-    private bool multiLineTitleEntry = false;
-    private string lineBeforeBoneyard="";
-    private FountainBoneyard? boneyard;
-    private string lineBeforeNote="";
-    private FountainNote? note;
-    private List<PendingElement> pending;
-    private List<FountainAction> padActions;
-    protected string line="";
-    protected string lineTrim="";
-    private bool lastLineEmpty;
-    private string lastLine="";
-    protected bool inDialogue = false;
 
     public FountainParser()
     {
-        Script = new FountainScript();
-        pending = new List<PendingElement>();
-        padActions = new List<FountainAction>();
+        Script = new Script();
+        _pending = new List<PendingElement>();
+        _padActions = new List<Action>();
     }
 
+    // Expects \n separated UTF8 text. Splits into individual lines, adds them one by one
     public virtual void AddText(string inputText)
     {
         var lines = inputText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         AddLines(lines);
     }
 
+    // Add an array of UTF8 lines.
     public virtual void AddLines(string[] lines)
     {
         foreach (var line in lines)
@@ -44,21 +32,22 @@ public class FountainParser
         FinalizeParsing();
     }
 
+    // Add an individual line.
     public virtual void AddLine(string inputLine)
     {
-        lastLine = line;
-        lastLineEmpty = string.IsNullOrWhiteSpace(line);
+        _lastLine = _line;
+        _lastLineEmpty = string.IsNullOrWhiteSpace(_line);
 
-        line = inputLine;
+        _line = inputLine;
 
         if (ParseBoneyard()) return;
         if (ParseNotes()) return;
 
-        lineTrim = line.Trim();
+        _lineTrim = _line.Trim();
 
-        if (pending.Count > 0) ParsePending();
+        if (_pending.Count > 0) ParsePending();
 
-        if (inTitlePage && ParseTitlePage()) return;
+        if (_inTitlePage && ParseTitlePage()) return;
 
         if (ParseSection()) return;
         if (ParseForcedAction()) return;
@@ -68,7 +57,7 @@ public class FountainParser
         if (ParsePageBreak()) return;
         if (ParseLyrics()) return;
         if (ParseSynopsis()) return;
-        if (ParseCenteredText()) return;
+        if (ParseCenteredAction()) return;
         if (ParseSceneHeading()) return;
         if (ParseTransition()) return;
         if (ParseParenthesis()) return;
@@ -78,59 +67,75 @@ public class FountainParser
         ParseAction();
     }
 
+    // Call this when you're sure you're done calling a series of addLine()! Some to-be-decided lines may get added.
     public void FinalizeParsing()
     {
-        line = "";
-        lineTrim = "";
+        _line = "";
+        _lineTrim = "";
         ParsePending();
     }
 
-    private FountainElement? GetLastElement()
+    protected bool _inTitlePage = true;
+    protected bool _inDialogue = false;
+    protected string _line="";
+    protected string _lineTrim="";
+
+    private bool _multiLineTitleEntry = false;
+    private string _lineBeforeBoneyard="";
+    private Boneyard? _currentBoneyard;
+    private string _lineBeforeNote="";
+    private Note? _currentNote;
+    private List<PendingElement> _pending;
+    private List<Action> _padActions;
+    private bool _lastLineEmpty;
+    private string _lastLine="";
+
+    private Element? GetLastElement()
     {
         if (Script.Elements.Count > 0)
             return Script.Elements[^1];
         return null;
     }
 
-    private void AddElement(FountainElement element)
+    private void AddElement(Element element)
     {
         var lastElement = GetLastElement();
 
-        if (element.Type == Element.ACTION && element.IsEmpty() && !((FountainAction)element).Centered)
+        if (element.Type == ElementType.ACTION && string.IsNullOrWhiteSpace(element.TextRaw) && !((Action)element).Centered)
         {
-            inDialogue = false;
+            _inDialogue = false;
 
-            if (lastElement != null && lastElement.Type == Element.ACTION)
+            if (lastElement != null && lastElement.Type == ElementType.ACTION)
             {   
-                padActions.Add((FountainAction)element);
+                _padActions.Add((Action)element);
                 return;
             }
             return;
         }
 
-        if (element.Type == Element.ACTION && padActions.Count > 0)
+        if (element.Type == ElementType.ACTION && _padActions.Count > 0)
         {
-            if (MergeActions && lastElement is FountainAction lastAction && !lastAction.Centered)
+            if (MergeActions && lastElement is Action lastAction && !lastAction.Centered)
             {
-                foreach (var padAction in padActions)
+                foreach (var padAction in _padActions)
                 {
                     lastElement.AppendLine(padAction.TextRaw);
                 }
             }
             else
             {
-                foreach (var padAction in padActions)
+                foreach (var padAction in _padActions)
                 {
                     Script.Elements.Add(padAction);
                 }
             }
         }
 
-        padActions.Clear();
+        _padActions.Clear();
 
-        if (MergeActions && element is FountainAction action && !action.Centered)
+        if (MergeActions && element is Action action && !action.Centered)
         {
-            if (lastElement is FountainAction lastAction && !lastAction.Centered)
+            if (lastElement is Action lastAction && !lastAction.Centered)
             {
                 lastAction.AppendLine(element.TextRaw);
                 return;
@@ -139,16 +144,16 @@ public class FountainParser
 
         Script.Elements.Add(element);
 
-        inDialogue = element.Type == Element.CHARACTER || element.Type == Element.PARENTHESIS || element.Type == Element.DIALOGUE;
+        _inDialogue = element.Type == ElementType.CHARACTER || element.Type == ElementType.PARENTHESIS || element.Type == ElementType.DIALOGUE;
     }
 
     private void ParsePending()
     {
-        foreach (var pendingItem in pending)
+        foreach (var pendingItem in _pending)
         {
-            if (pendingItem.Type == Element.TRANSITION)
+            if (pendingItem.Type == ElementType.TRANSITION)
             {
-                if (string.IsNullOrWhiteSpace(lineTrim))
+                if (string.IsNullOrWhiteSpace(_lineTrim))
                 {
                     AddElement(pendingItem.Element);
                 }
@@ -157,9 +162,9 @@ public class FountainParser
                     AddElement(pendingItem.Backup);
                 }
             }
-            else if (pendingItem.Type == Element.CHARACTER)
+            else if (pendingItem.Type == ElementType.CHARACTER)
             {
-                if (!string.IsNullOrWhiteSpace(lineTrim))
+                if (!string.IsNullOrWhiteSpace(_lineTrim))
                 {
                     AddElement(pendingItem.Element);
                 }
@@ -169,120 +174,7 @@ public class FountainParser
                 }
             }
         }
-        pending.Clear();
-    }
-
-    private bool ParseBoneyard()
-    {
-        // Handle in-line boneyards
-        int open = line.IndexOf("/*");
-        int close = line.IndexOf("*/", open > -1 ? open : 0);
-        int lastTag = -1;
-
-        while (open > -1 && close > open)
-        {
-            string boneyardText = line.Substring(open + 2, close - open - 2);
-            Script.Boneyards.Add(new FountainBoneyard(boneyardText));
-            string tag = $"/*{Script.Boneyards.Count - 1}*/";
-            line = line.Substring(0, open) + tag + line.Substring(close + 2);
-            lastTag = open + tag.Length;
-            open = line.IndexOf("/*", lastTag);
-            close = line.IndexOf("*/", lastTag);
-        }
-
-        // Check for entering boneyard content
-        if (boneyard == null)
-        {
-            int idx = line.IndexOf("/*", lastTag > -1 ? lastTag : 0);
-            if (idx > -1) // Move into boneyard
-            {
-                lineBeforeBoneyard = line.Substring(0, idx);
-                boneyard = new FountainBoneyard(line.Substring(idx + 2));
-                return true;
-            }
-        }
-        else
-        {
-            // Check for end of boneyard content
-            int idx = line.IndexOf("*/", lastTag > -1 ? lastTag : 0);
-            if (idx > -1)
-            {
-                boneyard.AppendLine(line.Substring(0, idx));
-                Script.Boneyards.Add(boneyard);
-                string tag = $"/*{Script.Boneyards.Count - 1}*/";
-                line = lineBeforeBoneyard + tag + line.Substring(idx + 2);
-                lineBeforeBoneyard = "";
-                boneyard = null;
-            }
-            else // Still in boneyard
-            {
-                boneyard.AppendLine(line);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool ParseNotes()
-    {
-        // Process inline notes
-        int open = line.IndexOf("[[");
-        int close = line.IndexOf("]]", open > -1 ? open : 0);
-        int lastTag = -1;
-
-        while (open > -1 && close > open)
-        {
-            string noteText = line.Substring(open + 2, close - open - 2);
-            Script.Notes.Add(new FountainNote(noteText));
-            string tag = $"[[{Script.Notes.Count - 1}]]";
-            line = line.Substring(0, open) + tag + line.Substring(close + 2);
-            lastTag = open + tag.Length;
-            open = line.IndexOf("[[", lastTag);
-            close = line.IndexOf("]]", lastTag);
-        }
-
-        // Handle note content
-        if (note == null)
-        {
-            int idx = line.IndexOf("[[", lastTag > -1 ? lastTag : 0);
-            if (idx > -1) // Move into notes
-            {
-                lineBeforeNote = line.Substring(0, idx);
-                note = new FountainNote(line.Substring(idx + 2));
-                line = lineBeforeNote;
-                return true;
-            }
-        }
-        else
-        {
-            // Check for end of note content
-            int idx = line.IndexOf("]]", lastTag > -1 ? lastTag : 0);
-            if (idx > -1)
-            {
-                note.AppendLine(line.Substring(0, idx));
-                Script.Notes.Add(note);
-                string tag = $"[[{Script.Notes.Count - 1}]]";
-                line = lineBeforeNote + tag + line.Substring(idx + 2);
-                lineBeforeNote = "";
-                note = null;
-            }
-            else if (line == "")
-            {
-                // End of note due to line break
-                Script.Notes.Add(note);
-                string tag = $"[[{Script.Notes.Count - 1}]]";
-                line = lineBeforeNote + tag;
-                lineBeforeNote = "";
-                note = null;
-            }
-            else
-            {
-                // Still in notes
-                note.AppendLine(line);
-                return true;
-            }
-        }
-        return false;
+        _pending.Clear();
     }
 
     private bool ParseTitlePage()
@@ -290,41 +182,54 @@ public class FountainParser
         var regexTitleEntry = new Regex(@"^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$");
         var regexTitleMultilineEntry = new Regex(@"^( {3,}|\t)");
 
-        var match = regexTitleEntry.Match(line);
+        var match = regexTitleEntry.Match(_line);
         if (match.Success)
         {
             var text = match.Groups[2].Value;
-            Script.TitleEntries.Add(new FountainTitleEntry(match.Groups[1].Value, text));
-            multiLineTitleEntry = string.IsNullOrEmpty(text);
+            Script.TitleEntries.Add(new TitleEntry(match.Groups[1].Value, text));
+            _multiLineTitleEntry = string.IsNullOrEmpty(text);
             return true;
         }
 
-        if (multiLineTitleEntry && regexTitleMultilineEntry.IsMatch(line))
+        if (_multiLineTitleEntry && regexTitleMultilineEntry.IsMatch(_line))
         {
             var entry = Script.TitleEntries[^1];
-            entry.AppendLine(line);
+            entry.AppendLine(_line);
             return true;
         }
 
-        inTitlePage = false;
+        _inTitlePage = false;
         return false;
     }
 
-    private bool ParsePageBreak()
+    private bool ParseSection()
     {
-        if (Regex.IsMatch(lineTrim, @"^\s*={3,}\s*$"))
+        if (_lineTrim.StartsWith("###"))
         {
-            AddElement(new FountainPageBreak());
+            AddElement(new Section(3, _lineTrim.Substring(3).Trim()));
             return true;
         }
+
+        if (_lineTrim.StartsWith("##"))
+        {
+            AddElement(new Section(2, _lineTrim.Substring(2).Trim()));
+            return true;
+        }
+
+        if (_lineTrim.StartsWith("#"))
+        {
+            AddElement(new Section(1, _lineTrim.Substring(1).Trim()));
+            return true;
+        }
+
         return false;
     }
 
     private bool ParseLyrics()
     {
-        if (lineTrim.StartsWith("~"))
+        if (_lineTrim.StartsWith("~"))
         {
-            AddElement(new FountainLyric(lineTrim.Substring(1).TrimStart()));
+            AddElement(new Lyric(_lineTrim.Substring(1).TrimStart()));
             return true;
         }
         return false;
@@ -332,25 +237,41 @@ public class FountainParser
 
     private bool ParseSynopsis()
     {
-        if (Regex.IsMatch(lineTrim, @"^=(?!\=)"))
+        if (Regex.IsMatch(_lineTrim, @"^=(?!\=)"))
         {
-            AddElement(new FountainSynopsis(lineTrim.Substring(1).TrimStart()));
+            AddElement(new Synopsis(_lineTrim.Substring(1).TrimStart()));
             return true;
         }
         return false;
     }
 
-    private bool ParseCenteredText()
+    private SceneHeadingInfo? DecodeSceneHeading(string line)
     {
-        if (lineTrim.StartsWith(">") && lineTrim.EndsWith("<"))
+        var regex = new Regex(@"^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$");
+        var match = regex.Match(line);
+        if (match.Success)
         {
-            var content = lineTrim.Substring(1, lineTrim.Length - 2);
-            var centeredElement = new FountainAction(content)
-            {
-                Centered = true
+            var text = match.Groups[1].Value.Trim();
+            string? sceneNumber = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
+            return new SceneHeadingInfo{
+                Text = text,
+                SceneNumber = sceneNumber
             };
-            AddElement(centeredElement);
-            return true;
+        }
+        return null;
+    }
+    
+    private bool ParseForcedSceneHeading()
+    {
+        var regex = new Regex(@"^\.[a-zA-Z0-9]");
+        if (regex.IsMatch(_lineTrim))
+        {
+            var heading = DecodeSceneHeading(_lineTrim.Substring(1));
+            if (heading!=null)
+            {
+                AddElement(new SceneHeading(heading.Text, heading.SceneNumber, forced: true));
+                return true;
+            }
         }
         return false;
     }
@@ -358,29 +279,39 @@ public class FountainParser
     private bool ParseSceneHeading()
     {
         var regexHeading = new Regex(@"^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)", RegexOptions.IgnoreCase);
-        if (regexHeading.IsMatch(lineTrim))
+        if (regexHeading.IsMatch(_lineTrim))
         {
-            var heading = DecodeHeading(lineTrim);
-            if (heading.HasValue)
+            var heading = DecodeSceneHeading(_lineTrim);
+            if (heading!=null)
             {
-                var (text, sceneNum) = heading.Value;
-                AddElement(new FountainHeading(text, sceneNum));
+                AddElement(new SceneHeading(heading.Text, heading.SceneNumber));
             }
             return true;
         }
         return false;
     }
 
+    private bool ParseForcedTransition()
+    {
+        if (_lineTrim.StartsWith(">") && !_lineTrim.EndsWith("<"))
+        {
+            AddElement(new Transition(_lineTrim.Substring(1).Trim(), forced: true));
+            return true;
+        }
+
+        return false;
+    }
+    
     private bool ParseTransition()
     {
         var regexTransition = new Regex(@"^\s*(?:[A-Z\s]+TO:)\s*$");
-        if (regexTransition.IsMatch(lineTrim) && lastLineEmpty)
+        if (regexTransition.IsMatch(_lineTrim) && _lastLineEmpty)
         {
-            pending.Add(new PendingElement
+            _pending.Add(new PendingElement
             {
-                Type = Element.TRANSITION,
-                Element = new FountainTransition(lineTrim),
-                Backup = new FountainAction(lineTrim)
+                Type = ElementType.TRANSITION,
+                Element = new Transition(_lineTrim),
+                Backup = new Action(_lineTrim)
             });
             return true;
         }
@@ -390,117 +321,22 @@ public class FountainParser
     private bool ParseParenthesis()
     {
         var regexParenthesis = new Regex(@"^\s*\((.*)\)\s*$");
-        var match = regexParenthesis.Match(line);
+        var match = regexParenthesis.Match(_line);
         var lastElement = GetLastElement();
 
-        if (match.Success && inDialogue && lastElement != null &&
-            (lastElement.Type == Element.CHARACTER || lastElement.Type == Element.DIALOGUE))
+        if (match.Success && _inDialogue && lastElement != null &&
+            (lastElement.Type == ElementType.CHARACTER || lastElement.Type == ElementType.DIALOGUE))
         {
-            AddElement(new FountainParenthesis(match.Groups[1].Value));
+            AddElement(new Parenthesis(match.Groups[1].Value));
             return true;
         }
         return false;
-    }
-
-    private bool ParseCharacter()
-    {
-        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)", RegexOptions.IgnoreCase);
-        var noContLineTrim = regexCont.Replace(lineTrim, "").Trim();
-
-        var regexCharacter = new Regex(@"^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$");
-        if (lastLineEmpty && regexCharacter.IsMatch(noContLineTrim))
-        {
-            var character = DecodeCharacter(noContLineTrim);
-            if (character != null)
-            {
-                pending.Add(new PendingElement
-                {
-                    Type = Element.CHARACTER,
-                    Element = new FountainCharacter(noContLineTrim, character.Name, character.Extension, character.Dual),
-                    Backup = new FountainAction(lineTrim)
-                });
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool ParseDialogue()
-    {
-        var lastElement = GetLastElement();
-        if (lastElement != null && line.Length > 0 &&
-            (lastElement.Type == Element.CHARACTER || lastElement.Type == Element.PARENTHESIS))
-        {
-            AddElement(new FountainDialogue(lineTrim));
-            return true;
-        }
-
-        if (lastElement != null && lastElement.Type == Element.DIALOGUE)
-        {
-            if (lastLineEmpty && lastLine.Length > 0)
-            {
-                if (MergeDialogue) 
-                {
-                    lastElement.AppendLine("");
-                    lastElement.AppendLine(lineTrim);
-                }
-                else
-                {
-                    AddElement(new FountainDialogue(""));
-                    AddElement(new FountainDialogue(lineTrim));
-                }
-                                
-                return true;
-            }
-
-            if (!lastLineEmpty && lineTrim.Length > 0)
-            {
-                if (MergeDialogue)
-                {
-                    lastElement.AppendLine(lineTrim);
-                }
-                else
-                {
-                    AddElement(new FountainDialogue(lineTrim));
-                }
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private bool ParseForcedAction()
-    {
-        if (lineTrim.StartsWith("!"))
-        {
-            AddElement(new FountainAction(lineTrim.Substring(1), forced: true));
-            return true;
-        }
-        return false;
-    }
-
-    private void ParseAction()
-    {
-        AddElement(new FountainAction(line));
-    }
-
-    private (string Text, string? SceneNum)? DecodeHeading(string line)
-    {
-        var regex = new Regex(@"^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$");
-        var match = regex.Match(line);
-        if (match.Success)
-        {
-            var text = match.Groups[1].Value.Trim();
-            string? sceneNum = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
-            return (text, sceneNum);
-        }
-        return null;
     }
 
     private CharacterInfo? DecodeCharacter(string line)
     {
-        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)", RegexOptions.IgnoreCase);
+        // Strip out all CONT'D variants
+        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)");
         var noContLine = regexCont.Replace(line, "").Trim();
 
         var regexCharacter = new Regex(@"^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$");
@@ -520,55 +356,16 @@ public class FountainParser
         }
         return null;
     }
-
-    private bool ParseSection()
-    {
-        if (lineTrim.StartsWith("###"))
-        {
-            AddElement(new FountainSection(3, lineTrim.Substring(3).Trim()));
-            return true;
-        }
-
-        if (lineTrim.StartsWith("##"))
-        {
-            AddElement(new FountainSection(2, lineTrim.Substring(2).Trim()));
-            return true;
-        }
-
-        if (lineTrim.StartsWith("#"))
-        {
-            AddElement(new FountainSection(1, lineTrim.Substring(1).Trim()));
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool ParseForcedSceneHeading()
-    {
-        var regex = new Regex(@"^\.[a-zA-Z0-9]");
-        if (regex.IsMatch(lineTrim))
-        {
-            var heading = DecodeHeading(lineTrim.Substring(1));
-            if (heading.HasValue)
-            {
-                var (text, sceneNum) = heading.Value;
-                AddElement(new FountainHeading(text, sceneNum, forced: true));
-                return true;
-            }
-        }
-        return false;
-    }
-
+    
     private bool ParseForcedCharacter()
     {
-        if (lineTrim.StartsWith("@"))
+        if (_lineTrim.StartsWith("@"))
         {
-            var trimmedLine = lineTrim.Substring(1).Trim();
+            var trimmedLine = _lineTrim.Substring(1).Trim();
             var character = DecodeCharacter(trimmedLine);
             if (character != null)
             {
-                AddElement(new FountainCharacter(trimmedLine, character.Name, character.Extension, character.Dual));
+                AddElement(new Character(trimmedLine, character.Name, character.Extension, character.Dual));
                 return true;
             }
         }
@@ -576,22 +373,234 @@ public class FountainParser
         return false;
     }
 
-    private bool ParseForcedTransition()
+    private bool ParseCharacter()
     {
-        if (lineTrim.StartsWith(">") && !lineTrim.EndsWith("<"))
+        // Strip out all CONT'D variants
+        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)");
+        var noContLineTrim = regexCont.Replace(_lineTrim, "").Trim();
+
+        var regexCharacter = new Regex(@"^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$");
+        if (_lastLineEmpty && regexCharacter.IsMatch(noContLineTrim))
         {
-            AddElement(new FountainTransition(lineTrim.Substring(1).Trim(), forced: true));
+            var character = DecodeCharacter(noContLineTrim);
+            if (character != null)
+            {
+                _pending.Add(new PendingElement
+                {
+                    Type = ElementType.CHARACTER,
+                    Element = new Character(noContLineTrim, character.Name, character.Extension, character.Dual),
+                    Backup = new Action(_lineTrim)
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool ParseDialogue()
+    {
+        var lastElement = GetLastElement();
+        if (lastElement != null && _line.Length > 0 &&
+            (lastElement.Type == ElementType.CHARACTER || lastElement.Type == ElementType.PARENTHESIS))
+        {
+            AddElement(new Dialogue(_lineTrim));
             return true;
         }
 
+        if (lastElement != null && lastElement.Type == ElementType.DIALOGUE)
+        {
+            if (_lastLineEmpty && _lastLine.Length > 0)
+            {
+                if (MergeDialogue) 
+                {
+                    lastElement.AppendLine("");
+                    lastElement.AppendLine(_lineTrim);
+                }
+                else
+                {
+                    AddElement(new Dialogue(""));
+                    AddElement(new Dialogue(_lineTrim));
+                }
+                                
+                return true;
+            }
+
+            if (!_lastLineEmpty && _lineTrim.Length > 0)
+            {
+                if (MergeDialogue)
+                {
+                    lastElement.AppendLine(_lineTrim);
+                }
+                else
+                {
+                    AddElement(new Dialogue(_lineTrim));
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+   private bool ParseForcedAction()
+    {
+        if (_lineTrim.StartsWith("!"))
+        {
+            AddElement(new Action(_lineTrim.Substring(1), forced: true));
+            return true;
+        }
+        return false;
+    }
+
+   private bool ParseCenteredAction()
+    {
+        if (_lineTrim.StartsWith(">") && _lineTrim.EndsWith("<"))
+        {
+            var content = _lineTrim.Substring(1, _lineTrim.Length - 2);
+            var centeredElement = new Action(content)
+            {
+                Centered = true
+            };
+            AddElement(centeredElement);
+            return true;
+        }
+        return false;
+    }
+
+    private void ParseAction()
+    {
+        AddElement(new Action(_line));
+    }
+
+
+    private bool ParsePageBreak()
+    {
+        if (Regex.IsMatch(_lineTrim, @"^\s*={3,}\s*$"))
+        {
+            AddElement(new PageBreak());
+            return true;
+        }
+        return false;
+    }
+
+    private bool ParseBoneyard()
+    {
+        // Handle in-line boneyards
+        int open = _line.IndexOf("/*");
+        int close = _line.IndexOf("*/", open > -1 ? open : 0);
+        int lastTag = -1;
+
+        while (open > -1 && close > open)
+        {
+            string boneyardText = _line.Substring(open + 2, close - open - 2);
+            Script.Boneyards.Add(new Boneyard(boneyardText));
+            string tag = $"/*{Script.Boneyards.Count - 1}*/";
+            _line = _line.Substring(0, open) + tag + _line.Substring(close + 2);
+            lastTag = open + tag.Length;
+            open = _line.IndexOf("/*", lastTag);
+            close = _line.IndexOf("*/", lastTag);
+        }
+
+        // Check for entering boneyard content
+        if (_currentBoneyard == null)
+        {
+            int idx = _line.IndexOf("/*", lastTag > -1 ? lastTag : 0);
+            if (idx > -1) // Move into boneyard
+            {
+                _lineBeforeBoneyard = _line.Substring(0, idx);
+                _currentBoneyard = new Boneyard(_line.Substring(idx + 2));
+                return true;
+            }
+        }
+        else
+        {
+            // Check for end of boneyard content
+            int idx = _line.IndexOf("*/", lastTag > -1 ? lastTag : 0);
+            if (idx > -1)
+            {
+                _currentBoneyard.AppendLine(_line.Substring(0, idx));
+                Script.Boneyards.Add(_currentBoneyard);
+                string tag = $"/*{Script.Boneyards.Count - 1}*/";
+                _line = _lineBeforeBoneyard + tag + _line.Substring(idx + 2);
+                _lineBeforeBoneyard = "";
+                _currentBoneyard = null;
+            }
+            else // Still in boneyard
+            {
+                _currentBoneyard.AppendLine(_line);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool ParseNotes()
+    {
+        // Process inline notes
+        int open = _line.IndexOf("[[");
+        int close = _line.IndexOf("]]", open > -1 ? open : 0);
+        int lastTag = -1;
+
+        while (open > -1 && close > open)
+        {
+            string noteText = _line.Substring(open + 2, close - open - 2);
+            Script.Notes.Add(new Note(noteText));
+            string tag = $"[[{Script.Notes.Count - 1}]]";
+            _line = _line.Substring(0, open) + tag + _line.Substring(close + 2);
+            lastTag = open + tag.Length;
+            open = _line.IndexOf("[[", lastTag);
+            close = _line.IndexOf("]]", lastTag);
+        }
+
+        // Handle note content
+        if (_currentNote == null)
+        {
+            int idx = _line.IndexOf("[[", lastTag > -1 ? lastTag : 0);
+            if (idx > -1) // Move into notes
+            {
+                _lineBeforeNote = _line.Substring(0, idx);
+                _currentNote = new Note(_line.Substring(idx + 2));
+                _line = _lineBeforeNote;
+                return true;
+            }
+        }
+        else
+        {
+            // Check for end of note content
+            int idx = _line.IndexOf("]]", lastTag > -1 ? lastTag : 0);
+            if (idx > -1)
+            {
+                _currentNote.AppendLine(_line.Substring(0, idx));
+                Script.Notes.Add(_currentNote);
+                string tag = $"[[{Script.Notes.Count - 1}]]";
+                _line = _lineBeforeNote + tag + _line.Substring(idx + 2);
+                _lineBeforeNote = "";
+                _currentNote = null;
+            }
+            else if (_line == "")
+            {
+                // End of note due to line break
+                Script.Notes.Add(_currentNote);
+                string tag = $"[[{Script.Notes.Count - 1}]]";
+                _line = _lineBeforeNote + tag;
+                _lineBeforeNote = "";
+                _currentNote = null;
+            }
+            else
+            {
+                // Still in notes
+                _currentNote.AppendLine(_line);
+                return true;
+            }
+        }
         return false;
     }
 
     private class PendingElement
     {
-        public Element Type { get; set; }
-        public required FountainElement Element { get; set; }
-        public required FountainElement Backup { get; set; }
+        public ElementType Type { get; set; }
+        public required Element Element { get; set; }
+        public required Element Backup { get; set; }
     }
 
     private class CharacterInfo
@@ -600,4 +609,9 @@ public class FountainParser
         public string? Extension { get; set; }
         public bool Dual { get; set; }
     }
+
+    private class SceneHeadingInfo {
+        public required string Text { get; set; }
+        public string? SceneNumber { get; set; }
+    };
 }

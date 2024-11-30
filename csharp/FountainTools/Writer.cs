@@ -5,7 +5,6 @@ namespace Fountain;
 public class FountainWriter
 {
     public bool PrettyPrint { get; set; }
-    private string? _lastChar;
 
     public FountainWriter()
     {
@@ -14,7 +13,7 @@ public class FountainWriter
     }
 
     // Expects FountainScript and returns a UTF-8 formatted string
-    public string Write(FountainScript script)
+    public string Write(Script script)
     {
         var lines = new List<string>();
 
@@ -30,21 +29,21 @@ public class FountainWriter
         }
 
         // Write elements
-        FountainElement? lastElem = null;
+        Element? lastElem = null;
 
         foreach (var element in script.Elements)
         {
             // Determine padding
             bool padBefore = false;
-            if (element.Type == Element.CHARACTER || 
-                element.Type == Element.TRANSITION || 
-                element.Type == Element.HEADING)
+            if (element.Type == ElementType.CHARACTER || 
+                element.Type == ElementType.TRANSITION || 
+                element.Type == ElementType.HEADING)
             {
                 padBefore = true;
             }
-            else if (element.Type == Element.ACTION)
+            else if (element.Type == ElementType.ACTION)
             {
-                padBefore = lastElem == null || lastElem.Type != Element.ACTION;
+                padBefore = lastElem == null || lastElem.Type != ElementType.ACTION;
             }
 
             if (padBefore)
@@ -76,42 +75,44 @@ public class FountainWriter
         return text.Trim();
     }
 
-    private string WriteElement(FountainElement elem)
+    private string? _lastChar;
+
+    private string WriteElement(Element elem)
     {
         switch (elem.Type)
         {
-            case Element.CHARACTER:
-                return WriteCharacter((FountainCharacter)elem);
+            case ElementType.CHARACTER:
+                return WriteCharacter((Character)elem);
 
-            case Element.DIALOGUE:
-                return WriteDialogue((FountainDialogue)elem);
+            case ElementType.DIALOGUE:
+                return WriteDialogue((Dialogue)elem);
 
-            case Element.PARENTHESIS:
-                return WriteParenthesis((FountainParenthesis)elem);
+            case ElementType.PARENTHESIS:
+                return WriteParenthesis((Parenthesis)elem);
 
-            case Element.ACTION:
-                return WriteAction((FountainAction)elem);
+            case ElementType.ACTION:
+                return WriteAction((Action)elem);
 
-            case Element.LYRIC:
+            case ElementType.LYRIC:
                 return $"~ {elem.TextRaw}";
 
-            case Element.SYNOPSIS:
+            case ElementType.SYNOPSIS:
                 return $"= {elem.TextRaw}";
 
-            case Element.TITLEENTRY:
-                return $"{((FountainTitleEntry)elem).Key}: {elem.TextRaw}";
+            case ElementType.TITLEENTRY:
+                return $"{((TitleEntry)elem).Key}: {elem.TextRaw}";
 
-            case Element.HEADING:
-                return WriteHeading((FountainHeading)elem);
+            case ElementType.HEADING:
+                return WriteHeading((SceneHeading)elem);
 
-            case Element.TRANSITION:
-                return WriteTransition((FountainTransition)elem);
+            case ElementType.TRANSITION:
+                return WriteTransition((Transition)elem);
 
-            case Element.PAGEBREAK:
+            case ElementType.PAGEBREAK:
                 return "===";
 
-            case Element.SECTION:
-                return $"{new string('#', ((FountainSection)elem).Level)} {elem.TextRaw}";
+            case ElementType.SECTION:
+                return $"{new string('#', ((Section)elem).Level)} {elem.TextRaw}";
 
             default:
                 _lastChar = null;
@@ -119,7 +120,7 @@ public class FountainWriter
         }
     }
 
-    private string WriteCharacter(FountainCharacter elem)
+    private string WriteCharacter(Character elem)
     {
         string pad = PrettyPrint ? new string('\t', 3) : string.Empty;
         string charText = elem.Name;
@@ -137,7 +138,7 @@ public class FountainWriter
         return $"{pad}{charText}";
     }
 
-    private string WriteDialogue(FountainDialogue elem)
+    private string WriteDialogue(Dialogue elem)
     {
         string output = elem.TextRaw;
 
@@ -155,13 +156,13 @@ public class FountainWriter
         return output;
     }
 
-    private string WriteParenthesis(FountainParenthesis elem)
+    private string WriteParenthesis(Parenthesis elem)
     {
         string pad = PrettyPrint ? new string('\t', 2) : string.Empty;
         return $"{pad}({elem.TextRaw})";
     }
 
-    private string WriteAction(FountainAction elem)
+    private string WriteAction(Action elem)
     {
         if (elem.Forced)
             return $"!{elem.TextRaw}";
@@ -170,7 +171,7 @@ public class FountainWriter
         return elem.TextRaw;
     }
 
-    private string WriteHeading(FountainHeading elem)
+    private string WriteHeading(SceneHeading elem)
     {
         string sceneNum = !string.IsNullOrEmpty(elem.SceneNumber) ? $" #{elem.SceneNumber}#" : string.Empty;
         if (elem.Forced)
@@ -178,7 +179,7 @@ public class FountainWriter
         return $"\n{elem.TextRaw}{sceneNum}";
     }
 
-    private string WriteTransition(FountainTransition elem)
+    private string WriteTransition(Transition elem)
     {
         string pad = PrettyPrint ? new string('\t', 4) : string.Empty;
         if (elem.Forced)

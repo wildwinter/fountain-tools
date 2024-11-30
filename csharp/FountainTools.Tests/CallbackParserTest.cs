@@ -22,7 +22,7 @@ public class CallbackParserTest
 
         var outLines = new List<string>();
 
-        FountainCallbackParser fp = new FountainCallbackParser();
+        CallbackParser fp = new CallbackParser();
 
         fp.OnDialogue = (Character, Extension, Parenthetical, Line, IsDualDialogue) => {
             outLines.Add("DIALOGUE:"+

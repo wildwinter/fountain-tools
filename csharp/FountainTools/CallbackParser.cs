@@ -1,6 +1,6 @@
 namespace Fountain;
 
-public class FountainCallbackParser : FountainParser
+public class CallbackParser : FountainParser
 {
     public class TitleEntry {
         public required string Key;
@@ -32,15 +32,12 @@ public class FountainCallbackParser : FountainParser
     public Action<string>? OnSynopsis { get; set; }
     
      // No params 
-    public Action? OnPageBreak { get; set; }
+    public System.Action? OnPageBreak { get; set; }
 
 
     public bool IgnoreBlanks { get; set; } = true;
 
-    private FountainCharacter? _lastChar;
-    private FountainParenthesis? _lastParen;
-
-    public FountainCallbackParser() : base()
+    public CallbackParser() : base()
     {
         _lastChar = null;
         _lastParen = null;
@@ -52,11 +49,11 @@ public class FountainCallbackParser : FountainParser
         MergeDialogue = false; // Don't merge dialogue, callbacks need them separated.
 
         int elementCount = Script.Elements.Count;
-        bool wasInTitlePage = inTitlePage;
+        bool wasInTitlePage = _inTitlePage;
 
         base.AddLine(line);
 
-        if (wasInTitlePage && !inTitlePage)
+        if (wasInTitlePage && !_inTitlePage)
         {
             // Finished reading title page
             if (OnTitlePage != null)
@@ -77,19 +74,22 @@ public class FountainCallbackParser : FountainParser
         }
     }
 
-    private void HandleNewElement(FountainElement elem)
+    private Character? _lastChar;
+    private Parenthesis? _lastParen;
+
+    private void HandleNewElement(Element elem)
     {
         switch (elem.Type)
         {
-            case Element.CHARACTER:
-                _lastChar = (FountainCharacter)elem;
+            case ElementType.CHARACTER:
+                _lastChar = (Character)elem;
                 break;
 
-            case Element.PARENTHESIS:
-                _lastParen = (FountainParenthesis)elem;
+            case ElementType.PARENTHESIS:
+                _lastParen = (Parenthesis)elem;
                 break;
 
-            case Element.DIALOGUE:
+            case ElementType.DIALOGUE:
                 if (_lastChar != null)
                 {
                     var character = _lastChar.Name;
@@ -107,45 +107,45 @@ public class FountainCallbackParser : FountainParser
                 }
                 break;
 
-            case Element.ACTION:
+            case ElementType.ACTION:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
                 OnAction?.Invoke(elem.TextRaw);
                 break;
 
-            case Element.HEADING:
+            case ElementType.HEADING:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
-                var heading = (FountainHeading)elem;
+                var heading = (SceneHeading)elem;
                 OnSceneHeading?.Invoke(heading.TextRaw, heading.SceneNumber);
                 break;
 
-            case Element.LYRIC:
+            case ElementType.LYRIC:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
                 OnLyrics?.Invoke(elem.TextRaw);
                 break;
 
-            case Element.TRANSITION:
+            case ElementType.TRANSITION:
                 if (IgnoreBlanks && string.IsNullOrWhiteSpace(elem.TextRaw))
                     return;
 
                 OnTransition?.Invoke(elem.TextRaw);
                 break;
 
-            case Element.SECTION:
-                var section = (FountainSection)elem;
+            case ElementType.SECTION:
+                var section = (Section)elem;
                 OnSection?.Invoke(section.TextRaw, section.Level);
                 break;
 
-            case Element.SYNOPSIS:
+            case ElementType.SYNOPSIS:
                 OnSynopsis?.Invoke(elem.TextRaw);
                 break;
 
-            case Element.PAGEBREAK:
+            case ElementType.PAGEBREAK:
                 OnPageBreak?.Invoke();
                 break;
 

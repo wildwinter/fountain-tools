@@ -22,7 +22,7 @@ public:
     virtual void addLines(const std::vector<std::string>& lines);
     // Add an individual line.
     virtual void addLine(const std::string& inputLine);
-    // Call this when you're sure you're done! Some to-be-decided lines may get added.
+    // Call this when you're sure you're done calling a series of addLine()! Some to-be-decided lines may get added.
     virtual void finalizeParsing();
 
     const std::shared_ptr<Script>& getScript() const {return _script;}
