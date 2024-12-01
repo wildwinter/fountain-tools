@@ -1,15 +1,36 @@
 # fountain-tools
 **fountain-tools** is a set of libraries for parsing the [Fountain](https://fountain.io/) script-writing language. These libraries are written in **C++**, **Javascript**, **Python**, and **C#**.
 
+```
+INT. DAVE'S APARTMENT - DAY
+
+Dave is standing in the open window looking out at the pouring rain.
+
+            DAVE
+        (cheerfully)
+    Nice day for it!
+
+            CUT TO:
+```
+
 [Fountain](https://fountain.io/syntax/) is a simple plaintext format for movie and TV scripts. It's also used as an export and import format by multiple script-writing apps, such as **Fade In**, **Highland**, **Final Draft**, **Slugline** and others.
 
 Other parsers exist, but I needed (for reasons which might someday become obvious) an incremental parser that can take line-by-line of a Fountain script. You don't need to use these libraries in that mode, you can just parse an entire script at once.
 
-The parsers turn the raw Fountain files into an intermediate Script object which you can parse and do what you want with. For example, you could use it to drive dialogue for a computer game! :-)
+The main `Parser` class turns the raw Fountain files into intermediate Script objects which you can do what you want with. An alternative parser, `CallbackParser`, triggers methods as the script is parsed. Maybe you could use it to drive dialogue for a computer game! :-)
+
+```javascript
+onSceneHeading: { text: "INT. DAVE'S APARTMENT - DAY" }
+
+onAction: { text: "Dave is standing in the open window looking out at the pouring rain." }
+
+onDialogue: { character: "DAVE", parenthetical:  "cheerfully", line: "Nice day for it!" }
+```
 
 This should all be UTF-8 compatible!
 
 ### Contents
+* [The Basics](#the-basics)
 * [Source Code](#source-code)
 * [Releases](#releases)
 * [Usage](#usage)
@@ -32,6 +53,79 @@ This should all be UTF-8 compatible!
     * [`Fountain.FormatHelper`](#formathelper)
 * [License](#license)
 
+## The Basics
+The `Fountain.Parser` supplied in the tools will take this:
+```
+INT. DAVE'S APARTMENT - DAY
+
+Dave is standing in the open window looking out at the pouring rain.
+
+            DAVE
+        (cheerfully)
+    Nice day for it!
+
+            CUT TO:
+
+INT. SPACE STATION - EARTHDAWN #1a#
+
+Jennifer is upside down, looking out through a round porthole of a window, at the sun rising over Earth.
+
+            JENNIFER
+        (bitter)
+    Nice day for it.
+
+            COLIN (O.S.)
+    Oh no. Not again.
+```
+and break it into objects like this:
+```javascript
+HEADING: { text: "INT. DAVE'S APARTMENT - DAY" }
+
+ACTION: { text: "Dave is standing in the open window looking out at the pouring rain." }
+
+CHARACTER: { name: "DAVE" }
+
+PARENTHETICAL: { text: "cheerfully" }
+
+DIALOGUE: { text: "Nice day for it!" }
+
+TRANSITION: { text: "CUT TO:" }
+
+HEADING: { text: "INT. SPACE STATION - EARTHDAWN", sceneNumber: "1a"}
+
+ACTION: { text: "Jennifer is upside down, looking out through a round porthole of a window, at the sun rising over Earth." }
+
+CHARACTER: { name: "JENNIFER" }
+
+PARENTHETICAL: { text: "bitter" }
+
+DIALOGUE: { text: "Nice day for it." }
+
+CHARACTER: { name: "COLIN", extension: "O.S." }
+
+DIALOGUE: { text: "Oh no. Not again." }
+```
+You can then do what you like with the objects.
+
+An alternative parser, `Fountain.CallbackParser`, will gather up material and call back using your supplied functions during parsing. In particular, it gathers dialogue lines together with characters, which is often more useful if you want to display dialogue on-screen for some reason.
+
+```javascript
+onSceneHeading: { text: "INT. DAVE'S APARTMENT - DAY" }
+
+onAction: { text: "Dave is standing in the open window looking out at the pouring rain." }
+
+onDialogue: { character: "DAVE", parenthetical:  "cheerfully", line: "Nice day for it!" }
+
+onTransition: { text: "CUT TO:" }
+
+onSceneHeading: { text: "INT. SPACE STATION - EARTHDAWN", sceneNumber: "1a"}
+
+onAction: { text: "Jennifer is upside down, looking out through a round porthole of a window, at the sun rising over Earth." }
+
+onDialogue: { character: "JENNIFER" , parenthetical: "bitter", line: "Nice day for it." }
+
+onDialogue: { character: "COLIN", extension: "O.S." line: "Oh no. Not again." }
+```
 
 ## Source Code
 The source can be found on [Github](https://github.com/wildwinter/fountain-tools), and is available under the MIT license.
