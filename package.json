@@ -11,7 +11,7 @@
     "build": "npm run build:all",
     "build:cs": "cd csharp && npm run build",
     "build:cpp": "cd cpp && npm run build",
-    "build:all": "npm run build:cs && npm:build:cpp",
+    "build:all": "npm run build:cs && npm run build:cpp",
 
     "test": "npm run test:all",
     "test:js": "cd javascript && npm test",
