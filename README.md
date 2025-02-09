@@ -38,6 +38,7 @@ This should all be UTF-8 compatible!
     * [Parsing a file](#parsing-a-file)
     * [Parsing from a set of lines](#parsing-from-a-set-of-lines)
     * [Parsing a line at a time](#parsing-a-line-at-a-time)
+    * [Tags](#tags)
     * [Javascript as an ES6 module](#javascript-as-an-es6-module)
     * [Javascript in a browser](#javascript-in-a-browser)
     * [Python](#python)
@@ -220,6 +221,38 @@ fp.finalize()
 # Dump the parsed script
 print(fp.script.dump())
 ```
+### Tags
+I've extended the definition of Fountain files to introduce the concept of **tagging** a line: that is, being able to attach a number of data items to a line. This concept is stolen from Inkle's Ink markup language, and is useful for embedding information in a script.
+
+An example is like so
+```
+INT. DAVE'S APARTMENT - DAY #slow_load
+
+Dave is standing in the open window looking out at the pouring rain.
+
+            DAVE
+        (cheerfully)
+    Nice day for it! #color:blue #useAnim
+```
+
+In here, some of the lines have **tags** attached. A tag is always at the end of a normal line, starts with the #character, and then can contain any other character until it hits whitespace. You can have more than one tag.
+
+(If the first character on a line is a # character it will be treated as a **Section** as per the Fountain spec, not as a tag.)
+
+To parse this, you can pass `useTags=true` to your `Parser` class. Then each `Element`'s `tags` property will be populated with the tags for that particular script element. The parse works like so:
+
+```javascript
+HEADING: { text: "INT. DAVE'S APARTMENT - DAY", tags:["slow_load"]}
+
+ACTION: { text: "Dave is standing in the open window looking out at the pouring rain." }
+
+CHARACTER: { name: "DAVE" }
+
+PARENTHETICAL: { text: "cheerfully" }
+
+DIALOGUE: { text: "Nice day for it!", tags:["color:blue", "useAnim"]}
+```
+
 
 ### Javascript as an ES6 module
 ```javascript
@@ -371,6 +404,11 @@ The normal incremental parser. It stores the parsed script in the `script` prope
 These variables control whether multiple dialogue or action lines get merged together into one script element, or if you get called with a list of separate elements instead.
 
 Merging can be unhelpful if using an incremental parse.
+
+#### useTags:bool
+*Default: False*
+
+If True, extracts and parses tags from the Fountain file. See [Tags](#tags) above.
 
 #### addText(text:string)
 Split UTF-8 text into lines and parse them.
