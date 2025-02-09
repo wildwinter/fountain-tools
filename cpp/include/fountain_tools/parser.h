@@ -32,6 +32,7 @@ public:
 
     bool mergeActions = true;
     bool mergeDialogue = true;
+    bool useTags = false;
     
 protected:
     std::shared_ptr<Script> _script;
@@ -70,6 +71,7 @@ protected:
     std::string _lineTrim = "";
     bool _lastLineWhitespaceOrEmpty = false;
     std::string _lastLine = "";
+    std::vector<std::string> _lineTags;
 
     bool _inDialogue = false;
 
@@ -108,6 +110,7 @@ protected:
 
     bool _parseBoneyard();
     bool _parseNotes();
+    std::pair<std::string, std::vector<std::string>> _extractTags(const std::string& line);
 };
 
 } // namespace Fountain

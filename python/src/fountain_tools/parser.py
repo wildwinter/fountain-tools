@@ -32,6 +32,7 @@ class Parser:
 
         self.mergeActions = True
         self.mergeDialogue = True
+        self.useTags = False
 
         self._inTitlePage = True
         self._multiLineTitleEntry = False
@@ -49,6 +50,7 @@ class Parser:
         self._lineTrim = ""
         self._lastLineEmpty = True
         self._lastLine = ""
+        self._line_tags = []
 
         self._inDialogue = False
 
@@ -74,12 +76,20 @@ class Parser:
             return
         if self._parse_notes():
             return
+        
+        newTags = [];
+        if self.useTags:
+            (untagged, tags) = self._extract_tags(line)
+            newTags = tags
+            self._line = untagged
 
         self._lineTrim = self._line.strip()
 
         # Handle pending elements
         if self._pending:
             self._parse_pending()
+
+        self._line_tags = newTags
 
         # Parse title page
         if self._inTitlePage and self._parse_title_page():
@@ -132,6 +142,10 @@ class Parser:
 
     def _add_element(self, elem):
         """Add a new element to the script or merge it with the previous one."""
+
+        elem.append_tags(self._line_tags)
+        self._line_tags = []
+
         last_elem = self._get_last_elem()
 
         # Handle blank action lines
@@ -148,6 +162,7 @@ class Parser:
             if self.mergeActions and last_elem and not last_elem.centered:
                 for pad_action in self._padActions:
                     last_elem.append_line(pad_action.text_raw)
+                    last_elem.append_tags(pad_action.tags)
             else:
                 self.script.elements.extend(self._padActions)
 
@@ -163,6 +178,7 @@ class Parser:
             and not last_elem.centered
         ):
             last_elem.append_line(elem.text_raw)
+            last_elem.append_tags(elem.tags)
             return
 
         # Add the element
@@ -174,6 +190,11 @@ class Parser:
     def _parse_pending(self):
         """Resolve pending elements."""
         for pending in self._pending:
+
+            pending["element"].append_tags(self._line_tags)
+            pending["backup"].append_tags(self._line_tags)
+            self._line_tags = []
+        
             if pending["type"] == ElementType.TRANSITION:
                 if is_whitespace_or_empty(self._line):
                     self._add_element(pending["element"])
@@ -562,3 +583,16 @@ class Parser:
             return True
         
         return False
+    
+    def _extract_tags(self, line):
+        regex = re.compile(r'(?<=\S)\s#([^\s][^#]+)(?=\s|$)')
+        tags = []
+        first_match_index = None
+        
+        for match in regex.finditer(line):
+            if first_match_index is None:
+                first_match_index = match.start()
+            tags.append(match.group(1))
+        
+        untagged = line[:first_match_index].rstrip() if first_match_index is not None else line
+        return untagged, tags

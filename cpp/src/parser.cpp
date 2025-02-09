@@ -38,9 +38,18 @@ void Parser::addLine(const std::string& inputLine) {
 
     if (_parseBoneyard() || _parseNotes()) return;
 
+    std::vector<std::string> newTags;
+    if (useTags) {
+        auto [untagged, tags] = _extractTags(inputLine);
+        newTags = tags;
+        _line = untagged;
+    }
+
     _lineTrim = trim(_line);
 
     if (!_pending.empty()) _parsePending();
+
+    _lineTags = newTags;
 
     if (_inTitlePage && _parseTitlePage()) return;
 
@@ -67,6 +76,9 @@ std::shared_ptr<Element> Parser::_getLastElement() {
 
 void Parser::_addElement(std::shared_ptr<Element> element) {
 
+    element->appendTags(_lineTags);
+    _lineTags.clear();
+
     auto lastElement = _getLastElement();
 
     // Are we trying to add a blank action line?
@@ -91,6 +103,7 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
  
             for (const auto& padAction : _padActions) {
                 lastElement->appendLine(padAction->getTextRaw());
+                lastElement->appendTags(padAction->getTags());
             }
 
         } else {
@@ -111,6 +124,7 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
             !std::dynamic_pointer_cast<Action>(lastElement)->isCentered()) {
 
             lastElement->appendLine(element->getTextRaw());
+            lastElement->appendTags(element->getTags());
             return;
         }
 
@@ -125,6 +139,11 @@ void Parser::_addElement(std::shared_ptr<Element> element) {
 void Parser::_parsePending() {
 
     for (const auto& pendingItem : _pending) {
+
+        pendingItem->element->appendTags(_lineTags);
+        pendingItem->backup->appendTags(_lineTags);
+        _lineTags.clear();
+
         if (pendingItem->type == ElementType::TRANSITION) { 
             if (isWhitespaceOrEmpty(_lineTrim)) { // Blank line, so it's definitely a transition
                 _addElement(pendingItem->element);
@@ -572,5 +591,37 @@ bool Parser::_parseNotes() {
 
     return false;
 }
+
+std::pair<std::string, std::vector<std::string>> Parser::_extractTags(const std::string& line) {
+    std::regex regex(R"(\s#([^\s][^#]+)(?=\s|$))");
+    std::vector<std::string> tags;
+    std::sregex_iterator it(line.begin(), line.end(), regex);
+    std::sregex_iterator end;
+
+    std::optional<size_t> firstMatchIndex;
+
+    for (; it != end; ++it) {
+        size_t matchIndex = it->position();
+
+        // Ensure the match is preceded by a non-whitespace character
+        if (matchIndex == 0 || std::isspace(line[matchIndex - 1])) {
+            continue; // Skip if not preceded by a non-whitespace character
+        }
+
+        if (!firstMatchIndex) {
+            firstMatchIndex = matchIndex;
+        }
+        tags.push_back((*it)[1].str());
+    }
+
+    // Extract untagged part
+    std::string untagged = firstMatchIndex ? line.substr(0, *firstMatchIndex) : line;
+
+    // Trim trailing whitespace from untagged
+    untagged.erase(untagged.find_last_not_of(" \t\r\n") + 1);
+
+    return {untagged, tags};
+}
+
 
 } // namespace Fountain

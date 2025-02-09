@@ -65,15 +65,7 @@ export class FountainParser {
         this._lastLine= this._line;
         this._lastLineEmpty = isWhitespaceOrEmpty(this._line);
 
-        if (this.useTags) {
-            const {untagged, tags} = this._extractTags(line);
-            this._lineTags = tags;
-            this._line = untagged;
-        }
-        else {
-            this._lineTags = [];
-            this._line = line;
-        }
+        this._line = line;
 
         if (this._parseBoneyard())
             return;
@@ -81,11 +73,20 @@ export class FountainParser {
         if (this._parseNotes())
             return;
 
+        let newTags = [];
+        if (this.useTags) {
+            const {untagged, tags} = this._extractTags(line);
+            newTags = tags;
+            this._line = untagged;
+        }
+
         this._lineTrim = this._line.trim();
 
         // Some decisions can't be made until the next line lands
         if (this._pending.length>0)
             this._parsePending();
+
+        this._lineTags = newTags;
 
         if (this._inTitlePage && this._parseTitlePage())
             return;
@@ -154,6 +155,9 @@ export class FountainParser {
     // Adds a new element or merges with existing element
     _addElement(elem) {
 
+        elem.appendTags(this._lineTags);
+        this._lineTags = [];
+
         let lastElem = this._getLastElem();
 
         // Are we trying to add a blank action line?
@@ -175,6 +179,7 @@ export class FountainParser {
             if (this.mergeActions && !lastElem.centered) {
                 for(const padAction of this._padActions) {
                     lastElem.appendLine(padAction.textRaw);
+                    lastElem.appendTags(padAction.tags);
                 }
             }
             else {
@@ -190,6 +195,7 @@ export class FountainParser {
         if (this.mergeActions && elem.type == ElementType.ACTION && !elem.centered) {    
             if (lastElem && lastElem.type == ElementType.ACTION && !lastElem.centered) {
                 lastElem.appendLine(elem.textRaw);
+                lastElem.appendTags(elem.tags);
                 return;
             }
         }
@@ -202,6 +208,10 @@ export class FountainParser {
     _parsePending() {
 
         for (const pending of this._pending) {
+
+            pending.element.appendTags(this._lineTags);
+            pending.backup.appendTags(this._lineTags);
+            this._lineTags = [];
 
             if (pending.type == ElementType.TRANSITION) {
 

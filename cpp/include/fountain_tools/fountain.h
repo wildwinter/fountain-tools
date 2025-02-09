@@ -64,6 +64,8 @@ public:
 
     ElementType getType() const { return _type; }
 
+    const std::vector<std::string>& getTags() const {return _tags;}
+
     // Returns text without any Boneyard or Note references.
     const std::string& getText() const {return _textClean;}
 
@@ -73,6 +75,14 @@ public:
     void appendLine(const std::string& line) {
         _textRaw += "\n" + line;
         _updateText();
+    }
+
+    void appendTags(const std::vector<std::string>& tags) {
+        for (const auto& item : tags) {
+            if (std::find(_tags.begin(), _tags.end(), item) == _tags.end()) {
+                _tags.push_back(item);
+            }
+        }
     }
 
     virtual std::string dump() const {
@@ -96,6 +106,7 @@ private:
     std::string _textRaw;
      // Clean version doesn't have Note/Boneyard references
     std::string _textClean;
+    std::vector<std::string> _tags;
 
 };
 
@@ -306,11 +317,19 @@ public:
         std::vector<std::string> lines;
 
         for (const auto& titleEntry : _titleEntries) {
-            lines.push_back(titleEntry->dump());
+            if (titleEntry->getTags().size()>0)
+                lines.push_back(titleEntry->dump()+" tags:"+join(titleEntry->getTags(), ","));
+            else
+                lines.push_back(titleEntry->dump());
         }
+
         for (const auto& element : _elements) {
-            lines.push_back(element->dump());
+            if (element->getTags().size()>0)
+                lines.push_back(element->dump()+" tags:"+join(element->getTags(), ","));
+            else
+                lines.push_back(element->dump());
         }
+
         for (int i=0;i<_notes.size();i++) {
             lines.push_back("[["+std::to_string(i)+"]]"+_notes[i]->dump());
         }

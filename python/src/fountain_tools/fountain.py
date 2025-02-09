@@ -23,6 +23,7 @@ class Element:
     def __init__(self, element_type, text):
         self.type = element_type
         self._text = text
+        self.tags = []
 
     @property
     def text(self):
@@ -38,6 +39,9 @@ class Element:
 
     def append_line(self, line):
         self._text+="\n"+line
+
+    def append_tags(self, tags):
+        self.tags = self.tags + [x for x in tags if x not in self.tags]
 
     def dump(self):
         # For debugging
@@ -159,9 +163,17 @@ class Script:
     def dump(self):
         lines = []
         for entry in self.titleEntries:
-            lines.append(entry.dump())
+            if len(entry.tags)>0:
+                lines.append(entry.dump()+" tags:"+",".join(entry.tags))
+            else:
+                lines.append(entry.dump())
+
         for element in self.elements:
-            lines.append(element.dump())
+            if len(element.tags)>0:
+                lines.append(element.dump()+" tags:"+",".join(element.tags))
+            else:
+                lines.append(element.dump())
+
         for i, note in enumerate(self.notes):
             lines.append(f'[[{i}]]{note.dump()}')
         for i, boneyard in enumerate(self.boneyards):

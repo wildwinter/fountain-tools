@@ -250,4 +250,19 @@ public class ParserTest
         //Console.WriteLine(output);
         Assert.Equal(match, output);
     }
+
+   [Fact]
+    public void Tags()
+    {
+        string source = loadTestFile("Tags.fountain");
+        string match = loadTestFile("Tags.txt");
+
+        Parser fp = new Parser();
+        fp.UseTags = true;
+        fp.AddText(source);
+
+        string output = fp.Script.Dump();
+        //Console.WriteLine(output);
+        Assert.Equal(match, output);
+    }
 }

@@ -10,6 +10,7 @@ public class Parser
     public Script Script { get; private set; }
     public bool MergeActions = true;
     public bool MergeDialogue = true;
+    public bool UseTags = false;
 
     public Parser()
     {
@@ -46,9 +47,18 @@ public class Parser
         if (ParseBoneyard()) return;
         if (ParseNotes()) return;
 
+        List<string> newTags = [];
+        if (this.UseTags) {
+            var tagInfo = this.ExtractTags(inputLine);
+            newTags = tagInfo.tags;
+            this._line = tagInfo.untagged;
+        }
+
         _lineTrim = _line.Trim();
 
         if (_pending.Count > 0) ParsePending();
+
+        this._lineTags = newTags;
 
         if (_inTitlePage && ParseTitlePage()) return;
 
@@ -92,6 +102,7 @@ public class Parser
     private List<Action> _padActions;
     private bool _lastLineEmpty;
     private string _lastLine="";
+    private List<string> _lineTags = [];
 
     private Element? GetLastElement()
     {
@@ -102,6 +113,9 @@ public class Parser
 
     private void AddElement(Element element)
     {
+        element.AppendTags(this._lineTags);
+        this._lineTags = [];
+
         var lastElement = GetLastElement();
 
         if (element.Type == ElementType.ACTION && string.IsNullOrWhiteSpace(element.TextRaw) && !((Action)element).Centered)
@@ -123,6 +137,7 @@ public class Parser
                 foreach (var padAction in _padActions)
                 {
                     lastElement.AppendLine(padAction.TextRaw);
+                    lastElement.AppendTags(padAction.Tags);
                 }
             }
             else
@@ -141,6 +156,7 @@ public class Parser
             if (lastElement is Action lastAction && !lastAction.Centered)
             {
                 lastAction.AppendLine(element.TextRaw);
+                lastAction.AppendTags(element.Tags);
                 return;
             }
         }
@@ -154,6 +170,10 @@ public class Parser
     {
         foreach (var pendingItem in _pending)
         {
+            pendingItem.Element.AppendTags(this._lineTags);
+            pendingItem.Backup.AppendTags(this._lineTags);
+            this._lineTags = [];
+
             if (pendingItem.Type == ElementType.TRANSITION)
             {
                 if (string.IsNullOrWhiteSpace(_lineTrim))
@@ -597,6 +617,24 @@ public class Parser
             }
         }
         return false;
+    }
+
+    private (string untagged, List<string> tags) ExtractTags(string line) {
+        Regex regex = new Regex(@"(?<=\S)\s#([^\s][^#]+)(?=\s|$)");
+        List<string> tags = [];
+        MatchCollection matches = regex.Matches(line);
+
+        int? firstMatchIndex = null;
+
+        foreach (Match match in matches) {
+            if (firstMatchIndex == null) {
+                firstMatchIndex = match.Index;
+            }
+            tags.Add(match.Groups[1].Value);
+        }
+
+        string untagged = firstMatchIndex != null ? line[..firstMatchIndex.Value].TrimEnd() : line;
+        return (untagged, tags);
     }
 
     private class PendingElement

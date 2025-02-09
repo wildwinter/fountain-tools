@@ -227,5 +227,19 @@ class TestParser(unittest.TestCase):
         #print(output)
         self.assertMultiLineEqual(match, output)
 
+
+    def test_tags(self):
+
+        source = self._load_file("Tags.fountain")
+        match = self._load_file("Tags.txt")
+
+        fp = Parser()
+        fp.useTags = True
+        fp.add_text(source)
+
+        output = fp.script.dump();
+        #print(output)
+        self.assertMultiLineEqual(match, output)
+
 if __name__ == "__main__":
     unittest.main()

@@ -237,3 +237,16 @@ TEST_CASE( "UTF8") {
 
     REQUIRE(match == output);
 }
+
+TEST_CASE( "Tags") {
+    const std::string source = loadTestFile("Tags.fountain");
+    const std::string match = loadTestFile("Tags.txt");
+
+    Fountain::Parser fp;
+    fp.useTags = true;
+    fp.addText(source);
+
+    const std::string output = fp.getScript()->dump();
+
+    REQUIRE(match == output);
+}

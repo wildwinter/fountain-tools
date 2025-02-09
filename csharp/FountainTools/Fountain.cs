@@ -27,9 +27,12 @@ public abstract class Element
 {
     public ElementType Type { get; private set; }
 
+    public List<string> Tags {get; private set;}
+
     public Element(ElementType type, string text)
     {
         Type = type;
+        Tags = [];
         _textRaw = text;
         _updateText();
     }
@@ -46,6 +49,11 @@ public abstract class Element
     {
         _textRaw += "\n" + line;
          _updateText();
+    }
+
+    public void AppendTags(List<string> tags)
+    {
+        this.Tags.AddRange(tags.Where(item => !this.Tags.Contains(item)));
     }
 
     public virtual string Dump()
@@ -279,8 +287,20 @@ public class Script
     public string Dump()
     {
         var lines = new List<string>();
-        TitleEntries.ForEach(entry => lines.Add(entry.Dump()));
-        Elements.ForEach(element => lines.Add(element.Dump()));
+
+        TitleEntries.ForEach(entry => {
+            if (entry.Tags.Count>0)
+                lines.Add(entry.Dump()+ " tags:"+string.Join(",", entry.Tags));
+            else
+                lines.Add(entry.Dump());
+        });
+
+        Elements.ForEach(element => {
+            if (element.Tags.Count>0)
+                lines.Add(element.Dump()+ " tags:"+string.Join(",", element.Tags));
+            else
+                lines.Add(element.Dump());
+        });
 
         int i = 0;
         Notes.ForEach(note =>
