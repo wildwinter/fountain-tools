@@ -1,0 +1,16 @@
+HEADING:"INT. SCEHE 1 - DAY"
+ACTION:"This is scene 1, we think!"
+CHARACTER:"DAVE"
+DIALOGUE:"Nice day, right?"
+TRANSITION:"CUT TO:"
+SECTION:"This is a Section" (1)
+HEADING:"ext. OLYMPIA CIRCUS - NIGHT"
+ACTION:"...where the second-rate carnival is parked for the moment in an Alabama field."
+HEADING:"FORCED HEADER"
+CHARACTER:"JIM"
+DIALOGUE:"Bye!"
+SECTION:"Another Sequence" (2)
+SECTION:"Another Act" (1)
+HEADING:"INT./EXT. HEADER WITH SCENENUM" (3)
+HEADING:"EST BUCKET LIST" (A3-1)
+ACTION:". NOT A HEADER"

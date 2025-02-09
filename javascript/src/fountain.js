@@ -22,6 +22,7 @@ export class FountainElement {
     constructor(type, text) {
         this.type = type;
         this._text = text;
+        this.tags = [];
     }
 
     // This version will not contain any annotations / note markup
@@ -37,6 +38,10 @@ export class FountainElement {
 
     appendLine(line) {
         this._text+="\n"+line;
+    }
+
+    appendTags(tags) {
+        this.tags = this.tags.concat(tags.filter(item => !this.tags.includes(item)));
     }
 
     // For debugging
@@ -202,10 +207,16 @@ export class FountainScript {
     dump() {
         let lines = [];
         for (const entry of this.titleEntries) {
-            lines.push(`${entry.dump()}`);
+            if (entry.tags.length>0)
+                lines.push(`${entry.dump()} tags:${entry.tags}`);
+            else
+                lines.push(`${entry.dump()}`);
         }
         for (const element of this.elements) {
-            lines.push(`${element.dump()}`);
+            if (element.tags.length>0)
+                lines.push(`${element.dump()} tags:${element.tags}`);
+            else
+                lines.push(`${element.dump()}`);
         }
         let i=0;
         for (const note of this.notes) {

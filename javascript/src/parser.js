@@ -20,6 +20,7 @@ export class FountainParser {
 
         this.mergeActions = true;
         this.mergeDialogue = true;
+        this.useTags = false;
 
         this._inTitlePage = true;
         this._multiLineTitleEntry = false;
@@ -37,6 +38,7 @@ export class FountainParser {
         this._lineTrim = "";
         this._lastLineEmpty = true;
         this._lastLine = "";
+        this._lineTags = [];
 
         this._inDialogue = false;
     }
@@ -63,7 +65,15 @@ export class FountainParser {
         this._lastLine= this._line;
         this._lastLineEmpty = isWhitespaceOrEmpty(this._line);
 
-        this._line = line;
+        if (this.useTags) {
+            const {untagged, tags} = this._extractTags(line);
+            this._lineTags = tags;
+            this._line = untagged;
+        }
+        else {
+            this._lineTags = [];
+            this._line = line;
+        }
 
         if (this._parseBoneyard())
             return;
@@ -576,4 +586,20 @@ export class FountainParser {
         return false;
     }
 
+    _extractTags(line) {
+        const regex = /(?<=\S)\s#([^\s][^#]+)(?=\s|$)/g;
+        let tags = [];
+        let match;
+        let firstMatchIndex = null;
+        
+        while ((match = regex.exec(line)) !== null) {
+            if (firstMatchIndex === null) {
+                firstMatchIndex = match.index;
+            }
+            tags.push(match[1]);
+        }
+        
+        const untagged = firstMatchIndex !== null ? line.substring(0, firstMatchIndex).trimEnd() : line;
+        return {untagged:untagged, tags:tags};
+    }
 }

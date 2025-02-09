@@ -261,4 +261,20 @@ describe('FountainParser', () => {
     });
   });
 
+  describe('Tags', () => {
+    it('should match', () => {
+
+      const source = loadTestFile('Tags.fountain');
+      const match = loadTestFile('Tags.txt');
+
+      let fp = new FountainParser();
+      fp.useTags = true;
+      fp.addText(source);
+
+      let output = fp.script.dump();
+      //console.log(output);
+      assert.equal(output, match);
+    });
+  });
+
 });
