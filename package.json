@@ -1,6 +1,6 @@
 {
   "name": "fountain-tools",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Multi-language utils for the Fountain scriptwriting format.",
   "scripts": {
     "clean": "npm run clean:all",

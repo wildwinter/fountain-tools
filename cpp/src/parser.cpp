@@ -593,7 +593,7 @@ bool Parser::_parseNotes() {
 }
 
 std::pair<std::string, std::vector<std::string>> Parser::_extractTags(const std::string& line) {
-    std::regex regex(R"(\s#([^\s][^#]+)(?=\s|$))");
+    std::regex regex(R"(\s+#([^#\s]+))"); // Ensures tags start with '#' and do not contain another '#'
     std::vector<std::string> tags;
     std::sregex_iterator it(line.begin(), line.end(), regex);
     std::sregex_iterator end;
@@ -602,19 +602,27 @@ std::pair<std::string, std::vector<std::string>> Parser::_extractTags(const std:
 
     for (; it != end; ++it) {
         size_t matchIndex = it->position();
+        std::string tag = (*it)[1].str();
+        size_t tagEnd = matchIndex + it->length(); // Position after the matched tag
 
-        // Ensure the match is preceded by a non-whitespace character
-        if (matchIndex == 0 || std::isspace(line[matchIndex - 1])) {
-            continue; // Skip if not preceded by a non-whitespace character
-        }
+        // Ensure the character after the tag is either whitespace or EOL
+        if (tagEnd < line.size() && !std::isspace(line[tagEnd]))
+            continue;
 
+        // Ensure there is at least one non-whitespace character before the first match
         if (!firstMatchIndex) {
-            firstMatchIndex = matchIndex;
+            if (line.substr(0, matchIndex).find_first_not_of(" \t\r\n") == std::string::npos) {
+                continue;
+            }
         }
-        tags.push_back((*it)[1].str());
+
+        tags.push_back(tag);
+
+        if (!firstMatchIndex)
+            firstMatchIndex = matchIndex;
     }
 
-    // Extract untagged part
+    // Extract the untagged part (before the first tag)
     std::string untagged = firstMatchIndex ? line.substr(0, *firstMatchIndex) : line;
 
     // Trim trailing whitespace from untagged

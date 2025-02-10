@@ -585,7 +585,7 @@ class Parser:
         return False
     
     def _extract_tags(self, line):
-        regex = re.compile(r'(?<=\S)\s#([^\s][^#]+)(?=\s|$)')
+        regex = re.compile(r"\s#([^\s#][^#]*?)(?=\s|$)")
         tags = []
         first_match_index = None
         

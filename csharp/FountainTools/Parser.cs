@@ -620,7 +620,7 @@ public class Parser
     }
 
     private (string untagged, List<string> tags) ExtractTags(string line) {
-        Regex regex = new Regex(@"(?<=\S)\s#([^\s][^#]+)(?=\s|$)");
+        Regex regex = new Regex(@"\s#([^\s#][^#]*?)(?=\s|$)");
         List<string> tags = [];
         MatchCollection matches = regex.Matches(line);
 

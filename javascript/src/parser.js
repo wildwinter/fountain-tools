@@ -597,7 +597,7 @@ export class FountainParser {
     }
 
     _extractTags(line) {
-        const regex = /(?<=\S)\s#([^\s][^#]+)(?=\s|$)/g;
+        const regex = /\s#([^\s#][^#]*?)(?=\s|$)/g;
         let tags = [];
         let match;
         let firstMatchIndex = null;
