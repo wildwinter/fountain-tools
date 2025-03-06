@@ -579,21 +579,20 @@ export class FountainParser {
     }
 
     _parseSection() {
-        if (this._lineTrim.startsWith("###")) {
-            this._addElement(new FountainSection(3, this._lineTrim.slice(3).trim()));
-            return true;
+        let depth = 0;
+        for (let char of this._lineTrim) {
+            if (char === '#' && depth < 7) {
+                depth += 1;
+            } else {
+                break;
+            }
+        }
+        if (depth === 0) {
+            return false;
         }
 
-        if (this._lineTrim.startsWith("##")) {
-            this._addElement(new FountainSection(2, this._lineTrim.slice(2).trim()));
-            return true;
-        }
-
-        if (this._lineTrim.startsWith("#")) {
-            this._addElement(new FountainSection(1, this._lineTrim.slice(1).trim()));
-            return true;
-        }
-        return false;
+        this._addElement(new FountainSection(depth, this._lineTrim.slice(depth).trim()));
+        return true;
     }
 
     _extractTags(line) {

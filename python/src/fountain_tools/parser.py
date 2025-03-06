@@ -570,19 +570,17 @@ class Parser:
         Parses a section heading. 
         Section headings are lines starting with one or more '#' characters.
         """
-        if self._lineTrim.startswith("###"):
-            self._add_element(Section(3, self._lineTrim[3:].strip()))
-            return True
-        
-        if self._lineTrim.startswith("##"):
-            self._add_element(Section(2, self._lineTrim[2:].strip()))
-            return True
-        
-        if self._lineTrim.startswith("#"):
-            self._add_element(Section(1, self._lineTrim[1:].strip()))
-            return True
-        
-        return False
+        depth = 0
+        for char in self._lineTrim:
+            if char == '#' and depth < 7:
+                depth += 1
+            else:
+                break
+        if depth == 0:
+            return False
+
+        self._add_element(Section(depth, self._lineTrim[depth:].strip()))
+        return True
     
     def _extract_tags(self, line):
         regex = re.compile(r"\s#([^\s#][^#]*?)(?=\s|$)")

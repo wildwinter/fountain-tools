@@ -227,25 +227,26 @@ public class Parser
 
     private bool ParseSection()
     {
-        if (_lineTrim.StartsWith("###"))
+        int depth = 0;
+        foreach (char ch in this._lineTrim)
         {
-            AddElement(new Section(3, _lineTrim.Substring(3).Trim()));
-            return true;
+            if (ch == '#' && depth < 7)
+            {
+                depth += 1;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        if (_lineTrim.StartsWith("##"))
+        if (depth == 0)
         {
-            AddElement(new Section(2, _lineTrim.Substring(2).Trim()));
-            return true;
+            return false;
         }
 
-        if (_lineTrim.StartsWith("#"))
-        {
-            AddElement(new Section(1, _lineTrim.Substring(1).Trim()));
-            return true;
-        }
-
-        return false;
+        AddElement(new Section(depth, _lineTrim.Substring(depth).Trim()));
+        return true;
     }
 
     private bool ParseLyrics()

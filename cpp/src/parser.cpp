@@ -190,22 +190,17 @@ bool Parser::_parseTitlePage() {
 
 bool Parser::_parseSection() {
 
-    if (_lineTrim.rfind("###", 0) == 0) {
-        _addElement(std::make_shared<Section>(trim(_lineTrim.substr(3)), 3));
-        return true;
+    int depth = 0;
+    while (depth < 7 && depth < _lineTrim.size() && _lineTrim[depth] == '#') {
+        depth++;
     }
 
-    if (_lineTrim.rfind("##", 0) == 0) {
-        _addElement(std::make_shared<Section>(trim(_lineTrim.substr(2)), 2));
-        return true;
+    if (depth == 0) {
+        return false;
     }
 
-    if (_lineTrim.rfind("#", 0) == 0) {
-        _addElement(std::make_shared<Section>(trim(_lineTrim.substr(1)), 1));
-        return true;
-    }
-
-    return false;
+    _addElement(std::make_shared<Section>(trim(_lineTrim.substr(depth)), depth));
+    return true;
 }
 
 bool Parser::_parseLyrics() {
