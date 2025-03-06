@@ -52,6 +52,7 @@ This should all be UTF-8 compatible!
     * [`Fountain.CallbackParser`](#callbackparser)
     * [`Fountain.Writer`](#writer)
     * [`Fountain.FormatHelper`](#formathelper)
+* [Contributors](#contributors)
 * [License](#license)
 
 ## The Basics
@@ -253,6 +254,14 @@ PARENTHETICAL: { text: "cheerfully" }
 DIALOGUE: { text: "Nice day for it!", tags:["color:blue", "useAnim"]}
 ```
 
+### Extended Sections
+[BirdCatcherGames](https://github.com/BirdCatcherGames) has extended the code to allow up to six levels of Fountain's section format i.e. 
+```
+### This is a section
+###### And this is a much lower section.
+```
+
+Rather than Fountain's usual 3.
 
 ### Javascript as an ES6 module
 ```javascript
@@ -681,6 +690,10 @@ Pass in a FountainScript, get back a UTF-8 string.
 
 #### fountainToHtml
 Convert Fountain markup (*italic*, **bold**, ***bolditalic*** _underline_) to HTML.
+
+## Contributors
+* [wildwinter](https://github.com/wildwinter) - original author
+* [BirdCatcherGames](https://github.com/BirdCatcherGames) - extending Fountain spec to allow 6-deep sections
 
 ## License
 ```

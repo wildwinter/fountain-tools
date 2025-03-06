@@ -14,6 +14,9 @@ HEADING: text:INT. PALACE BALLROOM sceneNum:1a
 SECTION: level:1 text:Act
 SECTION: level:2 text:Sequence
 SECTION: level:3 text:Scene
+SECTION: level:4 text:Insert
+SECTION: level:5 text:Sub-insert
+SECTION: level:6 text:Something Really Small
 SECTION: level:2 text:Another Sequence
 SECTION: level:1 text:Another Act
 SECTION: level:1 text:ACT I
