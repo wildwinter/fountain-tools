@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fountain_tools"
-version = "0.1.0"
-description = "Fountain scriptwriting format parser and tools"
+version = "0.0.5"
+description = "Utils for the Fountain scriptwriting format."
 authors = [
-  { name="WildWinter", email="wildwinter@example.com" }
+  { name="wildwinter", email="ian@wildwinter.net" }
 ]
 readme = "README.md"
 requires-python = ">=3.7"
