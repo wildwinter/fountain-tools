@@ -2,7 +2,7 @@
 // Copyright (c) 2024 Ian Thomas
 
 #include "fountain_tools/callback_parser.h"
-#include <catch_amalgamated.hpp>
+#include "catch_amalgamated.hpp"
 #include "test_utils.h"
 #include "fountain_tools/utils.h"
 #include <iostream>

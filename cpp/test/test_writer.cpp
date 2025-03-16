@@ -3,7 +3,7 @@
 
 #include "fountain_tools/parser.h"
 #include "fountain_tools/writer.h"
-#include <catch_amalgamated.hpp>
+#include "catch_amalgamated.hpp"
 #include <iostream>
 #include "test_utils.h"
 

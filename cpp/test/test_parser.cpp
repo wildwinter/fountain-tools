@@ -2,7 +2,7 @@
 // Copyright (c) 2024 Ian Thomas
 
 #include "fountain_tools/parser.h"
-#include <catch_amalgamated.hpp>
+#include "catch_amalgamated.hpp"
 #include "test_utils.h"
 
 TEST_CASE( "Scratch") {
