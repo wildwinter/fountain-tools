@@ -380,7 +380,6 @@ class Parser:
             character = self._decode_character(line_trimmed)
             if character:
                 self._add_element(Character(
-                    text=line_trimmed,
                     name=character["name"],
                     extension=character["extension"],
                     dual=character["dual"]
@@ -404,7 +403,6 @@ class Parser:
             character = self._decode_character(line_trimmed)
             if character:
                 char_element = Character(
-                    text=line_trimmed,
                     name=character["name"],
                     extension=character["extension"],
                     dual=character["dual"]

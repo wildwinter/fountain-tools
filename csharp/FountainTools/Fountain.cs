@@ -151,8 +151,8 @@ public class Character : Element
     public bool IsDualDialogue { get; private set; }
     public bool Forced { get; private set; }
 
-    public Character(string text, string name, string? extension = null, bool dual = false, bool forced = false)
-        : base(ElementType.CHARACTER, text)
+    public Character(string name, string? extension = null, bool dual = false, bool forced = false)
+        : base(ElementType.CHARACTER, "")
     {
         Name = name;
         Extension = extension;

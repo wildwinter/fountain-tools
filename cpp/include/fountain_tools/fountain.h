@@ -174,10 +174,10 @@ protected:
 // Character heading
 class Character : public Element {
 public:
-    Character(const std::string& text, const std::string& name, 
+    Character(const std::string& name, 
                       const std::optional<std::string>& extension = std::nullopt, 
                       bool dual = false, bool forced = false)
-        : Element(ElementType::CHARACTER, text), 
+        : Element(ElementType::CHARACTER, ""), 
           _name(name), 
           _extension(extension), 
           _isDualDialogue(dual), 

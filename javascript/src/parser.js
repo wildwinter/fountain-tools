@@ -391,7 +391,7 @@ export class FountainParser {
             if (character==null)
                 return false;
 
-            this._addElement(new FountainCharacter(lineTrim, character.name, character.extension, character.dual));
+            this._addElement(new FountainCharacter(character.name, character.extension, character.dual));
 
             return true;
         }
@@ -411,7 +411,7 @@ export class FountainParser {
             if (character==null)
                 return false;
 
-            let charElem = new FountainCharacter(lineTrim, character.name, character.extension, character.dual);
+            let charElem = new FountainCharacter(character.name, character.extension, character.dual);
 
             // Can't commit to which this is until we've checked the next line isn't empty.
             this._pending.push( {

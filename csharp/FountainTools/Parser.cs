@@ -389,7 +389,7 @@ public class Parser
             var character = DecodeCharacter(trimmedLine);
             if (character != null)
             {
-                AddElement(new Character(trimmedLine, character.Name, character.Extension, character.Dual));
+                AddElement(new Character(character.Name, character.Extension, character.Dual));
                 return true;
             }
         }
@@ -412,7 +412,7 @@ public class Parser
                 _pending.Add(new PendingElement
                 {
                     Type = ElementType.CHARACTER,
-                    Element = new Character(noContLineTrim, character.Name, character.Extension, character.Dual),
+                    Element = new Character(character.Name, character.Extension, character.Dual),
                     Backup = new Action(_lineTrim)
                 });
                 return true;

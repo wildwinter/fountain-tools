@@ -88,8 +88,8 @@ class SceneHeading(Element):
 
 
 class Character(Element):
-    def __init__(self, text, name, extension=None, dual=False, forced=False):
-        super().__init__(ElementType.CHARACTER, text)
+    def __init__(self, name, extension=None, dual=False, forced=False):
+        super().__init__(ElementType.CHARACTER, "")
         self.name = name
         self.extension = extension
         self.is_dual_dialogue = dual

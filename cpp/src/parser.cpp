@@ -355,7 +355,7 @@ bool Parser::_parseForcedCharacter() {
             auto character = *characterOpt;
 
             // Create and add a FountainCharacter element
-            _addElement(std::make_shared<Character>(trimmedLine, character.name, character.extension, character.dual));
+            _addElement(std::make_shared<Character>(character.name, character.extension, character.dual));
             return true;
         }
     }
@@ -378,7 +378,7 @@ bool Parser::_parseCharacter() {
             // Can't 100% guarantee this is a character until next line
             _pending.push_back(std::make_shared<PendingElement>(PendingElement{
                 ElementType::CHARACTER,
-                std::make_shared<Character>(noContLineTrim, character.name, character.extension, character.dual),
+                std::make_shared<Character>(character.name, character.extension, character.dual),
                 std::make_shared<Action>(_lineTrim)
             }));
 

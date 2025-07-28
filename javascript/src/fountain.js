@@ -104,8 +104,8 @@ export class FountainSceneHeading extends FountainElement {
 
 
 export class FountainCharacter extends FountainElement {
-    constructor(text, name, extension, dual, forced = false) {
-        super(ElementType.CHARACTER, text);
+    constructor(name, extension, dual, forced = false) {
+        super(ElementType.CHARACTER, "");
         this.name = name;
         this.extension = extension;
         this.isDualDialogue = dual;

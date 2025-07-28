@@ -203,10 +203,10 @@ class Program
 ### Parsing a line at a time
 ```python
 # Python
-from fountain_tools.parser import FountainParser
+from fountain_tools.parser import Parser
 
-# Create an instance of FountainParser
-fp = FountainParser()
+# Create an instance of Parser
+fp = Parser()
 
 # Add individual lines to the parser
 fp.add_line("EXT. MY BASEMENT")
@@ -320,8 +320,8 @@ Or you can use a minified IIFE version (`fountainTools.min.js`):
 
 ### Python
 ```Python
-from fountain_tools.parser import FountainParser
-from fountain_tools.writer import FountainWriter
+from fountain_tools.parser import Parser
+from fountain_tools.writer import Writer
 
 script_text = """
 INT. ROOM - DAY
@@ -331,8 +331,8 @@ Hello, fellow kids!
 """
 
 # Initialize parser and writer
-parser = FountainParser()
-writer = FountainWriter()
+parser = Parser()
+writer = Writer()
 
 # Parse the script
 parser.add_text(script_text)
