@@ -240,6 +240,3 @@ class TestParser(unittest.TestCase):
         output = fp.script.dump();
         #print(output)
         self.assertMultiLineEqual(match, output)
-
-if __name__ == "__main__":
-    unittest.main()

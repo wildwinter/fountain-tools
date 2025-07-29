@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"
 
 from fountain_tools.parser import Parser
 from fountain_tools.writer import Writer
+from fountain_tools.fountain import Script, Character, Action, Dialogue, Parenthetical
 
 class TestWriter(unittest.TestCase):
 
@@ -49,6 +50,32 @@ class TestWriter(unittest.TestCase):
 
         fw = Writer()
         output = fw.write(fp.script)
+
+        #print(output)
+        self.assertMultiLineEqual(match, output)
+
+    def test_append(self):
+        
+        match = self._load_file("Append-output.fountain")
+
+        script = Script()
+        script.add_element(Character("FRED"))
+        script.add_element(Dialogue("Test dialogue."))
+        script.add_element(Character("FRED"), True)
+        script.add_element(Dialogue("Test dialogue 2."))
+
+        script.add_element(Action("Test action 1."))
+        script.add_element(Action("Test action 2."), True)
+        script.add_element(Action("Test action 3."))
+
+        script.add_element(Character("FRED"))
+        script.add_element(Dialogue("Test dialogue."))
+        script.add_element(Character("FRED"))
+        script.add_element(Dialogue("Test dialogue 2."))
+
+        fw = Writer()
+        
+        output = fw.write(script)
 
         #print(output)
         self.assertMultiLineEqual(match, output)

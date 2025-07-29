@@ -64,7 +64,10 @@ export class FountainWriter {
             return `/*${script.boneyards[num].text}*/`;
         });
 
-        return text.trim();
+        // Remove leading and trailing newlines
+        text = text.replace(/^\s*\n+|\n+\s*$/g, '');
+
+        return text;
     }
 
     _writeElem(elem) {
@@ -82,9 +85,10 @@ export class FountainWriter {
                 char+=` (${elem.extension})`;
             if (elem.forced)
                 char = "@"+char;
-            if (this._lastChar==elem.name)
-                char+=" (CONT'D)";
-            this._lastChar = elem.name;
+            let ext_char = elem.name + (elem.extension ? elem.extension : "");
+            if (this._lastChar == ext_char)
+                char += " (CONT'D)";
+            this._lastChar = ext_char;
             return `${pad}${char}`;
         }
 
@@ -157,7 +161,7 @@ export class FountainWriter {
         }
 
         if (elem.type == ElementType.SECTION) {
-            return `${"#".repeat(elem.level)} ${elem.text}`;
+            return `\n${"#".repeat(elem.level)} ${elem.text}`;
         }
 
     }

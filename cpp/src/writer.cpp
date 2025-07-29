@@ -105,8 +105,8 @@ std::string Writer::write(const Script& script) {
 
     // Replace boneyards
     text = replaceBoneyards(text, script);
- 
-    return trim(text);
+
+    return trimOuterNewlines(text);
 }
 
 std::string Writer::_writeElement(const std::shared_ptr<Element>& elem) {
@@ -132,7 +132,7 @@ std::string Writer::_writeElement(const std::shared_ptr<Element>& elem) {
         case ElementType::PAGEBREAK:
             return "===";
         case ElementType::SECTION:
-            return std::string(std::dynamic_pointer_cast<Section>(elem)->getLevel(), '#') + " " + elem->getTextRaw();
+            return "\n" + std::string(std::dynamic_pointer_cast<Section>(elem)->getLevel(), '#') + " " + elem->getTextRaw();
         default:
             _lastChar.clear();
             return "";
@@ -152,11 +152,12 @@ std::string Writer::_writeCharacter(const std::shared_ptr<Character>& elem) {
     if (elem->isForced()) {
         charText = "@" + charText;
     }
-    if (_lastChar == elem->getName()) {
+    std::string extChar = elem->getName() + (elem->getExtension().has_value() ? elem->getExtension().value() : "");
+    if (_lastChar == extChar) {
         charText += " (CONT'D)";
     }
 
-    _lastChar = elem->getName();
+    _lastChar = extChar;
     return pad + charText;
 }
 

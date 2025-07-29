@@ -297,8 +297,6 @@ public:
 
     const std::vector<std::shared_ptr<Element>>& getElements() const {return _elements;}
 
-    void addElement(const std::shared_ptr<Element>& element) { _elements.push_back(element); }
-    
     std::shared_ptr<Element> getLastElement() const {
         if (_elements.empty()) return nullptr;
         return _elements.back();
@@ -339,11 +337,49 @@ public:
         return join(lines, "\n");
     }
 
+    void addElement(const std::shared_ptr<Element>& element, bool allowMerge = false) {
+
+        std::shared_ptr<Element> lastElem = getLastElement();
+
+        if (element->getType() == ElementType::CHARACTER) {
+            std::shared_ptr<Character> charElem = std::dynamic_pointer_cast<Character>(element);
+            std::string newChar = charElem->getName() + (charElem->getExtension().has_value() ? charElem->getExtension().value() : "");
+            if (allowMerge && _lastChar == newChar)
+                return;
+            _lastChar = newChar;
+        }
+
+        else if (element->getType() == ElementType::DIALOGUE) {
+            if (allowMerge && lastElem && lastElem->getType() == ElementType::DIALOGUE) {
+                lastElem->appendLine(element->getTextRaw());
+                return;
+            }
+        }
+                
+        else if (element->getType() == ElementType::PARENTHETICAL) {
+            //
+        }
+            
+        else {
+            _lastChar = "";
+        }
+
+        if (element->getType() == ElementType::ACTION) {
+            if (allowMerge && lastElem && lastElem->getType() == ElementType::ACTION) {
+                lastElem->appendLine(element->getTextRaw());
+                return;
+            }
+        }
+
+        _elements.push_back(element);
+    }
+
 protected:
     std::vector<std::shared_ptr<TitleEntry>> _titleEntries;
     std::vector<std::shared_ptr<Element>> _elements;
     std::vector<std::shared_ptr<Note>> _notes; 
     std::vector<std::shared_ptr<Boneyard>> _boneyards;
+    std::string _lastChar; // Last character name with extension, used for CONT'D detection
 
 };
 

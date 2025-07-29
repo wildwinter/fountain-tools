@@ -15,6 +15,7 @@ Not a title entry.
 Still: Not a title entry.
 
 				CUT TO:
+
 # This is a Section
 
 
@@ -24,14 +25,23 @@ You can nest Sections by adding more # characters.
 
 
 INT. PALACE BALLROOM #1a#
+
 # Act
+
 ## Sequence
+
 ### Scene
+
 #### Insert
+
 ##### Sub-insert
+
 ###### Something Really Small
+
 ## Another Sequence
+
 # Another Act
+
 # ACT I
 = Set up the characters and the story.
 

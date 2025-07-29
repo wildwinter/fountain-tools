@@ -7,8 +7,9 @@ using Fountain;
 
 public class WriterTest
 {
-    private string loadTestFile(string fileName) {
-        return File.ReadAllText("../../../../../tests/"+fileName);
+    private string loadTestFile(string fileName)
+    {
+        return File.ReadAllText("../../../../../tests/" + fileName);
     }
 
     [Fact]
@@ -39,6 +40,33 @@ public class WriterTest
 
         Writer fw = new Writer();
         string output = fw.Write(fp.Script);
+
+        //Console.WriteLine(output);
+        Assert.Equal(match, output);
+    }
+    
+    [Fact]
+    public void TestAppend()
+    {
+        string match = loadTestFile("Append-output.fountain");
+
+        Script script = new Script();
+        script.AddElement(new Character("FRED"));
+        script.AddElement(new Dialogue("Test dialogue."));
+        script.AddElement(new Character("FRED"), true);
+        script.AddElement(new Dialogue("Test dialogue 2."));
+
+        script.AddElement(new Action("Test action 1."));
+        script.AddElement(new Action("Test action 2."), true);
+        script.AddElement(new Action("Test action 3."));
+
+        script.AddElement(new Character("FRED"));
+        script.AddElement(new Dialogue("Test dialogue."));
+        script.AddElement(new Character("FRED"));
+        script.AddElement(new Dialogue("Test dialogue 2."));
+
+        Writer fw = new Writer();
+        string output = fw.Write(script);
 
         //Console.WriteLine(output);
         Assert.Equal(match, output);

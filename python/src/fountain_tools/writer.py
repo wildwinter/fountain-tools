@@ -57,7 +57,7 @@ class Writer:
             text,
         )
 
-        return text.strip()
+        return text.strip("\n")
 
     def _write_elem(self, elem):
         elem_type = elem.type
@@ -72,9 +72,10 @@ class Writer:
                 char += f" ({elem.extension})"
             if elem.forced:
                 char = "@" + char
-            if self._last_char == elem.name:
+            ext_char = elem.name + (elem.extension if elem.extension else "")
+            if self._last_char == ext_char:
                 char += " (CONT'D)"
-            self._last_char = elem.name
+            self._last_char = ext_char
             return f"{pad}{char}"
 
         if elem_type == ElementType.DIALOGUE:
@@ -126,6 +127,6 @@ class Writer:
             return "==="
 
         if elem_type == ElementType.SECTION:
-            return f"{'#' * elem.level} {elem.text}"
+            return f"\n{'#' * elem.level} {elem.text}"
 
         return ""

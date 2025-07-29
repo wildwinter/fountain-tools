@@ -276,28 +276,33 @@ public class Script
     public List<Note> Notes { get; private set; }
     public List<Boneyard> Boneyards { get; private set; }
 
+    private string? _lastChar;
+
     public Script()
     {
         TitleEntries = new List<TitleEntry>();
         Elements = new List<Element>();
         Notes = new List<Note>();
         Boneyards = new List<Boneyard>();
+        _lastChar = null;
     }
 
     public string Dump()
     {
         var lines = new List<string>();
 
-        TitleEntries.ForEach(entry => {
-            if (entry.Tags.Count>0)
-                lines.Add(entry.Dump()+ " tags:"+string.Join(",", entry.Tags));
+        TitleEntries.ForEach(entry =>
+        {
+            if (entry.Tags.Count > 0)
+                lines.Add(entry.Dump() + " tags:" + string.Join(",", entry.Tags));
             else
                 lines.Add(entry.Dump());
         });
 
-        Elements.ForEach(element => {
-            if (element.Tags.Count>0)
-                lines.Add(element.Dump()+ " tags:"+string.Join(",", element.Tags));
+        Elements.ForEach(element =>
+        {
+            if (element.Tags.Count > 0)
+                lines.Add(element.Dump() + " tags:" + string.Join(",", element.Tags));
             else
                 lines.Add(element.Dump());
         });
@@ -323,5 +328,39 @@ public class Script
     {
         if (Elements.Count == 0) return null;
         return Elements[^1];
+    }
+    
+    public void AddElement(Element elem, bool allowMerge = false) {
+        Element? lastElem = this.GetLastElement();
+        if (elem is Character character) {
+            string newChar = character.Name + (character.Extension!=null ? character.Extension : "");
+            if (allowMerge && _lastChar == newChar)
+                return;
+            _lastChar = newChar;
+        }
+             
+        else if (elem is Dialogue dialogue) {
+            if (allowMerge && lastElem!=null && lastElem is Dialogue lastDialogue) {
+                lastDialogue.AppendLine(dialogue.TextRaw);
+                return;
+            }
+        }
+                
+        else if (elem.Type == ElementType.PARENTHETICAL) {
+            //
+        }
+            
+        else {
+            _lastChar = "";
+        }
+
+        if (elem.Type == ElementType.ACTION) {
+            if (allowMerge && lastElem!=null && lastElem is Action lastAction) {
+                lastAction.AppendLine(elem.TextRaw);
+                return;
+            }
+        }
+
+        this.Elements.Add(elem);
     }
 }

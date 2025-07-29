@@ -10,6 +10,10 @@ std::string trim(const std::string& str) {
     return std::regex_replace(str, std::regex(R"(^\s+|\s+$)"), "");
 }
 
+std::string trimOuterNewlines(const std::string& str) {
+    return std::regex_replace(str, std::regex(R"((^\r?\n+)|(\r?\n+$))"), "");
+}
+
 std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
     size_t pos = 0;
     while ((pos = str.find(from, pos)) != std::string::npos) {

@@ -39,3 +39,30 @@ TEST_CASE( "UTF8Writer") {
     //std::cout << output << std::endl;
     REQUIRE(match == output);
 }
+
+TEST_CASE( "Append") {
+    
+    const std::string match = loadTestFile("Append-output.fountain");
+
+    Fountain::Script script;
+
+    script.addElement(std::make_shared<Fountain::Character>("FRED"));
+    script.addElement(std::make_shared<Fountain::Dialogue>("Test dialogue."));
+    script.addElement(std::make_shared<Fountain::Character>("FRED"), true);
+    script.addElement(std::make_shared<Fountain::Dialogue>("Test dialogue 2."));
+
+    script.addElement(std::make_shared<Fountain::Action>("Test action 1."));
+    script.addElement(std::make_shared<Fountain::Action>("Test action 2."), true);
+    script.addElement(std::make_shared<Fountain::Action>("Test action 3."));
+
+    script.addElement(std::make_shared<Fountain::Character>("FRED"));
+    script.addElement(std::make_shared<Fountain::Dialogue>("Test dialogue."));
+    script.addElement(std::make_shared<Fountain::Character>("FRED"));
+    script.addElement(std::make_shared<Fountain::Dialogue>("Test dialogue 2."));
+
+    Fountain::Writer fw;
+    const std::string output = fw.write(script);
+
+    //std::cout << output << std::endl;
+    REQUIRE(match == output);
+}

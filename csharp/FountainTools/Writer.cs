@@ -15,7 +15,21 @@ public class Writer
         _lastChar = null;
     }
 
-    // Expects FountainScript and returns a UTF-8 formatted string
+    private string TrimOuterNewlines(string text)
+    {
+        var lines = text.Split('\n').ToList();
+
+        // Remove leading blank lines
+        while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[0]))
+            lines.RemoveAt(0);
+
+        // Remove trailing blank lines
+        while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[^1]))
+            lines.RemoveAt(lines.Count - 1);
+
+        return string.Join("\n", lines);
+    }
+
     public string Write(Script script)
     {
         var lines = new List<string>();
@@ -75,7 +89,8 @@ public class Writer
             return $"/*{script.Boneyards[num].Text}*/";
         });
 
-        return text.Trim();
+        // Clean up leading and trailing whitespace
+        return TrimOuterNewlines(text);
     }
 
     private string? _lastChar;
@@ -115,7 +130,7 @@ public class Writer
                 return "===";
 
             case ElementType.SECTION:
-                return $"{new string('#', ((Section)elem).Level)} {elem.TextRaw}";
+                return $"\n{new string('#', ((Section)elem).Level)} {elem.TextRaw}";
 
             default:
                 _lastChar = null;
@@ -134,10 +149,11 @@ public class Writer
             charText += $" ({elem.Extension})";
         if (elem.Forced)
             charText = "@" + charText;
-        if (_lastChar == elem.Name)
+        string extChar = elem.Name + (elem.Extension!=null ? elem.Extension : "");
+        if (_lastChar == extChar)
             charText += " (CONT'D)";
 
-        _lastChar = elem.Name;
+        _lastChar = extChar;
         return $"{pad}{charText}";
     }
 

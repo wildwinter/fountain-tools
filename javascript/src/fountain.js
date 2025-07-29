@@ -202,6 +202,7 @@ export class FountainScript {
         this.elements = []; 
         this.notes = [];
         this.boneyards = [];
+        this.lastChar = null;
     }
 
     dump() {
@@ -235,5 +236,39 @@ export class FountainScript {
         if (this.elements.length==0)
             return null;
         return this.elements[this.elements.length-1];
+    }
+
+    addElement(elem, allowMerge = false) {
+        let lastElem = this.getLastElem();
+        if (elem.type==ElementType.CHARACTER) {
+            let newChar = elem.name + (elem.extension ? elem.extension : "");
+            if (allowMerge && this.lastChar == newChar)
+                return;
+            this.lastChar = newChar;
+        }
+             
+        else if (elem.type==ElementType.DIALOGUE) {
+            if (allowMerge && lastElem && lastElem.type==ElementType.DIALOGUE) {
+                lastElem._text += "\n" + elem._text;
+                return;
+            }
+        }
+                
+        else if (elem.type == ElementType.PARENTHETICAL) {
+            //
+        }
+            
+        else {
+            this.lastChar = null;
+        }
+
+        if (elem.type == ElementType.ACTION) {
+            if (allowMerge && lastElem && lastElem.type==ElementType.ACTION) {
+                lastElem._text += "\n" + elem._text;
+                return;
+            }
+        }
+
+        this.elements.push(elem);
     }
 }

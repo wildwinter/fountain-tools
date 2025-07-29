@@ -159,6 +159,8 @@ class Script:
         self.elements = []
         self.notes = []
         self.boneyards = []
+        
+        self._last_char = None
 
     def dump(self):
         lines = []
@@ -184,3 +186,29 @@ class Script:
         if not self.elements:
             return None
         return self.elements[-1]
+        
+    def add_element(self, elem, allow_merge = False):
+        last_elem = self.get_last_elem()
+        if elem.type==ElementType.CHARACTER:
+            new_char = elem.name + (elem.extension if elem.extension else "")
+            if allow_merge and self._last_char == new_char:
+                return
+            self._last_char = new_char
+             
+        elif elem.type==ElementType.DIALOGUE:
+            if allow_merge and last_elem and last_elem.type==ElementType.DIALOGUE:
+                last_elem._text += "\n" + elem._text
+                return
+                
+        elif elem.type == ElementType.PARENTHETICAL:
+            pass
+            
+        else:
+            self._last_char = None
+        
+        if elem.type == ElementType.ACTION:
+            if allow_merge and last_elem and last_elem.type==ElementType.ACTION:
+                last_elem._text += "\n" + elem._text
+                return   
+                
+        self.elements.append(elem)
