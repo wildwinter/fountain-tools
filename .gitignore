@@ -7,3 +7,6 @@ __pycache__
 obj
 bin
 build
+.venv
+*.egg-info
+pip-dist

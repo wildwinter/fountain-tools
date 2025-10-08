@@ -1,15 +1,15 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fountain_tools"
-version = "0.0.5"
+name = "fountain-tools"
+version = "0.0.7"
 description = "Utils for the Fountain scriptwriting format."
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
   { name="wildwinter", email="ian@wildwinter.net" }
 ]
-readme = "README.md"
 requires-python = ">=3.7"
 keywords = ["fountain", "script", "parser"]
 license = { file="LICENSE" }
@@ -20,7 +20,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/wildwinter/fountain-tools"
+"Homepage" = "https://github.com/wildwinter/fountain-tools"
+"Bug Tracker" = "https://github.com/wildwinter/fountain-tools/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}   # Our code is inside "src/" folder
