@@ -1,10 +1,9 @@
 {
-    "name": "fountain-tools-py",
+    "name": "screenplay-tools-py",
     "scripts": {
         "test": "python3 -m unittest discover -s tests",
         "dist": "rm -rf ./dist && python3 create_dist.py && cp ../README.md ./dist",
         "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist",
         "pip": "rm -rf ./pip-dist && cp ../README.md ./README.md && python -m build --outdir pip-dist && rm ./README.md && twine upload pip-dist/* "
     }
-  }
-  
+}

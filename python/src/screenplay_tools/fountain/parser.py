@@ -3,7 +3,7 @@
 
 import re
 
-from .fountain import (
+from ..screenplay import (
     ElementType,
     TitleEntry,
     Action,

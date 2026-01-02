@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fountain-tools"
+name = "screenplay-tools"
 version = "0.0.7"
-description = "Utils for the Fountain scriptwriting format."
+description = "Utils for working with screenplays and the Fountain scriptwriting format."
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
   { name="wildwinter", email="ian@wildwinter.net" }
@@ -20,8 +20,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/wildwinter/fountain-tools"
-"Bug Tracker" = "https://github.com/wildwinter/fountain-tools/issues"
+"Homepage" = "https://github.com/wildwinter/screenplay-tools"
+"Bug Tracker" = "https://github.com/wildwinter/screenplay-tools/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}   # Our code is inside "src/" folder

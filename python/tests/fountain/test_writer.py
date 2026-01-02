@@ -7,9 +7,9 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from fountain_tools.parser import Parser
-from fountain_tools.writer import Writer
-from fountain_tools.fountain import Script, Character, Action, Dialogue, Parenthetical
+from screenplay_tools.fountain.parser import Parser
+from screenplay_tools.fountain.writer import Writer
+from screenplay_tools.screenplay import Script, Character, Action, Dialogue, Parenthetical
 
 class TestWriter(unittest.TestCase):
 

@@ -5,9 +5,9 @@ import unittest
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
-from fountain_tools.format_helper import fountain_to_html
+from screenplay_tools.fountain.format_helper import fountain_to_html
 
 class TestFormatHelper(unittest.TestCase):
 

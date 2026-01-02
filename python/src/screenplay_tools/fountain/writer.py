@@ -2,7 +2,7 @@
 # Copyright (c) 2024 Ian Thomas
 
 import re
-from .fountain import ElementType 
+from ..screenplay import ElementType 
 
 
 class Writer:
