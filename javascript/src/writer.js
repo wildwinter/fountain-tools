@@ -1,7 +1,7 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-import {ElementType} from "./fountain.js";
+import { ElementType } from "./screenplay.js";
 
 export class FountainWriter {
     constructor() {
@@ -10,13 +10,13 @@ export class FountainWriter {
         this._lastChar = null;
     }
 
-    // Expects FountainScript
+    // Expects Screenplay
     // returns utf-8 string
     write(script) {
 
         let lines = [];
 
-        if (script.titleEntries.length>0) {
+        if (script.titleEntries.length > 0) {
 
             for (const entry of script.titleEntries) {
                 lines.push(this._writeElem(entry));
@@ -31,12 +31,12 @@ export class FountainWriter {
 
             // Padding
             let padBefore = false;
-            if (element.type==ElementType.CHARACTER
-                || element.type==ElementType.TRANSITION
-                || element.type==ElementType.HEADING
-                ) {
+            if (element.type == ElementType.CHARACTER
+                || element.type == ElementType.TRANSITION
+                || element.type == ElementType.HEADING
+            ) {
                 padBefore = true;
-            } else if (element.type==ElementType.ACTION) {
+            } else if (element.type == ElementType.ACTION) {
                 padBefore = !lastElem || lastElem.type != ElementType.ACTION;
             }
 
@@ -47,20 +47,20 @@ export class FountainWriter {
 
             lastElem = element;
         }
-        
+
         let text = lines.join("\n");
 
         const regexNotes = /\[\[(\d+)\]\]/g;
 
         text = text.replace(regexNotes, (match, number) => {
-            let num = Number(number); 
+            let num = Number(number);
             return `[[${script.notes[num].text}]]`;
         });
 
         const regexBoneyards = /\/\*(\d+)\*\//g;
 
         text = text.replace(regexBoneyards, (match, number) => {
-            let num = Number(number); 
+            let num = Number(number);
             return `/*${script.boneyards[num].text}*/`;
         });
 
@@ -77,14 +77,14 @@ export class FountainWriter {
             let pad = "";
             if (this.prettyPrint)
                 pad = "\t".repeat(3);
-    
+
             let char = elem.name;
             if (elem.isDualDialogue)
-                char+=" ^";
+                char += " ^";
             if (elem.extension)
-                char+=` (${elem.extension})`;
+                char += ` (${elem.extension})`;
             if (elem.forced)
-                char = "@"+char;
+                char = "@" + char;
             let ext_char = elem.name + (elem.extension ? elem.extension : "");
             if (this._lastChar == ext_char)
                 char += " (CONT'D)";
@@ -96,15 +96,15 @@ export class FountainWriter {
             let output = elem._text;
 
             // Make sure blank lines in dialogue have at least a space
-            output = output.split("\n") 
-                    .map(line => line.trim()==""?" ":line) 
-                    .join("\n"); 
-                    
-            if (this.prettyPrint)  {
+            output = output.split("\n")
+                .map(line => line.trim() == "" ? " " : line)
+                .join("\n");
+
+            if (this.prettyPrint) {
                 // Ensure there's a tab at the front of each line
-                output = output.split("\n") 
-                    .map(line => (`\t${line}`)) 
-                    .join("\n"); 
+                output = output.split("\n")
+                    .map(line => (`\t${line}`))
+                    .join("\n");
             }
             return output;
         }
@@ -125,11 +125,11 @@ export class FountainWriter {
         }
 
         if (elem.type == ElementType.LYRIC) {
-            return `~ ${elem._text}`; 
+            return `~ ${elem._text}`;
         }
 
         if (elem.type == ElementType.SYNOPSIS) {
-            return `= ${elem._text}`; 
+            return `= ${elem._text}`;
         }
 
         this._lastChar = null;
@@ -141,7 +141,7 @@ export class FountainWriter {
         if (elem.type == ElementType.HEADING) {
             let sceneNumber = "";
             if (elem.sceneNumber)
-                sceneNumber=` #${elem.sceneNumber}#`;
+                sceneNumber = ` #${elem.sceneNumber}#`;
             if (elem.forced)
                 return `\n.${elem._text}${sceneNumber}`;
             return `\n${elem._text}${sceneNumber}`;

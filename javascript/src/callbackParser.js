@@ -1,19 +1,19 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-import {ElementType} from "./fountain.js";
-import {FountainParser} from "./parser.js";
+import { ElementType } from "./screenplay.js";
+import { FountainParser } from "./parser.js";
 
 export class FountainCallbackParser extends FountainParser {
 
     constructor() {
         super();
-        
+
         // array of {key:"key", value:"value"} 
         this.onTitlePage = null;
 
         // character:string, extension:string, parenthetical:string, line:string, isDualDialogue:bool
-        this.onDialogue = null; 
+        this.onDialogue = null;
 
         // text:string
         this.onAction = null;
@@ -59,13 +59,13 @@ export class FountainCallbackParser extends FountainParser {
             if (this.onTitlePage) {
                 let entries = [];
                 for (const entry of this.script.titleEntries) {
-                    entries.push({"key":entry.key, "value":entry.text});
+                    entries.push({ "key": entry.key, "value": entry.text });
                 }
                 this.onTitlePage(entries);
             }
         }
 
-        while (elementCount<this.script.elements.length) {
+        while (elementCount < this.script.elements.length) {
             this._handleNewElement(this.script.elements[elementCount]);
             elementCount++;
         }
@@ -76,18 +76,18 @@ export class FountainCallbackParser extends FountainParser {
         if (elem.type == ElementType.CHARACTER) {
             this._lastChar = elem;
             return;
-        } 
-        
+        }
+
         if (elem.type == ElementType.PARENTHETICAL) {
             this._lastParen = elem;
             return;
-        } 
-        
+        }
+
         if (elem.type == ElementType.DIALOGUE) {
 
             let character = this._lastChar.name;
             let extension = this._lastChar.extension;
-            let parenthetical = this._lastParen?this._lastParen.text:null;
+            let parenthetical = this._lastParen ? this._lastParen.text : null;
             let line = elem.text;
             let isDualDialogue = this._lastChar.isDualDialogue;
 
@@ -143,7 +143,7 @@ export class FountainCallbackParser extends FountainParser {
                 this.onTransition(elem.text);
             return;
         }
-    
+
         if (elem.type == ElementType.SECTION) {
 
             if (this.onSection)
