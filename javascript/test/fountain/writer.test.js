@@ -1,11 +1,11 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-import { loadTestFile } from '../test/testUtils.js';
+import { loadTestFile } from '../../test/testUtils.js';
 import { strict as assert } from 'assert';
-import { FountainWriter } from '../src/writer.js';
-import { FountainParser } from '../src/parser.js';
-import { Screenplay, ScreenplayAction, ScreenplayCharacter, ScreenplayDialogue } from '../src/screenplay.js';
+import { FountainWriter } from '../../src/fountain/writer.js';
+import { FountainParser } from '../../src/fountain/parser.js';
+import { Screenplay, ScreenplayAction, ScreenplayCharacter, ScreenplayDialogue } from '../../src/screenplay.js';
 
 describe('Writer', () => {
 

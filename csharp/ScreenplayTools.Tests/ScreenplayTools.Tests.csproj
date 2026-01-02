@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FountainTools\FountainTools.csproj" />
+    <ProjectReference Include="..\ScreenplayTools\ScreenplayTools.csproj" />
   </ItemGroup>
 
 </Project>

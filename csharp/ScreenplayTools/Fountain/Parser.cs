@@ -2,8 +2,9 @@
 // Copyright (c) 2024 Ian Thomas
 
 using System.Text.RegularExpressions;
+using ScreenplayTools;
 
-namespace Fountain;
+namespace ScreenplayTools.Fountain;
 
 public class Parser
 {

@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace Fountain;
+namespace ScreenplayTools.Fountain;
 
 public static class FormatHelper
 {

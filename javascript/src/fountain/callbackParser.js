@@ -1,7 +1,7 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-import { ElementType } from "./screenplay.js";
+import { ElementType } from "../screenplay.js";
 import { FountainParser } from "./parser.js";
 
 export class FountainCallbackParser extends FountainParser {

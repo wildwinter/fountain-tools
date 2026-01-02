@@ -2,7 +2,7 @@
 // Copyright (c) 2024 Ian Thomas
 
 export * from "./screenplay";
-export * from "./parser";
-export * from "./callbackParser";
-export * from "./formatHelper";
-export * from "./writer";
+export * from "./fountain/parser";
+export * from "./fountain/callbackParser";
+export * from "./fountain/formatHelper";
+export * from "./fountain/writer";

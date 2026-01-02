@@ -1,9 +1,9 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-import {loadTestFile} from '../test/testUtils.js';
-import {strict as assert} from 'assert';
-import {FountainParser} from "../src/parser.js";
+import { loadTestFile } from '../../test/testUtils.js';
+import { strict as assert } from 'assert';
+import { FountainParser } from "../../src/fountain/parser.js";
 
 describe('FountainParser', () => {
 
@@ -230,7 +230,7 @@ describe('FountainParser', () => {
       assert.equal(output, match);
     });
   });
-  
+
   describe('Sections', () => {
     it('should match', () => {
 

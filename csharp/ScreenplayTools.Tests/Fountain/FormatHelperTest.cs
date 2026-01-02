@@ -1,9 +1,9 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-namespace FountainTools.Tests;
+namespace ScreenplayTools.Tests;
 using System.IO;
-using Fountain;
+using ScreenplayTools.Fountain;
 
 public class FormatHelperTest
 {

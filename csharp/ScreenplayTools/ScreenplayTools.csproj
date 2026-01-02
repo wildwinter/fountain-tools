@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <PackageId>FountainTools</PackageId>
+    <PackageId>ScreenplayTools</PackageId>
     <Version>0.0.5</Version>
     <Authors>Ian Thomas</Authors>
     <Company>Storyworlds</Company>

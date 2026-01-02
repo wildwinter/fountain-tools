@@ -3,17 +3,17 @@ import terser from '@rollup/plugin-terser';
 console.log(terser);
 
 export default {
-  input: "src/fountainTools.js", // Aggregation file as the entry point
+  input: "src/screenplayTools.js", // Aggregation file as the entry point
   output: [
     {
-      file: "dist/fountainTools.js",
+      file: "dist/screenplayTools.js",
       format: "esm", // ES Module format
       sourcemap: true,
     },
     {
-      file: "dist/fountainTools.min.js",
-      format: "iife", 
-      name: "FountainTools", 
+      file: "dist/screenplayTools.min.js",
+      format: "iife",
+      name: "ScreenplayTools",
       plugins: [terser()],
       sourcemap: true,
     },

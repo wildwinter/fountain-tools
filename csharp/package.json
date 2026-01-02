@@ -1,12 +1,11 @@
 {
-    "name": "fountain-tools-cs",
+    "name": "screenplay-tools-cs",
     "scripts": {
-        "clean": "cd FountainTools && dotnet clean",
-        "build": "cd FountainTools && dotnet build",
-        "build-release": "npm run clean && cd FountainTools && dotnet build -c Release",
-        "test": "npm run build && cd FountainTools.Tests && dotnet test",
-        "dist": "rm -rf ./dist && npm run build-release && mkdir -p ./dist && cp ./FountainTools/bin/Release/net8.0/FountainTools.dll ./dist && cp ../README.md ./dist",
+        "clean": "cd ScreenplayTools && dotnet clean",
+        "build": "cd ScreenplayTools && dotnet build",
+        "build-release": "npm run clean && cd ScreenplayTools && dotnet build -c Release",
+        "test": "npm run build && cd ScreenplayTools.Tests && dotnet test",
+        "dist": "rm -rf ./dist && npm run build-release && mkdir -p ./dist && cp ./ScreenplayTools/bin/Release/net8.0/ScreenplayTools.dll ./dist && cp ../README.md ./dist",
         "pack": "npm run dist && mkdir -p ../dist/v$npm_package_version && rm -rf ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip && zip -r ../dist/v$npm_package_version/$npm_package_name-v$npm_package_version.zip ./dist"
     }
-  }
-  
+}

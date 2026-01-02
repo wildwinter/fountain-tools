@@ -8,7 +8,7 @@ import {
     ScreenplayTransition, ScreenplayPageBreak, ScreenplayNote,
     ScreenplayBoneyard, ScreenplaySection, Screenplay,
     ScreenplaySynopsis
-} from "./screenplay.js";
+} from "../screenplay.js";
 
 function isWhitespaceOrEmpty(line) {
     return (!line.trim());

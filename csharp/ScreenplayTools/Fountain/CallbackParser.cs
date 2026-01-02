@@ -1,7 +1,9 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
 // Copyright (c) 2024 Ian Thomas
 
-namespace Fountain;
+using ScreenplayTools;
+
+namespace ScreenplayTools.Fountain;
 
 public class CallbackParser : Parser
 {
@@ -11,28 +13,28 @@ public class CallbackParser : Parser
     };
 
     // List of TitleEntry
-    public Action<List<TitleEntry>>? OnTitlePage { get; set; }
+    public System.Action<List<TitleEntry>>? OnTitlePage { get; set; }
 
      // character:string, extension:string, parenthetical:string, line:string, isDualDialogue:bool
-    public Action<string, string?, string?, string, bool>? OnDialogue { get; set; }
+    public System.Action<string, string?, string?, string, bool>? OnDialogue { get; set; }
     
     // text:string
-    public Action<string>? OnAction { get; set; }
+    public System.Action<string>? OnAction { get; set; }
 
     // text:string, sceneNumber:string
-    public Action<string, string?>? OnSceneHeading { get; set; }
+    public System.Action<string, string?>? OnSceneHeading { get; set; }
 
     // text:string
-    public Action<string>? OnLyrics { get; set; }
+    public System.Action<string>? OnLyrics { get; set; }
     
     // text:string
-    public Action<string>? OnTransition { get; set; }
+    public System.Action<string>? OnTransition { get; set; }
     
     // text:string, level:int
-    public Action<string, int>? OnSection { get; set; }
+    public System.Action<string, int>? OnSection { get; set; }
     
     // text:string
-    public Action<string>? OnSynopsis { get; set; }
+    public System.Action<string>? OnSynopsis { get; set; }
     
      // No params 
     public System.Action? OnPageBreak { get; set; }
