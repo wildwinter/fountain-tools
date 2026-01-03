@@ -31,10 +31,10 @@ install(TARGETS ${PROJECT_NAME}
 # Add a test executable
 add_executable(tests 
     test/catch_amalgamated.cpp
-    test/test_parser.cpp
-    test/test_format_helper.cpp
-    test/test_callback_parser.cpp
-    test/test_writer.cpp
+    test/fountain/test_parser.cpp
+    test/fountain/test_format_helper.cpp
+    test/fountain/test_callback_parser.cpp
+    test/fountain/test_writer.cpp
     test/test_utils.cpp)
 
 # Link the library to the test executable

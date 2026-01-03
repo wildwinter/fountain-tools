@@ -1,9 +1,9 @@
 // This file is part of an MIT-licensed project: see LICENSE file or README.md
 // for details. Copyright (c) 2024 Ian Thomas
 
-#include "catch_amalgamated.hpp"
+#include "../catch_amalgamated.hpp"
+#include "../test_utils.h"
 #include "screenplay_tools/fountain/parser.h"
-#include "test_utils.h"
 
 using namespace ScreenplayTools;
 
