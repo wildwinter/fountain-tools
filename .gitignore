@@ -9,4 +9,6 @@ bin
 build
 .venv
 *.egg-info
+.cache
 pip-dist
+CMakeFiles

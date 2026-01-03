@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(FountainTools LANGUAGES CXX)
+project(ScreenplayTools LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 # Source files
-file(GLOB LIB_SOURCES "src/*.cpp")
-file(GLOB LIB_HEADERS "include/fountain_tools/*.h")
+file(GLOB LIB_SOURCES "src/*.cpp" "src/fountain/*.cpp")
+file(GLOB LIB_HEADERS "include/screenplay_tools/*.h" "include/screenplay_tools/fountain/*.h")
 
 # Create the library (static or shared)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
@@ -25,7 +25,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib  # For shared libraries
     ARCHIVE DESTINATION lib  # For static libraries
-    PUBLIC_HEADER DESTINATION include/fountain_tools
+    PUBLIC_HEADER DESTINATION include/screenplay_tools
 )
 
 # Add a test executable
@@ -38,7 +38,7 @@ add_executable(tests
     test/test_utils.cpp)
 
 # Link the library to the test executable
-target_link_libraries(tests PRIVATE FountainTools)
+target_link_libraries(tests PRIVATE ScreenplayTools)
 
 # Include Catch2 header (if not installed globally)
 target_include_directories(tests PRIVATE include)
@@ -47,4 +47,4 @@ target_include_directories(tests PRIVATE include)
 enable_testing()
 
 # Register the test executable
-add_test(NAME FountainToolsTests COMMAND tests -r console)
+add_test(NAME ScreenplayToolsTests COMMAND tests -r console)

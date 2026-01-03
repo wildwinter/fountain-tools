@@ -1,252 +1,254 @@
-// This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
-// Copyright (c) 2024 Ian Thomas
+// This file is part of an MIT-licensed project: see LICENSE file or README.md
+// for details. Copyright (c) 2024 Ian Thomas
 
-#include "fountain_tools/parser.h"
 #include "catch_amalgamated.hpp"
+#include "screenplay_tools/fountain/parser.h"
 #include "test_utils.h"
 
-TEST_CASE( "Scratch") {
-    
-    const std::string source = loadTestFile("Scratch.fountain");
-    const std::string match = loadTestFile("Scratch.txt");
+using namespace ScreenplayTools;
 
-    Fountain::Parser fp;
+TEST_CASE("Scratch") {
 
-    fp.addText(source);
+  const std::string source = loadTestFile("Scratch.fountain");
+  const std::string match = loadTestFile("Scratch.txt");
 
-    const std::string output = fp.getScript()->dump();
+  Fountain::Parser fp;
 
-    REQUIRE(match == output);
+  fp.addText(source);
+
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "SceneHeading") {
-    
-    const std::string source = loadTestFile("SceneHeading.fountain");
-    const std::string match = loadTestFile("SceneHeading.txt");
+TEST_CASE("SceneHeading") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("SceneHeading.fountain");
+  const std::string match = loadTestFile("SceneHeading.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "ActionMerged") {
-    
-    const std::string source = loadTestFile("Action.fountain");
-    const std::string match = loadTestFile("Action-Merged.txt");
+TEST_CASE("ActionMerged") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Action.fountain");
+  const std::string match = loadTestFile("Action-Merged.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "ActionUnmerged") {
-    
-    const std::string source = loadTestFile("Action.fountain");
-    const std::string match = loadTestFile("Action-Unmerged.txt");
+TEST_CASE("ActionUnmerged") {
 
-    Fountain::Parser fp;
-    fp.mergeActions = false;
-    fp.addText(source);
+  const std::string source = loadTestFile("Action.fountain");
+  const std::string match = loadTestFile("Action-Unmerged.txt");
 
-    const std::string output = fp.getScript()->dump();
+  Fountain::Parser fp;
+  fp.mergeActions = false;
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Character") {
-    
-    const std::string source = loadTestFile("Character.fountain");
-    const std::string match = loadTestFile("Character.txt");
+TEST_CASE("Character") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Character.fountain");
+  const std::string match = loadTestFile("Character.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "DialogueMerged") {
-    
-    const std::string source = loadTestFile("Dialogue.fountain");
-    const std::string match = loadTestFile("Dialogue-Merged.txt");
+TEST_CASE("DialogueMerged") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Dialogue.fountain");
+  const std::string match = loadTestFile("Dialogue-Merged.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "DialogueUnmerged") {
-    
-    const std::string source = loadTestFile("Dialogue.fountain");
-    const std::string match = loadTestFile("Dialogue-Unmerged.txt");
+TEST_CASE("DialogueUnmerged") {
 
-    Fountain::Parser fp;
-    fp.mergeDialogue = false;
-    fp.addText(source);
+  const std::string source = loadTestFile("Dialogue.fountain");
+  const std::string match = loadTestFile("Dialogue-Unmerged.txt");
 
-    const std::string output = fp.getScript()->dump();
+  Fountain::Parser fp;
+  fp.mergeDialogue = false;
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Parenthetical") {
-    
-    const std::string source = loadTestFile("Parenthetical.fountain");
-    const std::string match = loadTestFile("Parenthetical.txt");
+TEST_CASE("Parenthetical") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Parenthetical.fountain");
+  const std::string match = loadTestFile("Parenthetical.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Lyrics") {
-    
-    const std::string source = loadTestFile("Lyrics.fountain");
-    const std::string match = loadTestFile("Lyrics.txt");
+TEST_CASE("Lyrics") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Lyrics.fountain");
+  const std::string match = loadTestFile("Lyrics.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Transition") {
-    
-    const std::string source = loadTestFile("Transition.fountain");
-    const std::string match = loadTestFile("Transition.txt");
+TEST_CASE("Transition") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("Transition.fountain");
+  const std::string match = loadTestFile("Transition.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "TitlePage") {
-    
-    const std::string source = loadTestFile("TitlePage.fountain");
-    const std::string match = loadTestFile("TitlePage.txt");
+TEST_CASE("TitlePage") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("TitlePage.fountain");
+  const std::string match = loadTestFile("TitlePage.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "PageBreak") {
-    
-    const std::string source = loadTestFile("PageBreak.fountain");
-    const std::string match = loadTestFile("PageBreak.txt");
+TEST_CASE("PageBreak") {
 
-    Fountain::Parser fp;
+  const std::string source = loadTestFile("PageBreak.fountain");
+  const std::string match = loadTestFile("PageBreak.txt");
 
-    fp.addText(source);
+  Fountain::Parser fp;
 
-    const std::string output = fp.getScript()->dump();
+  fp.addText(source);
 
-    REQUIRE(match == output);
+  const std::string output = fp.getScript()->dump();
+
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "LineBreaks") {
-    const std::string source = loadTestFile("LineBreaks.fountain");
-    const std::string match = loadTestFile("LineBreaks.txt");
+TEST_CASE("LineBreaks") {
+  const std::string source = loadTestFile("LineBreaks.fountain");
+  const std::string match = loadTestFile("LineBreaks.txt");
 
-    Fountain::Parser fp;
+  Fountain::Parser fp;
 
-    fp.addText(source);
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Notes") {
-    const std::string source = loadTestFile("Notes.fountain");
-    const std::string match = loadTestFile("Notes.txt");
+TEST_CASE("Notes") {
+  const std::string source = loadTestFile("Notes.fountain");
+  const std::string match = loadTestFile("Notes.txt");
 
-    Fountain::Parser fp;
+  Fountain::Parser fp;
 
-    fp.addText(source);
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Boneyards") {
-    const std::string source = loadTestFile("Boneyards.fountain");
-    const std::string match = loadTestFile("Boneyards.txt");
+TEST_CASE("Boneyards") {
+  const std::string source = loadTestFile("Boneyards.fountain");
+  const std::string match = loadTestFile("Boneyards.txt");
 
-    Fountain::Parser fp;
+  Fountain::Parser fp;
 
-    fp.addText(source);
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Sections") {
-    const std::string source = loadTestFile("Sections.fountain");
-    const std::string match = loadTestFile("Sections.txt");
+TEST_CASE("Sections") {
+  const std::string source = loadTestFile("Sections.fountain");
+  const std::string match = loadTestFile("Sections.txt");
 
-    Fountain::Parser fp;
+  Fountain::Parser fp;
 
-    fp.addText(source);
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "UTF8") {
-    const std::string source = loadTestFile("UTF8.fountain");
-    const std::string match = loadTestFile("UTF8.txt");
+TEST_CASE("UTF8") {
+  const std::string source = loadTestFile("UTF8.fountain");
+  const std::string match = loadTestFile("UTF8.txt");
 
-    Fountain::Parser fp;
+  Fountain::Parser fp;
 
-    fp.addText(source);
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }
 
-TEST_CASE( "Tags") {
-    const std::string source = loadTestFile("Tags.fountain");
-    const std::string match = loadTestFile("Tags.txt");
+TEST_CASE("Tags") {
+  const std::string source = loadTestFile("Tags.fountain");
+  const std::string match = loadTestFile("Tags.txt");
 
-    Fountain::Parser fp;
-    fp.useTags = true;
-    fp.addText(source);
+  Fountain::Parser fp;
+  fp.useTags = true;
+  fp.addText(source);
 
-    const std::string output = fp.getScript()->dump();
+  const std::string output = fp.getScript()->dump();
 
-    REQUIRE(match == output);
+  REQUIRE(match == output);
 }

@@ -1,0 +1,22 @@
+Start testing: Jan 03 11:23 EET
+----------------------------------------------------------
+1/1 Testing: ScreenplayToolsTests
+1/1 Test: ScreenplayToolsTests
+Command: "/Users/ian/GitHub/fountain-tools/cpp/tests" "-r" "console"
+Directory: /Users/ian/GitHub/fountain-tools/cpp
+"ScreenplayToolsTests" start time: Jan 03 11:23 EET
+Output:
+----------------------------------------------------------
+Randomness seeded to: 4262657089
+===============================================================================
+All tests passed (23 assertions in 23 test cases)
+
+<end of output>
+Test time =   0.88 sec
+----------------------------------------------------------
+Test Passed.
+"ScreenplayToolsTests" end time: Jan 03 11:23 EET
+"ScreenplayToolsTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jan 03 11:23 EET

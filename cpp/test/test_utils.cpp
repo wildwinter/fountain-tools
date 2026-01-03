@@ -1,25 +1,26 @@
-// This file is part of an MIT-licensed project: see LICENSE file or README.md for details.
-// Copyright (c) 2024 Ian Thomas
+// This file is part of an MIT-licensed project: see LICENSE file or README.md
+// for details. Copyright (c) 2024 Ian Thomas
 
 #include "test_utils.h"
 #include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <stdexcept>
 #include <iostream>
 #include <locale>
+#include <sstream>
+#include <stdexcept>
 
 // Function definition
-std::string loadTestFile(const std::string& filepath) {
-    std::string path = std::filesystem::absolute("../../tests/" + filepath).string();
-    std::ifstream file(path, std::ios::in); // Open file for reading
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file: " + path);
-    }
+std::string loadTestFile(const std::string &filepath) {
+  std::string path =
+      std::filesystem::absolute("../../tests/" + filepath).string();
+  std::ifstream file(path, std::ios::in); // Open file for reading
+  if (!file.is_open()) {
+    throw std::runtime_error("Failed to open file: " + path);
+  }
 
-    file.imbue(std::locale("en_US.UTF-8"));
+  file.imbue(std::locale("en_US.UTF-8"));
 
-    std::ostringstream content;
-    content << file.rdbuf(); // Read the entire file content
-    return content.str();
+  std::ostringstream content;
+  content << file.rdbuf(); // Read the entire file content
+  return content.str();
 }
