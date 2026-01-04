@@ -1,7 +1,14 @@
-# fountain-tools
-**fountain-tools** is a set of libraries for parsing the [Fountain](https://fountain.io/) script-writing language. These libraries are written in **C++**, **Javascript**, **Python**, and **C#**.
+# screenplay-tools
 
-```
+**screenplay-tools** is a set of libraries for representing a format-agnostic screenplay format, with support for import and export to the [Fountain](https://fountain.io/) script-writing language. These libraries are written in **C++**, **Javascript**, **Python**, and **C#**.
+
+The current version of this library only support parsing and writing to the Fountain format, but it will be extended for other formats.
+
+## Fountain
+
+**The `Fountain` module provides methods for writing and reading Fountain files.**
+
+```text
 INT. DAVE'S APARTMENT - DAY
 
 Dave is standing in the open window looking out at the pouring rain.
@@ -15,48 +22,39 @@ Dave is standing in the open window looking out at the pouring rain.
 
 [Fountain](https://fountain.io/syntax/) is a simple plaintext format for movie and TV scripts. It's also used as an export and import format by multiple script-writing apps, such as **Fade In**, **Highland**, **Final Draft**, **Slugline** and others.
 
-Other parsers exist, but I needed (for reasons which might someday become obvious) an incremental parser that can take line-by-line of a Fountain script. You don't need to use these libraries in that mode, you can just parse an entire script at once.
+The main `Parser` class turns the raw Fountain files into a `Script` object representing the screenplay, which you can do what you want with. The `Writer` class turns a `Script` into a Fountain file. This is all UTF-8 compatible!
 
-The main `Parser` class turns the raw Fountain files into intermediate Script objects which you can do what you want with. An alternative parser, `CallbackParser`, triggers methods as the script is parsed. Maybe you could use it to drive dialogue for a computer game! :-)
+## Contents
 
-```javascript
-onSceneHeading: { text: "INT. DAVE'S APARTMENT - DAY" }
-
-onAction: { text: "Dave is standing in the open window looking out at the pouring rain." }
-
-onDialogue: { character: "DAVE", parenthetical:  "cheerfully", line: "Nice day for it!" }
-```
-
-This should all be UTF-8 compatible!
-
-### Contents
 * [The Basics](#the-basics)
 * [Source Code](#source-code)
 * [Releases](#releases)
 * [Usage](#usage)
-    * [Overview](#overview)
-    * [Parsing a file](#parsing-a-file)
-    * [Parsing from a set of lines](#parsing-from-a-set-of-lines)
-    * [Parsing a line at a time](#parsing-a-line-at-a-time)
-    * [Tags](#tags)
-    * [Javascript as an ES6 module](#javascript-as-an-es6-module)
-    * [Javascript in a browser](#javascript-in-a-browser)
-    * [Python](#python)
-    * [C#](#c)
-    * [C++](#c-1)
+  * [Overview](#overview)
+  * [Parsing a file](#parsing-a-file)
+  * [Parsing from a set of lines](#parsing-from-a-set-of-lines)
+  * [Parsing a line at a time](#parsing-a-line-at-a-time)
+  * [Tags](#tags)
+  * [Javascript as an ES6 module](#javascript-as-an-es6-module)
+  * [Javascript in a browser](#javascript-in-a-browser)
+  * [Python](#python)
+  * [C#](#c)
+  * [C++](#c-1)
 * [API](#api)
-    * [`Fountain.Parser`](#parser)
-    * [`Fountain.Script`](#script)
-    * [`Fountain.Element`](#element)
-    * [(Fountain.Elements)](#elements)
-    * [`Fountain.CallbackParser`](#callbackparser)
-    * [`Fountain.Writer`](#writer)
-    * [`Fountain.FormatHelper`](#formathelper)
+  * [`ScreenplayTools.Fountain.Parser`](#parser)
+  * [`ScreenplayTools.Script`](#script)
+  * [`ScreenplayTools.Element`](#element)
+  * [(ScreenplayTools.Elements)](#elements)
+  * [`ScreenplayTools.Fountain.CallbackParser`](#callbackparser)
+  * [`ScreenplayTools.Fountain.Writer`](#writer)
+  * [`ScreenplayTools.Fountain.FormatHelper`](#formathelper)
 * [Contributors](#contributors)
 * [License](#license)
 
 ## The Basics
+
 The `Fountain.Parser` supplied in the tools will take this:
+
 ```
 INT. DAVE'S APARTMENT - DAY
 
@@ -79,7 +77,9 @@ Jennifer is upside down, looking out through a round porthole of a window, at th
             COLIN (O.S.)
     Oh no. Not again.
 ```
+
 and break it into objects like this:
+
 ```javascript
 HEADING: { text: "INT. DAVE'S APARTMENT - DAY" }
 
@@ -107,6 +107,7 @@ CHARACTER: { name: "COLIN", extension: "O.S." }
 
 DIALOGUE: { text: "Oh no. Not again." }
 ```
+
 You can then do what you like with the objects.
 
 An alternative parser, `Fountain.CallbackParser`, will gather up material and call back using your supplied functions during parsing. In particular, it gathers dialogue lines together with characters, which is often more useful if you want to display dialogue on-screen for some reason.
@@ -130,10 +131,13 @@ onDialogue: { character: "COLIN", extension: "O.S." line: "Oh no. Not again." }
 ```
 
 ## Source Code
-The source can be found on [Github](https://github.com/wildwinter/fountain-tools), and is available under the MIT license.
+
+The source can be found on [Github](https://github.com/wildwinter/screenplay-tools), and is available under the MIT license.
 
 ## Releases
-Releases are available in the releases area in [Github](https://github.com/wildwinter/fountain-tools/releases) and are available for multiple platforms:
+
+Releases are available in the releases area in [Github](https://github.com/wildwinter/screenplay-tools/releases) and are available for multiple platforms:
+
 * Javascript - a JS file for use in ESM modules, and a minified JS file for use in a browser.
 * Python - a Python package for import into other Python files.
 * C# - a DotNET DLL for use in any C# project
@@ -142,21 +146,24 @@ Releases are available in the releases area in [Github](https://github.com/wildw
 ## Usage
 
 ### Overview
-* The `Fountain.Parser` will parse a Fountain file incremementally - using methods like `addText()`.
-* As the parsing continues, the `script` member of `Fountain.Parser` will contain the parsed information in a `Fountain.Script`
-* A `Fountain.Script` consists of:
-    * A set of `titleEntries` which are information from the script's title page.
-    * A set of `elements` which are line-by-line parts of the script e.g. an `Action` line, a `Character` line or a line of `Dialogue`.
-    * Some `Notes` and `Boneyard` material which you can probably ignore.
-* `Fountain.Writer` can write the script out again in a standard Fountain format.
-* `Fountain.FormatHelper` can split Fountain bold/italic/underline markup into standard HTML markup.
-* `Fountain.CallbackParser` is a different version of the parser which calls you back as the script is parsed, and aggregates things like character and dialogue lines together. You can use it to call you with a line of dialogue with the right character and directions attached to it.
+
+* The `ScreenplayTools.Fountain.Parser` will parse a Fountain file incremementally - using methods like `addText()`.
+* As the parsing continues, the `script` member of the parser will contain the parsed information in a `ScreenplayTools.Script` object.
+* A `Script` consists of:
+  * A set of `titleEntries` which are information from the script's title page.
+  * A set of `elements` which are line-by-line parts of the script e.g. an `Action` line, a `Character` line or a line of `Dialogue`.
+  * Some `Notes` and `Boneyard` material which you can probably ignore.
+* `ScreenplayTools.Fountain.Writer` can write the script out again in a standard Fountain format.
+* `ScreenplayTools.Fountain.FormatHelper` can split Fountain bold/italic/underline markup into standard HTML markup.
+* `ScreenplayTools.Fountain.CallbackParser` is a different version of the parser which calls you back as the script is parsed, and aggregates things like character and dialogue lines together. You can use it to call you with a line of dialogue with the right character and directions attached to it.
 
 Here are some examples in different languages:
+
 ### Parsing a file
+
 ```javascript
 // Javascript
-import {FountainParser} from "fountainTools.js";
+import { FountainParser } from "screenplayTools.js";
 
 const filePath = '../examples/Test.fountain';
 const fileContent = readFileSync(filePath, 'utf-8');
@@ -169,12 +176,15 @@ fp.addText(fileContent);
 // Dump a debug version of the script
 console.log(fp.script.dump());
 ```
+
 ### Parsing from a set of lines
+
 ```csharp
 // C#
 using System;
 using System.Collections.Generic;
-using Fountain; 
+using ScreenplayTools;
+using ScreenplayTools.Fountain;
 
 class Program
 {
@@ -200,10 +210,12 @@ class Program
     }
 }
 ```
+
 ### Parsing a line at a time
+
 ```python
 # Python
-from fountain_tools.parser import Parser
+from screenplay_tools.fountain.parser import Parser
 
 # Create an instance of Parser
 fp = Parser()
@@ -222,10 +234,13 @@ fp.finalize()
 # Dump the parsed script
 print(fp.script.dump())
 ```
+
 ### Tags
+
 I've extended the definition of Fountain files to introduce the concept of **tagging** a line: that is, being able to attach a number of data items to a line. This concept is stolen from Inkle's Ink markup language, and is useful for embedding information in a script.
 
 An example is like so
+
 ```
 INT. DAVE'S APARTMENT - DAY #slow_load
 
@@ -255,8 +270,10 @@ DIALOGUE: { text: "Nice day for it!", tags:["color:blue", "useAnim"]}
 ```
 
 ### Extended Sections
-[BirdCatcherGames](https://github.com/BirdCatcherGames) has extended the code to allow up to six levels of Fountain's section format i.e. 
-```
+
+[BirdCatcherGames](https://github.com/BirdCatcherGames) has extended the code to allow up to six levels of Fountain's section format i.e.
+
+```text
 ### This is a section
 ###### And this is a much lower section.
 ```
@@ -264,8 +281,9 @@ DIALOGUE: { text: "Nice day for it!", tags:["color:blue", "useAnim"]}
 Rather than Fountain's usual 3.
 
 ### Javascript as an ES6 module
+
 ```javascript
-import { FountainParser } from './fountainTools.js';
+import { FountainParser } from './screenplayTools.js';
 
 const parser = new FountainParser();
 parser.addText("INT. SCENE HEADER\n\nDAVE\nHello, fellow kids!");
@@ -274,18 +292,20 @@ console.log(parser.script.dump());
 ```
 
 ### Javascript in a browser
-Either you can use the same module / ESM format (`fountainTools.js`):
+
+Either you can use the same module / ESM format (`screenplayTools.js`):
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fountain Tools</title>
+    <title>Screenplay Tools</title>
 </head>
 <body>
     <script type="module">
-        import { FountainParser } from './fountainTools.js';
+        import { FountainParser } from './screenplayTools.js';
 
         const parser = new FountainParser();
         parser.addText("INT. SCENE HEADER\n\nDAVE\nHello, fellow kids!");
@@ -295,20 +315,22 @@ Either you can use the same module / ESM format (`fountainTools.js`):
 </body>
 </html>
 ```
-Or you can use a minified IIFE version (`fountainTools.min.js`):
+
+Or you can use a minified IIFE version (`screenplayTools.min.js`):
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fountain Tools</title>
-    <script src="fountainTools.min.js"></script>
+    <title>Screenplay Tools</title>
+    <script src="screenplayTools.min.js"></script>
 </head>
 <body>
     <script>
-        // Access the global FountainTools object
-        const parser = new FountainTools.FountainParser();
+        // Access the global ScreenplayTools object
+        const parser = new ScreenplayTools.Fountain.FountainParser();
         parser.addText("INT. SCENE HEADER\n\nDAVE\nHello, fellow kids!");
 
         // Use the imported function
@@ -319,9 +341,10 @@ Or you can use a minified IIFE version (`fountainTools.min.js`):
 ```
 
 ### Python
+
 ```Python
-from fountain_tools.parser import Parser
-from fountain_tools.writer import Writer
+from screenplay_tools.fountain.parser import Parser
+from screenplay_tools.fountain.writer import Writer
 
 script_text = """
 INT. ROOM - DAY
@@ -343,11 +366,14 @@ formatted_script = writer.write(parser.script)
 print(formatted_script)
 ```
 
-### C#
+### C #
+
 Install the DLL in your project, and use it like so:
+
 ```CSharp
 using System; 
-using Fountain;
+using ScreenplayTools;
+using ScreenplayTools.Fountain;
 
 class Program
 {
@@ -362,17 +388,22 @@ class Program
 ```
 
 ### C++
+
 I haven't supplied any built libs (because building multiplatform libs is outside my scope right now). Instead I have supplied source code in the zip - you should be able to build and use it with your project.
 
 ```cpp
-#include "fountain_tools/parser.h"
-#include "fountain_tools/fountain.h"
+#include "screenplay_tools/fountain/parser.h"
+#include "screenplay_tools/screenplay.h"
 #include <iostream>
 #include <string>
 
+// Use the namespace
+using namespace ScreenplayTools;
+using namespace ScreenplayTools::Fountain;
+
 int main() {
-    // Create an instance of Fountain::Parser
-    Fountain::Parser parser;
+    // Create an instance of Parser
+    Parser parser;
 
     // Example Fountain script text
     std::string scriptText = R"(Title: Example Script
@@ -392,22 +423,25 @@ Dialogue line.)";
     const auto& script = parser.getScript();
 
     // Dump the parsed script to the console
-    std::cout << script.dump() << std::endl;
+    std::cout << script->dump() << std::endl;
 
     return 0;
 }
 ```
 
 ## API
+
 ### Parser
+
     JS: FountainParser
-    Python: fountain_tools.parser.Parser
-    C#: Fountain.Parser
-    C++: Fountain::Parser
+    Python: screenplay_tools.fountain.parser.Parser
+    C#: ScreenplayTools.Fountain.Parser
+    C++: ScreenplayTools::Fountain::Parser
 
 The normal incremental parser. It stores the parsed script in the `script` property. Consider `CallbackParser` if you want something which bundles up the dialogue in a more useful way.
 
 #### mergeActions:bool / mergeDialogue:bool
+
 *Default: True*
 
 These variables control whether multiple dialogue or action lines get merged together into one script element, or if you get called with a list of separate elements instead.
@@ -415,76 +449,92 @@ These variables control whether multiple dialogue or action lines get merged tog
 Merging can be unhelpful if using an incremental parse.
 
 #### useTags:bool
+
 *Default: False*
 
 If True, extracts and parses tags from the Fountain file. See [Tags](#tags) above.
 
 #### addText(text:string)
+
 Split UTF-8 text into lines and parse them.
 
 #### addLines(lines:list)
+
 Parse an array of UTF-8 text lines.
 
 #### addLine(line:string)
+
 Parse a single UTF-8 text line.
 
 #### script / getScript()
+
 Parsed script. Grows as more lines are parsed!
 
 ### Script
-    JS: FountainScript
-    Python: fountain_tools.fountain.Script
-    C#: Fountain.Script
-    C++: Fountain::Script
+
+    JS: Script
+    Python: screenplay_tools.screenplay.Script
+    C#: ScreenplayTools.Script
+    C++: ScreenplayTools::Script
 
 The parsed script.
 
 #### titleEntries / getTitleEntries()
+
 Return a list of the information from the title page of the script, as `TitleEntry` objects.
 
 #### elements / getElements()
+
 Returns a list of the parsed elements in the script as `Element` objects. Determine the element type using `element.getType()`
 
 #### notes / getNotes()
+
 Returns a list of embedded notes as `Note` objects. This isn't much use in parsing, and is merely to preserve info read from the original Fountain file.
 
 #### boneyards / getBoneyards()
+
 Returns a list of commented-out chunks of text as `Boneyard` objects. This isn't much use in parsing, and is merely to preserve info read from the original Fountain file.
 
 ### Element
-    JS: FountainElement
-    Python: fountain_tools.fountain.Element
-    C#: Fountain.Element
-    C++: Fountain::Element
+
+    JS: ScreenplayElement
+    Python: screenplay_tools.screenplay.Element
+    C#: ScreenplayTools.Element
+    C++: ScreenplayTools::Element
 
 Superclass of all the elements in the script. Use `type`/`getType()` to figure out what type it can be downcast to.
 
 #### type / getType()
+
 Returns an `ElementType` enum which will give the type of script element.
 
 #### text / getText()
+
 Gives the main text element of the asset but doesn't include other parsed information.
 
 ### Elements
+
 Take a look at the [Fountain](https://fountain.io/syntax/) syntax to understand what these all are.
 
 #### TitleEntry
-    JS: FountainTitleEntry
-    Python: fountain_tools.fountain.TitleEntry
-    C#: Fountain.TitleEntry
-    C++: Fountain::TitleEntry
-https://fountain.io/syntax/#title-page
+
+    JS: ScreenplayTitleEntry
+    Python: screenplay_tools.screenplay.TitleEntry
+    C#: ScreenplayTools.TitleEntry
+    C++: ScreenplayTools::TitleEntry
+<https://fountain.io/syntax/#title-page>
 
 Entry on the title page. Consists of a `key` and `text`. This element will only be found inside the `getTitleEntries()` section of the script.
 
 `Author: Dave Smith`
 
 #### Action
-    JS: FountainAction
-    Python: fountain_tools.fountain.Action
-    C#: Fountain.Action
-    C++: Fountain::Action
-https://fountain.io/syntax/#action
+
+    JS: ScreenplayAction
+    Python: screenplay_tools.screenplay.Action
+    C#: ScreenplayTools.Action
+    C++: ScreenplayTools::Action
+<https://fountain.io/syntax/#action>
 
 Single line of action in `text`. If `centered` is true, the text is intended to be center-justified.
 
@@ -493,11 +543,12 @@ Single line of action in `text`. If `centered` is true, the text is intended to 
 `> Centered <`
 
 #### Scene Heading
-    JS: FountainSceneHeading
-    Python: fountain_tools.fountain.SceneHeading
-    C#: Fountain.SceneHeading
-    C++: Fountain::SceneHeading
-https://fountain.io/syntax/#scene-headings
+
+    JS: ScreenplaySceneHeading
+    Python: screenplay_tools.screenplay.SceneHeading
+    C#: ScreenplayTools.SceneHeading
+    C++: ScreenplayTools::SceneHeading
+<https://fountain.io/syntax/#scene-headings>
 
 Heading for a scene as `text`. Optional `sceneNumber`.
 
@@ -506,11 +557,12 @@ Heading for a scene as `text`. Optional `sceneNumber`.
 `INT. BATHROOM - DAY #1-a#` - text #sceneNumber#
 
 #### Character
-    JS: FountainCharacter
-    Python: fountain_tools.fountain.Character
-    C#: Fountain.Character
-    C++: Fountain::Character
-https://fountain.io/syntax/#charater
+
+    JS: ScreenplayCharacter
+    Python: screenplay_tools.screenplay.Character
+    C#: ScreenplayTools.Character
+    C++: ScreenplayTools::Character
+<https://fountain.io/syntax/#charater>
 
 Character header. Consists of `name`, optional `extension`, and `isDualDialogue` can be true.
 
@@ -521,66 +573,72 @@ Character header. Consists of `name`, optional `extension`, and `isDualDialogue`
 `DAVE (V.O.) ^` - name, (extension), isDualDialogue=true
 
 #### Dialogue
-    JS: FountainDialogue
-    Python: fountain_tools.fountain.Dialogue
-    C#: Fountain.Dialogue
-    C++: Fountain::Dialogue
-https://fountain.io/syntax/#dialogue
+
+    JS: ScreenplayDialogue
+    Python: screenplay_tools.screenplay.Dialogue
+    C#: ScreenplayTools.Dialogue
+    C++: ScreenplayTools::Dialogue
+<https://fountain.io/syntax/#dialogue>
 
 Line of dialogue as `text`.
 
 `Hello everyone!`
 
 #### Parenthetical
-    JS: FountainParenthetical
-    Python: fountain_tools.fountain.Parenthetical
-    C#: Fountain.Parenthetical
-    C++: Fountain::Parenthetical
-https://fountain.io/syntax/#parenthetical
+
+    JS: ScreenplayParenthetical
+    Python: screenplay_tools.screenplay.Parenthetical
+    C#: ScreenplayTools.Parenthetical
+    C++: ScreenplayTools::Parenthetical
+<https://fountain.io/syntax/#parenthetical>
 
 Direction in parenthesis before a line of dialogue. Doesn't include the parenthesis in the `text`.
 
 `(underhandedly)`
 
 #### Lyrics
-    JS: FountainLyric
-    Python: fountain_tools.fountain.Lyric
-    C#: Fountain.Lyric
-    C++: Fountain::Lyric
-https://fountain.io/syntax/#lyrics
+
+    JS: ScreenplayLyric
+    Python: screenplay_tools.screenplay.Lyric
+    C#: ScreenplayTools.Lyric
+    C++: ScreenplayTools::Lyric
+<https://fountain.io/syntax/#lyrics>
 
 Line of lyrics, as `text`.
 
 `~ These are some song lyrics.`
 
 #### Transition
-    JS: FountainTransition
-    Python: fountain_tools.fountain.Transition
-    C#: Fountain.Transition
-    C++: Fountain::Transition
-https://fountain.io/syntax/#transition
+
+    JS: ScreenplayTransition
+    Python: screenplay_tools.screenplay.Transition
+    C#: ScreenplayTools.Transition
+    C++: ScreenplayTools::Transition
+<https://fountain.io/syntax/#transition>
 
 Transition line, as `text`.
 
-`    CUT TO:`
+`CUT TO:`
 
 #### Page Break
-    JS: FountainPageBreak
-    Python: fountain_tools.fountain.PageBreak
-    C#: Fountain.PageBreak
-    C++: Fountain::PageBreak
-https://fountain.io/syntax/#page-breaks
+
+    JS: ScreenplayPageBreak
+    Python: screenplay_tools.screenplay.PageBreak
+    C#: ScreenplayTools.PageBreak
+    C++: ScreenplayTools::PageBreak
+<https://fountain.io/syntax/#page-breaks>
 
 Uh, a page break.
 
 `===`
 
 #### Section
-    JS: FountainSection
-    Python: fountain_tools.fountain.Section
-    C#: Fountain.Section
-    C++: Fountain::Section
-https://fountain.io/syntax/#sections-synopses
+
+    JS: ScreenplaySection
+    Python: screenplay_tools.screenplay.Section
+    C#: ScreenplayTools.Section
+    C++: ScreenplayTools::Section
+<https://fountain.io/syntax/#sections-synopses>
 
 A section header as `text` and a number `level`.
 
@@ -588,23 +646,25 @@ A section header as `text` and a number `level`.
 
 `## This is a level 2 section`
 
-#### Synopsis 
-    JS: FountainSynopsis
-    Python: fountain_tools.fountain.Synopsis
-    C#: Fountain.Synopsis
-    C++: Fountain::Synopsis
-https://fountain.io/syntax/#sections-synopses
+#### Synopsis
+
+    JS: ScreenplaySynopsis
+    Python: screenplay_tools.screenplay.Synopsis
+    C#: ScreenplayTools.Synopsis
+    C++: ScreenplayTools::Synopsis
+<https://fountain.io/syntax/#sections-synopses>
 
 A synopsis in `text`.
 
 `= Synopsis of this section`
 
-#### Note 
-    JS: FountainNote
-    Python: fountain_tools.fountain.Note
-    C#: Fountain.Note
-    C++: Fountain::Note
-https://fountain.io/syntax/#notes
+#### Note
+
+    JS: ScreenplayNote
+    Python: screenplay_tools.screenplay.Note
+    C#: ScreenplayTools.Note
+    C++: ScreenplayTools::Note
+<https://fountain.io/syntax/#notes>
 
 The content of a parsed note, as `text`.
 
@@ -613,11 +673,12 @@ This element will only be found inside the `getNotes()` section of the script.
 `Here is a normal line [[This is a note though]].`
 
 #### Boneyard
-    JS: FountainBoneyard
-    Python: fountain_tools.fountain.Boneyard
-    C#: Fountain.Boneyard
-    C++: Fountain::Boneyard
-https://fountain.io/syntax/#boneyard
+
+    JS: ScreenplayBoneyard
+    Python: screenplay_tools.screenplay.Boneyard
+    C#: ScreenplayTools.Boneyard
+    C++: ScreenplayTools::Boneyard
+<https://fountain.io/syntax/#boneyard>
 
 The content of a boneyard, also known as a commented-out section, as `text`.
 
@@ -626,17 +687,20 @@ This element will only be found inside the `getBoneyards()` section of the scrip
 `Here is a normal line /*This is a boneyard*/.`
 
 ### CallbackParser
+
     JS: FountainCallbackParser
-    Python: fountain_tools.callback_parser.CallbackParser
-    C#: Fountain.CallbackParser
-    C++: Fountain::CallbackParser
+    Python: screenplay_tools.fountain.callback_parser.CallbackParser
+    C#: ScreenplayTools.Fountain.CallbackParser
+    C++: ScreenplayTools::Fountain::CallbackParser
 
 A version of the parser which lets you set up callbacks which will be called as lines are parsed.
 
 #### onTitlePage
+
 * `entries` - a list of key/values for the title page.
 
 #### onDialogue
+
 * `character` - the character name in the script
 * `extension` - optional bracketed exension e.g. DAVE (V.O.)
 * `parenthetical` - optional parenthetical before the dialogue line e.g. (loudly) or (angrily)
@@ -644,58 +708,72 @@ A version of the parser which lets you set up callbacks which will be called as 
 * `isDualDialogue` - True if the caret ^ is present indicating dual dialogue in the script
 
 #### onAction
+
 * `text`
 
 #### onSceneHeading
+
 * `text`
 * `sceneNumber` - optional
 
 #### onLyrics
+
 * `text`
 
 #### onTransition
+
 * `text`
 
 #### onSection
+
 * `text`
 * `level` - number
 
 #### onSynopsis
+
 * `text`
 
 #### onPageBreak
 
 #### ignoreBlanks: bool
+
 Set to false if you want empty dialogue and actions.
 
 ### Writer
+
     JS: FountainWriter
-    Python: fountain_tools.writer.Writer
-    C#: Fountain.Writer
-    C++: Fountain::Writer
+    Python: screenplay_tools.fountain.writer.Writer
+    C#: ScreenplayTools.Fountain.Writer
+    C++: ScreenplayTools::Fountain::Writer
 
 A simpler writer to write a script as UTF-8 text.
 
-#### prettyPrint 
+#### prettyPrint
+
 Set to false if you don't want indents in the output.
 
 #### write(script)
-Pass in a FountainScript, get back a UTF-8 string.
+
+Pass in a Script, get back a UTF-8 string.
 
 ### FormatHelper
-    JS: Fountain
-    Python: fountain_tools.formatHelper.FormatHelper
-    C#: Fountain.FormatHelper
-    C++: Fountain::FormatHelper
+
+    JS: FountainFormatHelper
+    Python: screenplay_tools.fountain.formatHelper.FormatHelper
+    C#: ScreenplayTools.Fountain.FormatHelper
+    C++: ScreenplayTools::Fountain::FormatHelper
 
 #### fountainToHtml
-Convert Fountain markup (*italic*, **bold**, ***bolditalic*** _underline_) to HTML.
+
+Convert Fountain markup (*italic*, **bold**, ***bolditalic*** *underline*) to HTML.
 
 ## Contributors
+
 * [wildwinter](https://github.com/wildwinter) - original author
 * [BirdCatcherGames](https://github.com/BirdCatcherGames) - extending Fountain spec to allow 6-deep sections
 
 ## License
+
 ```
 MIT License
 
