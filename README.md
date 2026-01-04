@@ -44,7 +44,7 @@ The main `Parser` class turns the raw Fountain files into a `Script` object repr
   * [`ScreenplayTools.Fountain.Parser`](#parser)
   * [`ScreenplayTools.Script`](#script)
   * [`ScreenplayTools.Element`](#element)
-  * [(ScreenplayTools.Elements)](#elements)
+  * [`ScreenplayTools.Elements`](#elements)
   * [`ScreenplayTools.Fountain.CallbackParser`](#callbackparser)
   * [`ScreenplayTools.Fountain.Writer`](#writer)
   * [`ScreenplayTools.Fountain.FormatHelper`](#formathelper)
