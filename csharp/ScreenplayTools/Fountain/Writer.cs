@@ -75,16 +75,14 @@ public class Writer
         string text = string.Join("\n", lines);
 
         // Replace notes
-        var regexNotes = new Regex(@"\[\[(\d+)\]\]");
-        text = regexNotes.Replace(text, match =>
+        text = _regexNotes.Replace(text, match =>
         {
             int num = int.Parse(match.Groups[1].Value);
             return $"[[{script.Notes[num].Text}]]";
         });
 
         // Replace boneyards
-        var regexBoneyards = new Regex(@"/\*(\d+)\*/");
-        text = regexBoneyards.Replace(text, match =>
+        text = _regexBoneyards.Replace(text, match =>
         {
             int num = int.Parse(match.Groups[1].Value);
             return $"/*{script.Boneyards[num].Text}*/";
@@ -93,6 +91,9 @@ public class Writer
         // Clean up leading and trailing whitespace
         return TrimOuterNewlines(text);
     }
+
+    private static readonly Regex _regexNotes = new Regex(@"\[\[(\d+)\]\]", RegexOptions.Compiled);
+    private static readonly Regex _regexBoneyards = new Regex(@"/\*(\d+)\*/", RegexOptions.Compiled);
 
     private string? _lastChar;
 

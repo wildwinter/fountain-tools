@@ -105,6 +105,20 @@ public class Parser
     private string _lastLine="";
     private List<string> _lineTags = [];
 
+    private static readonly Regex _regexTitleEntry = new Regex(@"^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$", RegexOptions.Compiled);
+    private static readonly Regex _regexTitleMultilineEntry = new Regex(@"^( {3,}|\t)", RegexOptions.Compiled);
+    private static readonly Regex _regexSynopsis = new Regex(@"^=(?!\=)", RegexOptions.Compiled);
+    private static readonly Regex _regexSceneHeadingDecode = new Regex(@"^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$", RegexOptions.Compiled);
+    private static readonly Regex _regexForcedSceneHeading = new Regex(@"^\.[a-zA-Z0-9]", RegexOptions.Compiled);
+    private static readonly Regex _regexSceneHeading = new Regex(@"^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex _regexTransition = new Regex(@"^\s*(?:[A-Z\s]+TO:)\s*$", RegexOptions.Compiled);
+    private static readonly Regex _regexParenthetical = new Regex(@"^\s*\((.*)\)\s*$", RegexOptions.Compiled);
+    private static readonly Regex _regexCont = new Regex(@"\(\s*CONT[’']D\s*\)", RegexOptions.Compiled);
+    private static readonly Regex _regexCharacterDecode = new Regex(@"^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$", RegexOptions.Compiled);
+    private static readonly Regex _regexCharacter = new Regex(@"^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$", RegexOptions.Compiled);
+    private static readonly Regex _regexPageBreak = new Regex(@"^\s*={3,}\s*$", RegexOptions.Compiled);
+    private static readonly Regex _regexTags = new Regex(@"\s#([^\s#][^#]*?)(?=\s|$)", RegexOptions.Compiled);
+
     private Element? GetLastElement()
     {
         if (Script.Elements.Count > 0)
@@ -203,10 +217,7 @@ public class Parser
 
     private bool ParseTitlePage()
     {
-        var regexTitleEntry = new Regex(@"^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$");
-        var regexTitleMultilineEntry = new Regex(@"^( {3,}|\t)");
-
-        var match = regexTitleEntry.Match(_line);
+        var match = _regexTitleEntry.Match(_line);
         if (match.Success)
         {
             var text = match.Groups[2].Value;
@@ -215,7 +226,7 @@ public class Parser
             return true;
         }
 
-        if (_multiLineTitleEntry && regexTitleMultilineEntry.IsMatch(_line))
+        if (_multiLineTitleEntry && _regexTitleMultilineEntry.IsMatch(_line))
         {
             var entry = Script.TitleEntries[^1];
             entry.AppendLine(_line);
@@ -262,7 +273,7 @@ public class Parser
 
     private bool ParseSynopsis()
     {
-        if (Regex.IsMatch(_lineTrim, @"^=(?!\=)"))
+        if (_regexSynopsis.IsMatch(_lineTrim))
         {
             AddElement(new Synopsis(_lineTrim.Substring(1).TrimStart()));
             return true;
@@ -272,8 +283,7 @@ public class Parser
 
     private SceneHeadingInfo? DecodeSceneHeading(string line)
     {
-        var regex = new Regex(@"^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$");
-        var match = regex.Match(line);
+        var match = _regexSceneHeadingDecode.Match(line);
         if (match.Success)
         {
             var text = match.Groups[1].Value.Trim();
@@ -288,8 +298,7 @@ public class Parser
     
     private bool ParseForcedSceneHeading()
     {
-        var regex = new Regex(@"^\.[a-zA-Z0-9]");
-        if (regex.IsMatch(_lineTrim))
+        if (_regexForcedSceneHeading.IsMatch(_lineTrim))
         {
             var heading = DecodeSceneHeading(_lineTrim.Substring(1));
             if (heading!=null)
@@ -303,8 +312,7 @@ public class Parser
 
     private bool ParseSceneHeading()
     {
-        var regexHeading = new Regex(@"^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)", RegexOptions.IgnoreCase);
-        if (regexHeading.IsMatch(_lineTrim))
+        if (_regexSceneHeading.IsMatch(_lineTrim))
         {
             var heading = DecodeSceneHeading(_lineTrim);
             if (heading!=null)
@@ -329,8 +337,7 @@ public class Parser
     
     private bool ParseTransition()
     {
-        var regexTransition = new Regex(@"^\s*(?:[A-Z\s]+TO:)\s*$");
-        if (regexTransition.IsMatch(_lineTrim) && _lastLineEmpty)
+        if (_regexTransition.IsMatch(_lineTrim) && _lastLineEmpty)
         {
             _pending.Add(new PendingElement
             {
@@ -345,8 +352,7 @@ public class Parser
 
     private bool ParseParenthetical()
     {
-        var regexParenthetical = new Regex(@"^\s*\((.*)\)\s*$");
-        var match = regexParenthetical.Match(_line);
+        var match = _regexParenthetical.Match(_line);
         var lastElement = GetLastElement();
 
         if (match.Success && _inDialogue && lastElement != null &&
@@ -361,11 +367,9 @@ public class Parser
     private CharacterInfo? DecodeCharacter(string line)
     {
         // Strip out all CONT'D variants
-        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)");
-        var noContLine = regexCont.Replace(line, "").Trim();
+        var noContLine = _regexCont.Replace(line, "").Trim();
 
-        var regexCharacter = new Regex(@"^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$");
-        var match = regexCharacter.Match(noContLine);
+        var match = _regexCharacterDecode.Match(noContLine);
 
         if (match.Success)
         {
@@ -401,11 +405,9 @@ public class Parser
     private bool ParseCharacter()
     {
         // Strip out all CONT'D variants
-        var regexCont = new Regex(@"\(\s*CONT[’']D\s*\)");
-        var noContLineTrim = regexCont.Replace(_lineTrim, "").Trim();
+        var noContLineTrim = _regexCont.Replace(_lineTrim, "").Trim();
 
-        var regexCharacter = new Regex(@"^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$");
-        if (_lastLineEmpty && regexCharacter.IsMatch(noContLineTrim))
+        if (_lastLineEmpty && _regexCharacter.IsMatch(noContLineTrim))
         {
             var character = DecodeCharacter(noContLineTrim);
             if (character != null)
@@ -500,7 +502,7 @@ public class Parser
 
     private bool ParsePageBreak()
     {
-        if (Regex.IsMatch(_lineTrim, @"^\s*={3,}\s*$"))
+        if (_regexPageBreak.IsMatch(_lineTrim))
         {
             AddElement(new PageBreak());
             return true;
@@ -622,9 +624,8 @@ public class Parser
     }
 
     private (string untagged, List<string> tags) ExtractTags(string line) {
-        Regex regex = new Regex(@"\s#([^\s#][^#]*?)(?=\s|$)");
         List<string> tags = [];
-        MatchCollection matches = regex.Matches(line);
+        MatchCollection matches = _regexTags.Matches(line);
 
         int? firstMatchIndex = null;
 
