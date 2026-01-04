@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "csharp", "csharp", "{AAD4127C-E287-403F-9C54-806A150633F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FountainTools.Tests", "csharp\FountainTools.Tests\FountainTools.Tests.csproj", "{F69C345F-A927-4A05-AAA1-1E7B8D50B8B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScreenplayTools.Tests", "csharp\ScreenplayTools.Tests\ScreenplayTools.Tests.csproj", "{F69C345F-A927-4A05-AAA1-1E7B8D50B8B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FountainTools", "csharp\FountainTools\FountainTools.csproj", "{97D50E4B-9600-4729-ABE6-C55C98899FF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScreenplayTools", "csharp\ScreenplayTools\ScreenplayTools.csproj", "{97D50E4B-9600-4729-ABE6-C55C98899FF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
