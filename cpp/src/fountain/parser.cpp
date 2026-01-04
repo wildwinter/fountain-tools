@@ -311,7 +311,7 @@ bool Parser::_parseTransition() {
     // Pending - only counts as an actual transition if the next line is empty
     _pending.push_back(std::make_shared<PendingElement>(PendingElement{
         ElementType::TRANSITION, std::make_shared<Transition>(_lineTrim),
-        std::make_shared<Action>(_lineTrim)}));
+        std::make_shared<Action>(replaceAll(_lineTrim, "\t", "    "))}));
     return true;
   }
 
@@ -407,7 +407,7 @@ bool Parser::_parseCharacter() {
           ElementType::CHARACTER,
           std::make_shared<Character>(character.name, character.extension,
                                       character.dual),
-          std::make_shared<Action>(_lineTrim)}));
+          std::make_shared<Action>(replaceAll(_lineTrim, "\t", "    "))}));
 
       return true;
     }
@@ -460,7 +460,8 @@ bool Parser::_parseDialogue() {
 
 bool Parser::_parseForcedAction() {
   if (_lineTrim.rfind("!", 0) == 0) {
-    _addElement(std::make_shared<Action>(_lineTrim.substr(1), true));
+    _addElement(std::make_shared<Action>(
+        replaceAll(_lineTrim.substr(1), "\t", "    "), true));
     return true;
   }
   return false;
@@ -473,7 +474,8 @@ bool Parser::_parseCenteredAction() {
     // Extract the content between ">" and "<"
     std::string content = _lineTrim.substr(1, _lineTrim.length() - 2);
 
-    auto centeredElement = std::make_shared<Action>(content);
+    auto centeredElement =
+        std::make_shared<Action>(replaceAll(content, "\t", "    "));
     centeredElement->setCentered(true);
 
     _addElement(centeredElement);
@@ -483,7 +485,9 @@ bool Parser::_parseCenteredAction() {
   return false;
 }
 
-void Parser::_parseAction() { _addElement(std::make_shared<Action>(_line)); }
+void Parser::_parseAction() {
+  _addElement(std::make_shared<Action>(replaceAll(_line, "\t", "    ")));
+}
 
 bool Parser::_parsePageBreak() {
   if (_lineTrim.find("===") != std::string::npos) {

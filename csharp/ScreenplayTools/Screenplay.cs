@@ -94,7 +94,7 @@ public class Action : Element
     public bool Forced { get; private set; }
 
     public Action(string text, bool forced = false)
-        : base(ElementType.ACTION, text.Replace("\t", "    "))  // Tabs are supposed to be converted to 4-spaces in Fountain
+        : base(ElementType.ACTION, text)  // Tabs are supposed to be converted to 4-spaces in Fountain
     {
         Centered = false;
         Forced = forced;

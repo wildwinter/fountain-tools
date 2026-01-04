@@ -343,7 +343,7 @@ public class Parser
             {
                 Type = ElementType.TRANSITION,
                 Element = new Transition(_lineTrim),
-                Backup = new Action(_lineTrim)
+                Backup = new Action(_lineTrim.Replace("\t", "    "))
             });
             return true;
         }
@@ -416,7 +416,7 @@ public class Parser
                 {
                     Type = ElementType.CHARACTER,
                     Element = new Character(character.Name, character.Extension, character.Dual),
-                    Backup = new Action(_lineTrim)
+                    Backup = new Action(_lineTrim.Replace("\t", "    "))
                 });
                 return true;
             }
@@ -473,7 +473,7 @@ public class Parser
     {
         if (_lineTrim.StartsWith("!"))
         {
-            AddElement(new Action(_lineTrim.Substring(1), forced: true));
+            AddElement(new Action(_lineTrim.Substring(1).Replace("\t", "    "), forced: true));
             return true;
         }
         return false;
@@ -484,7 +484,7 @@ public class Parser
         if (_lineTrim.StartsWith(">") && _lineTrim.EndsWith("<"))
         {
             var content = _lineTrim.Substring(1, _lineTrim.Length - 2);
-            var centeredElement = new Action(content)
+            var centeredElement = new Action(content.Replace("\t", "    "))
             {
                 Centered = true
             };
@@ -496,7 +496,7 @@ public class Parser
 
     private void ParseAction()
     {
-        AddElement(new Action(_line));
+        AddElement(new Action(_line.Replace("\t", "    ")));
     }
 
 

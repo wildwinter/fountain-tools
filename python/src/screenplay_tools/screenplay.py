@@ -62,7 +62,6 @@ class TitleEntry(Element):
 class Action(Element):
     def __init__(self, text, forced=False):
         # ACTION converts tabs to 4 spaces
-        text = text.replace("\t", "    ")
         super().__init__(ElementType.ACTION, text)
         self.centered = False
         self.forced = forced

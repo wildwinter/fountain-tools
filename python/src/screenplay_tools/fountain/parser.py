@@ -257,7 +257,7 @@ class Parser:
         """Parses centered text if the line starts and ends with angle brackets '>' and '<'."""
         if self._lineTrim.startswith(">") and self._lineTrim.endswith("<"):
             centered_text = self._lineTrim[1:-1]
-            centered_action = Action(centered_text)
+            centered_action = Action(centered_text.replace("\t", "    "))
             centered_action.centered = True
             self._add_element(centered_action)
             return True
@@ -332,7 +332,7 @@ class Parser:
             self._pending.append({
                 "type": ElementType.TRANSITION,
                 "element": Transition(self._lineTrim),
-                "backup": Action(self._lineTrim)
+                "backup": Action(self._lineTrim.replace("\t", "    "))
             })
             return True
         return False
@@ -412,7 +412,7 @@ class Parser:
                 self._pending.append({
                     "type":  ElementType.CHARACTER,
                     "element": char_element,
-                    "backup": Action(self._lineTrim)
+                    "backup": Action(self._lineTrim.replace("\t", "    "))
                 })
                 return True
         return False
@@ -458,7 +458,7 @@ class Parser:
         """
         if self._lineTrim.startswith("!"):
             action_text = self._lineTrim[1:].strip()  # Remove the leading `!`
-            self._add_element(Action(action_text, forced=True))
+            self._add_element(Action(action_text.replace("\t", "    "), forced=True))
             return True
         return False
 
@@ -467,7 +467,7 @@ class Parser:
         Parses a regular action line.
         Regular action lines are added as `FountainAction` with `forced=False`.
         """
-        self._add_element(Action(self._line))
+        self._add_element(Action(self._line.replace("\t", "    ")))
 
     def _parse_boneyard(self):
         """
