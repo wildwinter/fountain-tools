@@ -5,7 +5,7 @@ import { loadTestFile } from '../../test/testUtils.js';
 import { strict as assert } from 'assert';
 import { FountainWriter } from '../../src/fountain/writer.js';
 import { FountainParser } from '../../src/fountain/parser.js';
-import { Script, ScreenplayAction, ScreenplayCharacter, ScreenplayDialogue } from '../../src/screenplay.js';
+import { Script, Action, Character, Dialogue } from '../../src/screenplay.js';
 
 describe('Writer', () => {
 
@@ -54,19 +54,19 @@ describe('Writer', () => {
             const match = loadTestFile('Append-output.fountain');
 
             const script = new Script();
-            script.addElement(new ScreenplayCharacter("FRED"));
-            script.addElement(new ScreenplayDialogue("Test dialogue."));
-            script.addElement(new ScreenplayCharacter("FRED"), true);
-            script.addElement(new ScreenplayDialogue("Test dialogue 2."));
+            script.addElement(new Character("FRED"));
+            script.addElement(new Dialogue("Test dialogue."));
+            script.addElement(new Character("FRED"), true);
+            script.addElement(new Dialogue("Test dialogue 2."));
 
-            script.addElement(new ScreenplayAction("Test action 1."));
-            script.addElement(new ScreenplayAction("Test action 2."), true);
-            script.addElement(new ScreenplayAction("Test action 3."));
+            script.addElement(new Action("Test action 1."));
+            script.addElement(new Action("Test action 2."), true);
+            script.addElement(new Action("Test action 3."));
 
-            script.addElement(new ScreenplayCharacter("FRED"));
-            script.addElement(new ScreenplayDialogue("Test dialogue."));
-            script.addElement(new ScreenplayCharacter("FRED"), false);
-            script.addElement(new ScreenplayDialogue("Test dialogue 2."));
+            script.addElement(new Character("FRED"));
+            script.addElement(new Dialogue("Test dialogue."));
+            script.addElement(new Character("FRED"), false);
+            script.addElement(new Dialogue("Test dialogue 2."));
 
             let fw = new FountainWriter();
 

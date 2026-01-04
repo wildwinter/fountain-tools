@@ -18,7 +18,7 @@ export const ElementType = Object.freeze({
 });
 
 // Base class for all elements
-export class ScreenplayElement {
+export class Element {
     constructor(type, text) {
         this.type = type;
         this._text = text;
@@ -51,7 +51,7 @@ export class ScreenplayElement {
 }
 
 
-export class ScreenplayTitleEntry extends ScreenplayElement {
+export class TitleEntry extends Element {
     constructor(key, text) {
         super(ElementType.TITLEENTRY, text);
         this.key = key;
@@ -64,12 +64,8 @@ export class ScreenplayTitleEntry extends ScreenplayElement {
 }
 
 
-export class ScreenplayAction extends ScreenplayElement {
+export class Action extends Element {
     constructor(text, forced = false) {
-
-        // ACTION is supposed to convert tabs to 4-spaces
-        text = text.replace(/\t/g, '    ');
-
         super(ElementType.ACTION, text);
         this.centered = false;
         this.forced = forced;
@@ -85,7 +81,7 @@ export class ScreenplayAction extends ScreenplayElement {
 }
 
 
-export class ScreenplaySceneHeading extends ScreenplayElement {
+export class SceneHeading extends Element {
     constructor(text, sceneNumber, forced = false) {
         super(ElementType.HEADING, text);
         this.sceneNumber = sceneNumber;
@@ -103,7 +99,7 @@ export class ScreenplaySceneHeading extends ScreenplayElement {
 }
 
 
-export class ScreenplayCharacter extends ScreenplayElement {
+export class Character extends Element {
     constructor(name, extension, dual, forced = false) {
         super(ElementType.CHARACTER, "");
         this.name = name;
@@ -125,28 +121,28 @@ export class ScreenplayCharacter extends ScreenplayElement {
 }
 
 
-export class ScreenplayDialogue extends ScreenplayElement {
+export class Dialogue extends Element {
     constructor(text) {
         super(ElementType.DIALOGUE, text);
     }
 }
 
 
-export class ScreenplayParenthetical extends ScreenplayElement {
+export class Parenthetical extends Element {
     constructor(text) {
         super(ElementType.PARENTHETICAL, text);
     }
 }
 
 
-export class ScreenplayLyric extends ScreenplayElement {
+export class Lyric extends Element {
     constructor(text) {
         super(ElementType.LYRIC, text);
     }
 }
 
 
-export class ScreenplayTransition extends ScreenplayElement {
+export class Transition extends Element {
     constructor(text, forced = false) {
         super(ElementType.TRANSITION, text);
         this.forced = forced;
@@ -154,28 +150,28 @@ export class ScreenplayTransition extends ScreenplayElement {
 }
 
 
-export class ScreenplayPageBreak extends ScreenplayElement {
+export class PageBreak extends Element {
     constructor() {
         super(ElementType.PAGEBREAK, "")
     }
 }
 
 
-export class ScreenplayNote extends ScreenplayElement {
+export class Note extends Element {
     constructor(text) {
         super(ElementType.NOTE, text);
     }
 }
 
 
-export class ScreenplayBoneyard extends ScreenplayElement {
+export class Boneyard extends Element {
     constructor(text) {
         super(ElementType.BONEYARD, text);
     }
 }
 
 
-export class ScreenplaySection extends ScreenplayElement {
+export class Section extends Element {
     constructor(level, text) {
         super(ElementType.SECTION, text);
         this.level = level;
@@ -187,7 +183,7 @@ export class ScreenplaySection extends ScreenplayElement {
     }
 }
 
-export class ScreenplaySynopsis extends ScreenplayElement {
+export class Synopsis extends Element {
     constructor(text) {
         super(ElementType.SYNOPSIS, text);
     }

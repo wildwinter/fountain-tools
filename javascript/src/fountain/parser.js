@@ -2,13 +2,28 @@
 // Copyright (c) 2024 Ian Thomas
 
 import {
-    ElementType, ScreenplayTitleEntry,
-    ScreenplayAction, ScreenplaySceneHeading, ScreenplayCharacter,
-    ScreenplayDialogue, ScreenplayParenthetical, ScreenplayLyric,
-    ScreenplayTransition, ScreenplayPageBreak, ScreenplayNote,
-    ScreenplayBoneyard, ScreenplaySection, Script,
-    ScreenplaySynopsis
+    ElementType, TitleEntry,
+    Action, SceneHeading, Character,
+    Dialogue, Parenthetical, Lyric,
+    Transition, PageBreak, Note,
+    Boneyard, Section, Script,
+    Synopsis
 } from "../screenplay.js";
+
+// Module-level Regex Constants
+const REGEX_TITLE_ENTRY = /^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$/;
+const REGEX_TITLE_MULTILINE_ENTRY = /^( {3,}|\t)/;
+const REGEX_PAGE_BREAK = /^\s*={3,}\s*$/;
+const REGEX_SYNOPSIS = /^=(?!\=)/;
+const REGEX_HEADING_DECODE = /^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$/;
+const REGEX_FORCED_SCENE_HEADING = /^\.[a-zA-Z0-9]/;
+const REGEX_SCENE_HEADING = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/i;
+const REGEX_FORCED_TRANSITION = /^\s*(?:[A-Z\s]+TO:)\s*$/;
+const REGEX_PARENTHETICAL = /^\s*\((.*)\)\s*$/
+const REGEX_CONT = /\(\s*CONT[’']D\s*\)/g;
+const REGEX_CHARACTER = /^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$/;
+const REGEX_CHARACTER_SIMPLE = /^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$/; // Simplified for initial check
+const REGEX_TAGS = /\s#([^\s#][^#]*?)(?=\s|$)/g;
 
 function isWhitespaceOrEmpty(line) {
     return (!line.trim());
@@ -147,20 +162,13 @@ export class FountainParser {
         this._parsePending();
     }
 
-    _getLastElem() {
-        const elems = this.script.elements;
-        if (elems.length > 0)
-            return elems[elems.length - 1];
-        return null;
-    }
-
     // Adds a new element or merges with existing element
     _addElement(elem) {
 
         elem.appendTags(this._lineTags);
         this._lineTags = [];
 
-        let lastElem = this._getLastElem();
+        let lastElem = this.script.getLastElem();
 
         // Are we trying to add a blank action line?
         if (elem.type == ElementType.ACTION && isWhitespaceOrEmpty(elem.textRaw) && !elem.centered) {
@@ -236,20 +244,17 @@ export class FountainParser {
 
     _parseTitlePage() {
 
-        const regexTitleEntry = /^\s*([A-Za-z0-9 ]+?)\s*:\s*(.*?)\s*$/;
-        const regexTitleMultilineEntry = /^( {3,}|\t)/;
-
-        let match = this._line.match(regexTitleEntry);
+        let match = this._line.match(REGEX_TITLE_ENTRY);
         if (match) {    // It's of form key:text
             let text = match[2];
-            this.script.titleEntries.push(new ScreenplayTitleEntry(match[1], text));
+            this.script.titleEntries.push(new TitleEntry(match[1], text));
             this._multiLineTitleEntry = (text.length == 0);
             return true
 
         }
 
         if (this._multiLineTitleEntry) { // If we're expecting text on this line
-            if (regexTitleMultilineEntry.test(this._line)) {
+            if (REGEX_TITLE_MULTILINE_ENTRY.test(this._line)) {
                 let entry = this.script.titleEntries[this.script.titleEntries.length - 1];
                 entry.appendLine(this._line);
                 return true;
@@ -263,9 +268,8 @@ export class FountainParser {
 
     _parsePageBreak() {
 
-        const regexPageBreak = /^\s*={3,}\s*$/;
-        if (regexPageBreak.test(this._line)) {
-            this._addElement(new ScreenplayPageBreak());
+        if (REGEX_PAGE_BREAK.test(this._line)) {
+            this._addElement(new PageBreak());
             return true;
         }
         return false;
@@ -274,7 +278,7 @@ export class FountainParser {
     _parseLyrics() {
 
         if (this._lineTrim.startsWith('~')) {
-            this._addElement(new ScreenplayLyric(this._lineTrim.slice(1).trimStart()));
+            this._addElement(new Lyric(this._lineTrim.slice(1).trimStart()));
             return true;
         }
         return false;
@@ -282,9 +286,8 @@ export class FountainParser {
 
     _parseSynopsis() {
 
-        const regexSynopsis = /^=(?!\=)/;
-        if (regexSynopsis.test(this._lineTrim)) {
-            this._addElement(new ScreenplaySynopsis(this._lineTrim.slice(1).trimStart()));
+        if (REGEX_SYNOPSIS.test(this._lineTrim)) {
+            this._addElement(new Synopsis(this._lineTrim.slice(1).trimStart()));
             return true;
         }
         return false;
@@ -293,7 +296,9 @@ export class FountainParser {
     _parseCentredText() {
 
         if (this._lineTrim.startsWith('>') && this._lineTrim.endsWith('<')) {
-            let newElem = new ScreenplayAction(this._lineTrim.slice(1, this._lineTrim.length - 1));
+            // ACTION Logic: Remove tabs
+            const text = this._lineTrim.slice(1, this._lineTrim.length - 1).replace(/\t/g, '    ');
+            let newElem = new Action(text);
             newElem.centered = true;
             this._addElement(newElem);
             return true;
@@ -302,16 +307,14 @@ export class FountainParser {
     }
 
     _decodeSceneHeading(line) {
-        const regex = /^(.*?)(?:\s*#([a-zA-Z0-9\-.]+)#)?$/;
-        const match = line.match(regex);
+        const match = line.match(REGEX_HEADING_DECODE);
         return match ? { text: match[1].trim(), sceneNum: match[2] || null } : null;
     }
 
     _parseForcedSceneHeading() {
-        const regex = /^\.[a-zA-Z0-9]/;
-        if (regex.test(this._lineTrim)) {
+        if (REGEX_FORCED_SCENE_HEADING.test(this._lineTrim)) {
             let heading = this._decodeSceneHeading(this._lineTrim.slice(1));
-            this._addElement(new ScreenplaySceneHeading(heading.text, heading.sceneNum, true));
+            this._addElement(new SceneHeading(heading.text, heading.sceneNum, true));
             return true;
         }
         return false;
@@ -319,10 +322,9 @@ export class FountainParser {
 
     _parseSceneHeading() {
 
-        const regexHeading = /^\s*((INT|EXT|EST|INT\.\/EXT|INT\/EXT|I\/E)(\.|\s))|(FADE IN:\s*)/i;
-        if (regexHeading.test(this._line)) {
+        if (REGEX_SCENE_HEADING.test(this._line)) {
             let heading = this._decodeSceneHeading(this._lineTrim);
-            this._addElement(new ScreenplaySceneHeading(heading.text, heading.sceneNum));
+            this._addElement(new SceneHeading(heading.text, heading.sceneNum));
             return true;
         }
         return false;
@@ -330,22 +332,24 @@ export class FountainParser {
 
     _parseForcedTransition() {
         if (this._lineTrim.startsWith(">") && !this._lineTrim.endsWith("<")) {
-            this._addElement(new ScreenplayTransition(this._lineTrim.slice(1).trim(), true));
+            this._addElement(new Transition(this._lineTrim.slice(1).trim(), true));
             return true;
         }
         return false;
     }
 
     _parseTransition() {
-        const regexTransition = /^\s*(?:[A-Z\s]+TO:)\s*$/;
-        if (regexTransition.test(this._line) && isWhitespaceOrEmpty(this._lastLine)) {
+        if (REGEX_FORCED_TRANSITION.test(this._line) && isWhitespaceOrEmpty(this._lastLine)) {
 
             if (this._lastLineEmpty) {
+                // ACTION Logic: Remove tabs
+                const actionText = this._lineTrim.replace(/\t/g, '    ');
+
                 // Can't commit to which this is until we've checked the next line is empty.
                 this._pending.push({
                     type: ElementType.TRANSITION,
-                    element: new ScreenplayTransition(this._lineTrim),
-                    backup: new ScreenplayAction(this._lineTrim)
+                    element: new Transition(this._lineTrim),
+                    backup: new Action(actionText)
                 });
 
                 return true;
@@ -356,11 +360,10 @@ export class FountainParser {
 
     _parseParenthetical() {
 
-        const regexParenthetical = /^\s*\((.*)\)\s*$/
-        let lastElem = this._getLastElem();
-        let match = this._line.match(regexParenthetical);
+        let lastElem = this.script.getLastElem();
+        let match = this._line.match(REGEX_PARENTHETICAL);
         if (match && this._inDialogue && lastElem && (lastElem.type == ElementType.CHARACTER || lastElem.type == ElementType.DIALOGUE)) {
-            this._addElement(new ScreenplayParenthetical(match[1]));
+            this._addElement(new Parenthetical(match[1]));
             return true;
         }
         return false;
@@ -368,12 +371,9 @@ export class FountainParser {
 
     _decodeCharacter(line) {
         // Remove any CONT'D notes
-        const regexCont = /\(\s*CONT[’']D\s*\)/g;
-        const regexCharacter = /^([^(\^]+?)\s*(?:\((.*)\))?(?:\s*\^\s*)?$/;
+        let lineTrim = line.trim().replace(REGEX_CONT, "");
 
-        let lineTrim = line.trim().replace(regexCont, "");
-
-        const match = lineTrim.match(regexCharacter);
+        const match = lineTrim.match(REGEX_CHARACTER);
         if (match) {
             const name = match[1].trim(); // Extract NAME
             const extension = match[2] ? match[2].trim() : null; // Extract extension if present
@@ -393,7 +393,7 @@ export class FountainParser {
             if (character == null)
                 return false;
 
-            this._addElement(new ScreenplayCharacter(character.name, character.extension, character.dual));
+            this._addElement(new Character(character.name, character.extension, character.dual));
 
             return true;
         }
@@ -403,23 +403,24 @@ export class FountainParser {
     _parseCharacter() {
 
         // Remove any CONT'D notes
-        const regexCont = /\(\s*CONT[’']D\s*\)/g;
-        let lineTrim = this._lineTrim.replace(regexCont, "").trim();
+        let lineTrim = this._lineTrim.replace(REGEX_CONT, "").trim();
 
-        const regexCharacter = /^([A-Z][^a-z]*?)\s*(?:\(.*\))?(?:\s*\^\s*)?$/;
-        if (this._lastLineEmpty && regexCharacter.test(lineTrim)) {
+        if (this._lastLineEmpty && REGEX_CHARACTER_SIMPLE.test(lineTrim)) {
 
             let character = this._decodeCharacter(lineTrim);
             if (character == null)
                 return false;
 
-            let charElem = new ScreenplayCharacter(character.name, character.extension, character.dual);
+            let charElem = new Character(character.name, character.extension, character.dual);
+
+            // ACTION Logic: Remove tabs
+            const actionText = this._lineTrim.replace(/\t/g, '    ');
 
             // Can't commit to which this is until we've checked the next line isn't empty.
             this._pending.push({
                 type: ElementType.CHARACTER,
                 element: charElem,
-                backup: new ScreenplayAction(this._lineTrim)
+                backup: new Action(actionText)
             });
 
             return true;
@@ -430,9 +431,9 @@ export class FountainParser {
 
     _parseDialogue() {
 
-        let lastElem = this._getLastElem();
+        let lastElem = this.script.getLastElem();
         if (lastElem && this._line.length > 0 && (lastElem.type == ElementType.CHARACTER || lastElem.type == ElementType.PARENTHETICAL)) {
-            this._addElement(new ScreenplayDialogue(this._lineTrim));
+            this._addElement(new Dialogue(this._lineTrim));
             return true;
         }
 
@@ -446,8 +447,8 @@ export class FountainParser {
                     lastElem.appendLine(this._lineTrim);
                 }
                 else {
-                    this._addElement(new ScreenplayDialogue(""));
-                    this._addElement(new ScreenplayDialogue(this._lineTrim));
+                    this._addElement(new Dialogue(""));
+                    this._addElement(new Dialogue(this._lineTrim));
                 }
                 return true;
             }
@@ -457,7 +458,7 @@ export class FountainParser {
                 if (this.mergeDialogue)
                     lastElem.appendLine(this._lineTrim);
                 else
-                    this._addElement(new ScreenplayDialogue(this._lineTrim));
+                    this._addElement(new Dialogue(this._lineTrim));
                 return true;
             }
         }
@@ -467,14 +468,18 @@ export class FountainParser {
 
     _parseForcedAction() {
         if (this._lineTrim.startsWith("!")) {
-            this._addElement(new ScreenplayAction(this._lineTrim.slice(1), true));
+            // ACTION Logic: Remove tabs
+            const text = this._lineTrim.slice(1).replace(/\t/g, '    ');
+            this._addElement(new Action(text, true));
             return true;
         }
         return false;
     }
 
     _parseAction() {
-        this._addElement(new ScreenplayAction(this._line));
+        // ACTION Logic: Remove tabs
+        const text = this._line.replace(/\t/g, '    ');
+        this._addElement(new Action(text));
     }
 
     // Returns null if there is no content to continue parsing
@@ -486,7 +491,7 @@ export class FountainParser {
         let lastTag = -1;
         while (open > -1 && close > open) {
             let boneyardText = this._line.slice(open + 2, close);
-            this.script.boneyards.push(new ScreenplayBoneyard(boneyardText));
+            this.script.boneyards.push(new Boneyard(boneyardText));
             let tag = `/*${this.script.boneyards.length - 1}*/`;
             this._line = this._line.slice(0, open) + tag + this._line.slice(close + 2);
             lastTag = open + tag.length;
@@ -500,7 +505,7 @@ export class FountainParser {
             let idx = this._line.indexOf("/*", lastTag > -1 ? lastTag : 0);
             if (idx > -1) { // Move into boneyard
                 this._lineBeforeBoneyard = this._line.slice(0, idx);
-                this._boneyard = new ScreenplayBoneyard(this._line.slice(idx + 2));
+                this._boneyard = new Boneyard(this._line.slice(idx + 2));
                 return true;
             }
 
@@ -533,7 +538,7 @@ export class FountainParser {
         let lastTag = -1;
         while (open > -1 && close > open) {
             let noteText = this._line.slice(open + 2, close);
-            this.script.notes.push(new ScreenplayNote(noteText));
+            this.script.notes.push(new Note(noteText));
             let tag = `[[${this.script.notes.length - 1}]]`;
             this._line = this._line.slice(0, open) + tag + this._line.slice(close + 2);
             lastTag = open + tag.length;
@@ -547,7 +552,7 @@ export class FountainParser {
             let idx = this._line.indexOf("[[", lastTag > -1 ? lastTag : 0);
             if (idx > -1) { // Move into notes
                 this._lineBeforeNote = this._line.slice(0, idx);
-                this._note = new ScreenplayNote(this._line.slice(idx + 2));
+                this._note = new Note(this._line.slice(idx + 2));
                 this._line = this._lineBeforeNote;
                 return true;
             }
@@ -593,17 +598,16 @@ export class FountainParser {
             return false;
         }
 
-        this._addElement(new ScreenplaySection(depth, this._lineTrim.slice(depth).trim()));
+        this._addElement(new Section(depth, this._lineTrim.slice(depth).trim()));
         return true;
     }
 
     _extractTags(line) {
-        const regex = /\s#([^\s#][^#]*?)(?=\s|$)/g;
         let tags = [];
         let match;
         let firstMatchIndex = null;
 
-        while ((match = regex.exec(line)) !== null) {
+        while ((match = REGEX_TAGS.exec(line)) !== null) {
             if (firstMatchIndex === null) {
                 firstMatchIndex = match.index;
             }
