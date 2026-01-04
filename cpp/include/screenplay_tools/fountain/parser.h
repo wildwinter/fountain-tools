@@ -109,6 +109,8 @@ protected:
   bool _parseForcedAction();
   bool _parseCenteredAction();
   void _parseAction();
+  std::shared_ptr<Action> _createAction(const std::string &text,
+                                        bool forced = false);
 
   bool _parsePageBreak();
 

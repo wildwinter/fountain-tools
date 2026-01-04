@@ -343,7 +343,7 @@ public class Parser
             {
                 Type = ElementType.TRANSITION,
                 Element = new Transition(_lineTrim),
-                Backup = new Action(_lineTrim.Replace("\t", "    "))
+                Backup = CreateAction(_lineTrim)
             });
             return true;
         }
@@ -416,7 +416,7 @@ public class Parser
                 {
                     Type = ElementType.CHARACTER,
                     Element = new Character(character.Name, character.Extension, character.Dual),
-                    Backup = new Action(_lineTrim.Replace("\t", "    "))
+                    Backup = CreateAction(_lineTrim)
                 });
                 return true;
             }
@@ -473,7 +473,7 @@ public class Parser
     {
         if (_lineTrim.StartsWith("!"))
         {
-            AddElement(new Action(_lineTrim.Substring(1).Replace("\t", "    "), forced: true));
+            AddElement(CreateAction(_lineTrim.Substring(1), forced: true));
             return true;
         }
         return false;
@@ -484,10 +484,8 @@ public class Parser
         if (_lineTrim.StartsWith(">") && _lineTrim.EndsWith("<"))
         {
             var content = _lineTrim.Substring(1, _lineTrim.Length - 2);
-            var centeredElement = new Action(content.Replace("\t", "    "))
-            {
-                Centered = true
-            };
+            var centeredElement = CreateAction(content, forced: false);
+            centeredElement.Centered = true;
             AddElement(centeredElement);
             return true;
         }
@@ -496,7 +494,7 @@ public class Parser
 
     private void ParseAction()
     {
-        AddElement(new Action(_line.Replace("\t", "    ")));
+        AddElement(CreateAction(_line));
     }
 
 
@@ -658,4 +656,9 @@ public class Parser
         public required string Text { get; set; }
         public string? SceneNumber { get; set; }
     };
+
+    private Action CreateAction(string text, bool forced = false)
+    {
+        return new Action(text.Replace("\t", "    "), forced);
+    }
 }

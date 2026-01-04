@@ -297,8 +297,8 @@ export class FountainParser {
 
         if (this._lineTrim.startsWith('>') && this._lineTrim.endsWith('<')) {
             // ACTION Logic: Remove tabs
-            const text = this._lineTrim.slice(1, this._lineTrim.length - 1).replace(/\t/g, '    ');
-            let newElem = new Action(text);
+            const text = this._lineTrim.slice(1, this._lineTrim.length - 1);
+            let newElem = this.createAction(text);
             newElem.centered = true;
             this._addElement(newElem);
             return true;
@@ -342,14 +342,11 @@ export class FountainParser {
         if (REGEX_FORCED_TRANSITION.test(this._line) && isWhitespaceOrEmpty(this._lastLine)) {
 
             if (this._lastLineEmpty) {
-                // ACTION Logic: Remove tabs
-                const actionText = this._lineTrim.replace(/\t/g, '    ');
-
                 // Can't commit to which this is until we've checked the next line is empty.
                 this._pending.push({
                     type: ElementType.TRANSITION,
                     element: new Transition(this._lineTrim),
-                    backup: new Action(actionText)
+                    backup: this.createAction(this._lineTrim)
                 });
 
                 return true;
@@ -413,14 +410,11 @@ export class FountainParser {
 
             let charElem = new Character(character.name, character.extension, character.dual);
 
-            // ACTION Logic: Remove tabs
-            const actionText = this._lineTrim.replace(/\t/g, '    ');
-
             // Can't commit to which this is until we've checked the next line isn't empty.
             this._pending.push({
                 type: ElementType.CHARACTER,
                 element: charElem,
-                backup: new Action(actionText)
+                backup: this.createAction(this._lineTrim)
             });
 
             return true;
@@ -469,8 +463,8 @@ export class FountainParser {
     _parseForcedAction() {
         if (this._lineTrim.startsWith("!")) {
             // ACTION Logic: Remove tabs
-            const text = this._lineTrim.slice(1).replace(/\t/g, '    ');
-            this._addElement(new Action(text, true));
+            const text = this._lineTrim.slice(1);
+            this._addElement(this.createAction(text, true));
             return true;
         }
         return false;
@@ -478,8 +472,7 @@ export class FountainParser {
 
     _parseAction() {
         // ACTION Logic: Remove tabs
-        const text = this._line.replace(/\t/g, '    ');
-        this._addElement(new Action(text));
+        this._addElement(this.createAction(this._line));
     }
 
     // Returns null if there is no content to continue parsing
@@ -616,5 +609,9 @@ export class FountainParser {
 
         const untagged = firstMatchIndex !== null ? line.substring(0, firstMatchIndex).trimEnd() : line;
         return { untagged: untagged, tags: tags };
+    }
+
+    createAction(text, forced = false) {
+        return new Action(text.replace(/\t/g, '    '), forced);
     }
 }

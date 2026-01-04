@@ -311,7 +311,7 @@ bool Parser::_parseTransition() {
     // Pending - only counts as an actual transition if the next line is empty
     _pending.push_back(std::make_shared<PendingElement>(PendingElement{
         ElementType::TRANSITION, std::make_shared<Transition>(_lineTrim),
-        std::make_shared<Action>(replaceAll(_lineTrim, "\t", "    "))}));
+        _createAction(_lineTrim)}));
     return true;
   }
 
@@ -407,7 +407,7 @@ bool Parser::_parseCharacter() {
           ElementType::CHARACTER,
           std::make_shared<Character>(character.name, character.extension,
                                       character.dual),
-          std::make_shared<Action>(replaceAll(_lineTrim, "\t", "    "))}));
+          _createAction(_lineTrim)}));
 
       return true;
     }
@@ -460,8 +460,7 @@ bool Parser::_parseDialogue() {
 
 bool Parser::_parseForcedAction() {
   if (_lineTrim.rfind("!", 0) == 0) {
-    _addElement(std::make_shared<Action>(
-        replaceAll(_lineTrim.substr(1), "\t", "    "), true));
+    _addElement(_createAction(_lineTrim.substr(1), true));
     return true;
   }
   return false;
@@ -474,8 +473,7 @@ bool Parser::_parseCenteredAction() {
     // Extract the content between ">" and "<"
     std::string content = _lineTrim.substr(1, _lineTrim.length() - 2);
 
-    auto centeredElement =
-        std::make_shared<Action>(replaceAll(content, "\t", "    "));
+    auto centeredElement = _createAction(content);
     centeredElement->setCentered(true);
 
     _addElement(centeredElement);
@@ -485,9 +483,7 @@ bool Parser::_parseCenteredAction() {
   return false;
 }
 
-void Parser::_parseAction() {
-  _addElement(std::make_shared<Action>(replaceAll(_line, "\t", "    ")));
-}
+void Parser::_parseAction() { _addElement(_createAction(_line)); }
 
 bool Parser::_parsePageBreak() {
   if (_lineTrim.find("===") != std::string::npos) {
@@ -668,6 +664,11 @@ Parser::_extractTags(const std::string &line) {
   untagged.erase(untagged.find_last_not_of(" \t\r\n") + 1);
 
   return {untagged, tags};
+}
+
+std::shared_ptr<Action> Parser::_createAction(const std::string &text,
+                                              bool forced) {
+  return std::make_shared<Action>(replaceAll(text, "\t", "    "), forced);
 }
 
 } // namespace Fountain
