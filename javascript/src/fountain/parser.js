@@ -6,7 +6,7 @@ import {
     ScreenplayAction, ScreenplaySceneHeading, ScreenplayCharacter,
     ScreenplayDialogue, ScreenplayParenthetical, ScreenplayLyric,
     ScreenplayTransition, ScreenplayPageBreak, ScreenplayNote,
-    ScreenplayBoneyard, ScreenplaySection, Screenplay,
+    ScreenplayBoneyard, ScreenplaySection, Script,
     ScreenplaySynopsis
 } from "../screenplay.js";
 
@@ -18,7 +18,7 @@ function isWhitespaceOrEmpty(line) {
 export class FountainParser {
 
     constructor() {
-        this.script = new Screenplay();
+        this.script = new Script();
 
         this.mergeActions = true;
         this.mergeDialogue = true;

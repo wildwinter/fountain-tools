@@ -10,7 +10,7 @@ export class FountainWriter {
         this._lastChar = null;
     }
 
-    // Expects Screenplay
+    // Expects Script
     // returns utf-8 string
     write(script) {
 

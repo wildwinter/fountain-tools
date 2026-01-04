@@ -5,7 +5,7 @@ import { loadTestFile } from '../../test/testUtils.js';
 import { strict as assert } from 'assert';
 import { FountainWriter } from '../../src/fountain/writer.js';
 import { FountainParser } from '../../src/fountain/parser.js';
-import { Screenplay, ScreenplayAction, ScreenplayCharacter, ScreenplayDialogue } from '../../src/screenplay.js';
+import { Script, ScreenplayAction, ScreenplayCharacter, ScreenplayDialogue } from '../../src/screenplay.js';
 
 describe('Writer', () => {
 
@@ -53,7 +53,7 @@ describe('Writer', () => {
 
             const match = loadTestFile('Append-output.fountain');
 
-            const script = new Screenplay();
+            const script = new Script();
             script.addElement(new ScreenplayCharacter("FRED"));
             script.addElement(new ScreenplayDialogue("Test dialogue."));
             script.addElement(new ScreenplayCharacter("FRED"), true);

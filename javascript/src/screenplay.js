@@ -195,7 +195,7 @@ export class ScreenplaySynopsis extends ScreenplayElement {
 
 
 // Parsed script
-export class Screenplay {
+export class Script {
 
     constructor() {
         this.titleEntries = [];
