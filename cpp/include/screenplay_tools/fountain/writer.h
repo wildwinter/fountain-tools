@@ -6,10 +6,7 @@
 
 #include "../screenplay.h"
 #include <memory>
-#include <regex>
-#include <sstream>
 #include <string>
-#include <vector>
 
 namespace ScreenplayTools {
 namespace Fountain {

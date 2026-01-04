@@ -3,7 +3,7 @@
 
 #include "screenplay_tools/fountain/parser.h"
 #include "screenplay_tools/utils.h"
-#include <iostream>
+#include <regex>
 #include <sstream>
 
 namespace ScreenplayTools {

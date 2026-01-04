@@ -2,7 +2,7 @@
 // for details. Copyright (c) 2024 Ian Thomas
 
 #include "screenplay_tools/screenplay.h"
-#include <iostream>
+#include "screenplay_tools/utils.h"
 #include <regex>
 #include <unordered_map>
 

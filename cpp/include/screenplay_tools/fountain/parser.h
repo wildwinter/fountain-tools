@@ -7,7 +7,6 @@
 #include "screenplay_tools/screenplay.h"
 #include <memory>
 #include <optional>
-#include <regex>
 #include <string>
 #include <vector>
 

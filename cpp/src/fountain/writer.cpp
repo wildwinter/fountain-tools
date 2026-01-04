@@ -3,6 +3,8 @@
 
 #include "screenplay_tools/fountain/writer.h"
 #include "screenplay_tools/utils.h"
+#include <regex>
+#include <sstream>
 
 namespace ScreenplayTools {
 namespace Fountain {

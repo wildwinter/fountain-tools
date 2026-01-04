@@ -4,9 +4,7 @@
 #ifndef SCREENPLAY_H
 #define SCREENPLAY_H
 
-#include "utils.h"
 #include <algorithm> // For std::find
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>

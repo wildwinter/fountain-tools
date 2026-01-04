@@ -5,8 +5,8 @@ project(ScreenplayTools LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add include directory
-include_directories(include)
+# Export compile commands for IDE support
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Source files
 file(GLOB LIB_SOURCES "src/*.cpp" "src/fountain/*.cpp")
@@ -15,6 +15,9 @@ file(GLOB LIB_HEADERS "include/screenplay_tools/*.h" "include/screenplay_tools/f
 # Create the library (static or shared)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 add_library(${PROJECT_NAME} ${LIB_SOURCES} ${LIB_HEADERS})
+
+# Set include directories for the target
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 # Set properties for export
 set_target_properties(${PROJECT_NAME} PROPERTIES
