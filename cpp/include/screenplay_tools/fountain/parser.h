@@ -4,7 +4,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../screenplay.h"
+#include "screenplay_tools/screenplay.h"
 #include <memory>
 #include <optional>
 #include <regex>
