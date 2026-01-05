@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Source files
-file(GLOB LIB_SOURCES "src/*.cpp" "src/fountain/*.cpp")
-file(GLOB LIB_HEADERS "include/screenplay_tools/*.h" "include/screenplay_tools/fountain/*.h")
+file(GLOB LIB_SOURCES "src/*.cpp" "src/fountain/*.cpp" "src/fdx/*.cpp")
+file(GLOB LIB_HEADERS "include/screenplay_tools/*.h" "include/screenplay_tools/fountain/*.h" "include/screenplay_tools/fdx/*.h")
 
 # Create the library (static or shared)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
@@ -31,13 +31,14 @@ install(TARGETS ${PROJECT_NAME}
     PUBLIC_HEADER DESTINATION include/screenplay_tools
 )
 
-# Add a test executable
+# Add test executable
 add_executable(tests 
     test/catch_amalgamated.cpp
     test/fountain/test_parser.cpp
     test/fountain/test_format_helper.cpp
     test/fountain/test_callback_parser.cpp
     test/fountain/test_writer.cpp
+    test/fdx/test_parser.cpp
     test/test_utils.cpp)
 
 # Link the library to the test executable

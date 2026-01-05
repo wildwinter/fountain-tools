@@ -26,8 +26,6 @@ The main `Parser` class turns the raw Fountain files into a `Script` object repr
 
 **The `FDX` module provides methods for reading and writing Final Draft (.fdx) files.**
 
-Currently this is only available in the **C#**, **Javascript** and **Python** versions of the library.
-
 The `FDX.Parser` class turns the FDX XML files into a `Script` object. The `FDX.Writer` class turns a `Script` into an FDX file.
 
 ## Contents
