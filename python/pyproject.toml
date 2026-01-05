@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "screenplay-tools"
-version = "0.0.9"
-description = "Utils for working with screenplays and the Fountain scriptwriting format."
+version = "0.0.10"
+description = "Utils for working with screenplays and the Fountain and FDX scriptwriting formats."
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
   { name="wildwinter", email="ian@wildwinter.net" }
