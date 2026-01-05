@@ -26,7 +26,7 @@ public class Writer
             )
         );
 
-        var content = doc.Root.Element("Content");
+        var content = doc?.Root?.Element("Content");
 
         foreach (var element in script.Elements)
         {
@@ -83,9 +83,9 @@ public class Writer
                 new XElement("Text", text)
             );
             
-            content.Add(p);
+            content?.Add(p);
         }
 
-        return doc.Declaration + "\n" + doc.ToString();
+        return doc?.Declaration + "\n" + doc?.ToString();
     }
 }
