@@ -1,8 +1,6 @@
 # screenplay-tools
 
-**screenplay-tools** is a set of libraries for representing a format-agnostic screenplay format, with support for import and export to the [Fountain](https://fountain.io/) script-writing language. These libraries are written in **C++**, **Javascript**, **Python**, and **C#**.
-
-The current version of this library only support parsing and writing to the Fountain format, but it will be extended for other formats.
+**screenplay-tools** is a set of libraries for representing a format-agnostic screenplay format, with support for import and export to the [Fountain](https://fountain.io/) script-writing language and [Final Draft](https://finaldraft.com/) FDX files. These libraries are written in **C++**, **Javascript**, **Python**, and **C#**.
 
 ## Fountain
 
@@ -23,6 +21,14 @@ Dave is standing in the open window looking out at the pouring rain.
 [Fountain](https://fountain.io/syntax/) is a simple plaintext format for movie and TV scripts. It's also used as an export and import format by multiple script-writing apps, such as **Fade In**, **Highland**, **Final Draft**, **Slugline** and others.
 
 The main `Parser` class turns the raw Fountain files into a `Script` object representing the screenplay, which you can do what you want with. The `Writer` class turns a `Script` into a Fountain file. This is all UTF-8 compatible!
+
+## FDX (Final Draft)
+
+**The `FDX` module provides methods for reading and writing Final Draft (.fdx) files.**
+
+Currently this is only available in the **C#** version of the library.
+
+The `FDX.Parser` class turns the FDX XML files into a `Script` object. The `FDX.Writer` class turns a `Script` into an FDX file.
 
 ## Contents
 
@@ -48,6 +54,8 @@ The main `Parser` class turns the raw Fountain files into a `Script` object repr
   * [`ScreenplayTools.Fountain.CallbackParser`](#callbackparser)
   * [`ScreenplayTools.Fountain.Writer`](#writer)
   * [`ScreenplayTools.Fountain.FormatHelper`](#formathelper)
+  * [`ScreenplayTools.FDX.Parser`](#fdx-parser)
+  * [`ScreenplayTools.FDX.Writer`](#fdx-writer)
 * [Contributors](#contributors)
 * [License](#license)
 
@@ -108,7 +116,7 @@ CHARACTER: { name: "COLIN", extension: "O.S." }
 DIALOGUE: { text: "Oh no. Not again." }
 ```
 
-You can then do what you like with the objects.
+You can then do what you like with the objects. The same is achieveable from Final Draft (FDX) format, through `FDX.Parser`.
 
 An alternative parser, `Fountain.CallbackParser`, will gather up material and call back using your supplied functions during parsing. In particular, it gathers dialogue lines together with characters, which is often more useful if you want to display dialogue on-screen for some reason.
 
@@ -766,6 +774,24 @@ Pass in a Script, get back a UTF-8 string.
 #### fountainToHtml
 
 Convert Fountain markup (*italic*, **bold**, ***bolditalic*** *underline*) to HTML.
+
+### FDX Parser
+
+    C#: ScreenplayTools.FDX.Parser
+
+The FDX parser reads a Final Draft XML file.
+
+#### Parse(xml:string)
+
+Parses the FDX XML string and returns a `Script` object.
+
+### FDX Writer
+
+    C#: ScreenplayTools.FDX.Writer
+
+#### Write(script:Script)
+
+Takes a `Script` object and returns a string containing the FDX XML.
 
 ## Contributors
 
