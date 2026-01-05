@@ -1,7 +1,7 @@
 {
   "name": "screenplay-tools",
-  "version": "0.0.8",
-  "description": "Multi-language utils for parsing and writing screenplays in the Fountain scriptwriting format, among others.",
+  "version": "0.0.9",
+  "description": "Multi-language utils for parsing and writing screenplays in the Fountain and FDX scriptwriting formats.",
   "scripts": {
     "clean": "npm run clean:all",
     "clean:cpp": "cd cpp && npm run clean",
