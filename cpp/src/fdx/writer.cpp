@@ -33,8 +33,11 @@ std::string Writer::Write(const Script &script) {
       pType = "Character";
       {
         auto charElem = std::dynamic_pointer_cast<Character>(element);
-        if (charElem && charElem->getExtension().has_value()) {
-          text += " (" + charElem->getExtension().value() + ")";
+        if (charElem) {
+          text = charElem->getName();
+          if (charElem->getExtension().has_value()) {
+            text += " (" + charElem->getExtension().value() + ")";
+          }
         }
       }
       break;

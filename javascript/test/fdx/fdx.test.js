@@ -63,6 +63,19 @@ describe('FDX Parser/Writer', function () {
         assert.include(xmlOutput, "INT. RADIO STUDIO");
     });
 
+    it('should round-trip FDX -> Script -> FDX (write file)', function () {
+        const fdxPath = path.join(rootPath, 'TestFDX-FD.fdx');
+        const xmlOriginal = fs.readFileSync(fdxPath, 'utf8');
+
+        const parser = new FDXParser();
+        const script = parser.parse(xmlOriginal);
+
+        const writer = new FDXWriter();
+        const xmlOutput = writer.write(script);
+
+        fs.writeFileSync(path.join(rootPath, 'TestFDX-FD-Write-js.fdx'), xmlOutput);
+    });
+
     it('should match Fountain parsing results', function () {
         const testPairs = [
             { fdx: "TestFDX-FD.fdx", fountain: "TestFDX-FD.fountain" },

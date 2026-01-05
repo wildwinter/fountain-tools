@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FinalDraft DocumentType="Script" Template="No" Version="1">
+  <Content>
+    <Paragraph Type="Scene Heading">
+      <Text>INT. RADIO STUDIO</Text>
+    </Paragraph>
+    <Paragraph Type="Action">
+      <Text>We are in a TV station listening to the announcer on the other site of the glass.</Text>
+    </Paragraph>
+    <Paragraph Type="Character">
+      <Text>DJ</Text>
+    </Paragraph>
+    <Paragraph Type="Parenthetical">
+      <Text>(bored)</Text>
+    </Paragraph>
+    <Paragraph Type="Dialogue">
+      <Text>Hey everyone, this is some music that sounds kinda terrible.</Text>
+    </Paragraph>
+    <Paragraph Type="Action">
+      <Text>Dave is at the coffee machine.</Text>
+    </Paragraph>
+    <Paragraph Type="Character">
+      <Text>DAVE</Text>
+    </Paragraph>
+    <Paragraph Type="Dialogue">
+      <Text>Why do we pay him?</Text>
+    </Paragraph>
+    <Paragraph Type="Character">
+      <Text>JIM (O.S.)</Text>
+    </Paragraph>
+    <Paragraph Type="Dialogue">
+      <Text>Because he helps us test this screenplay.</Text>
+    </Paragraph>
+    <Paragraph Type="Transition">
+      <Text>CUT TO:</Text>
+    </Paragraph>
+    <Paragraph Type="Scene Heading">
+      <Text>EXT. OUTSIDE THE FOOD STORE</Text>
+    </Paragraph>
+    <Paragraph Type="Action">
+      <Text>We are standing outside the food store. Kay is looking at the posters in the window.</Text>
+    </Paragraph>
+    <Paragraph Type="Character">
+      <Text>KAY</Text>
+    </Paragraph>
+    <Paragraph Type="Dialogue">
+      <Text>Maybe there's a job for me here.</Text>
+    </Paragraph>
+    <Paragraph Type="Transition">
+      <Text>FADE TO BLACK</Text>
+    </Paragraph>
+  </Content>
+</FinalDraft>

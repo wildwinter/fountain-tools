@@ -23,6 +23,7 @@ class Writer:
                 p_type = "Action"
             elif element.type == ElementType.CHARACTER:
                 p_type = "Character"
+                text = element.name
                 if element.extension:
                     text += f" ({element.extension})"
             elif element.type == ElementType.DIALOGUE:
@@ -41,7 +42,7 @@ class Writer:
             text_elem.text = text
 
         # Pretty print
-        xml_str = minidom.parseString(ET.tostring(root)).toprettyxml(indent="    ")
+        # encoding="UTF-8" ensures the declaration includes encoding="UTF-8", but returns bytes.
+        xml_bytes = minidom.parseString(ET.tostring(root)).toprettyxml(indent="    ", encoding="UTF-8")
         
-        # minidom adds <?xml version="1.0" ?> by default.
-        return xml_str
+        return xml_bytes.decode("utf-8")

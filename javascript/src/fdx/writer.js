@@ -41,6 +41,7 @@ export class FDXWriter {
                     break;
                 case ElementType.CHARACTER:
                     type = "Character";
+                    text = element.name;
                     if (element.extension) {
                         text += ` (${element.extension})`;
                     }

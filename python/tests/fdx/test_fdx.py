@@ -54,6 +54,20 @@ class TestFDX(unittest.TestCase):
         
         self.assertIn("<FinalDraft", xml_output)
         self.assertIn("INT. RADIO STUDIO", xml_output)
+
+    def test_write_fdx(self):
+        fdx_path = os.path.join(self.root_path, 'TestFDX-FD.fdx')
+        with open(fdx_path, 'r', encoding='utf-8') as f:
+            xml_content = f.read()
+        
+        parser = FDXParser()
+        script = parser.parse(xml_content)
+        
+        writer = FDXWriter()
+        xml_output = writer.write(script)
+
+        with open(os.path.join(self.root_path, 'TestFDX-FD-Write-py.fdx'), "w", encoding="utf-8") as f:
+            f.write(xml_output)
         
     def test_comparison_fountain(self):
         test_pairs = [

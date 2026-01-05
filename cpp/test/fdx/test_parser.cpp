@@ -6,6 +6,7 @@
 #include "screenplay_tools/fdx/parser.h"
 #include "screenplay_tools/fdx/writer.h"
 #include "screenplay_tools/fountain/parser.h"
+#include <fstream>
 
 using namespace ScreenplayTools;
 
@@ -48,6 +49,32 @@ TEST_CASE("FDX Parser", "[fdx]") {
     REQUIRE(script2.getElements().size() == script.getElements().size());
     CHECK(script2.getElements()[0]->getText() ==
           script.getElements()[0]->getText());
+  }
+
+  SECTION("File Write") {
+    std::string fdxContent = loadTestFile("../tests/TestFDX-FD.fdx");
+    FDX::Parser parser;
+    Script script = parser.Parse(fdxContent);
+
+    FDX::Writer writer;
+    std::string output = writer.Write(script);
+
+    CHECK(output.find("<FinalDraft") != std::string::npos);
+    CHECK(output.find("INT. RADIO STUDIO") != std::string::npos);
+
+    // Parse output back
+    Script script2 = parser.Parse(output);
+    REQUIRE(script2.getElements().size() == script.getElements().size());
+    CHECK(script2.getElements()[0]->getText() ==
+          script.getElements()[0]->getText());
+
+    // Write to file
+    std::string outputPath =
+        std::filesystem::absolute("../../tests/TestFDX-FD-Write-cpp.fdx")
+            .string();
+    std::ofstream outputFile(outputPath);
+    outputFile << output;
+    outputFile.close();
   }
 
   SECTION("Comparison with Fountain") {

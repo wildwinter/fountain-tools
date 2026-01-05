@@ -72,6 +72,23 @@ public class FDXTests
     }
 
     [Fact]
+    public void TestFileWrite()
+    {
+        var fdxPath = Path.Combine(_rootPath, "TestFDX-FD.fdx");
+        var xmlOriginal = File.ReadAllText(fdxPath);
+        
+        var parser = new Parser();
+        var script = parser.Parse(xmlOriginal);
+        
+        var writer = new Writer();
+        var xmlOutput = writer.Write(script);
+        
+        Assert.NotNull(xmlOutput);
+        
+        File.WriteAllText(Path.Combine(_rootPath, "TestFDX-FD-Write-csharp.fdx"), xmlOutput);
+    }
+
+    [Fact]
     public void TestCompareFountainAndFDX()
     {
         // Files to compare
