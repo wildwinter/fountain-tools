@@ -6,3 +6,5 @@ export * from "./fountain/parser";
 export * from "./fountain/callbackParser";
 export * from "./fountain/formatHelper";
 export * from "./fountain/writer";
+export * from "./fdx/parser";
+export * from "./fdx/writer";
