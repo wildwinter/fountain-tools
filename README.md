@@ -61,7 +61,7 @@ The `FDX.Parser` class turns the FDX XML files into a `Script` object. The `FDX.
 
 The `Fountain.Parser` supplied in the tools will take this:
 
-```
+```text
 INT. DAVE'S APARTMENT - DAY
 
 Dave is standing in the open window looking out at the pouring rain.
@@ -247,7 +247,7 @@ I've extended the definition of Fountain files to introduce the concept of **tag
 
 An example is like so
 
-```
+```text
 INT. DAVE'S APARTMENT - DAY #slow_load
 
 Dave is standing in the open window looking out at the pouring rain.
